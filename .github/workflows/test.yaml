@@ -1,0 +1,39 @@
+name: Testing
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  testing:
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+    strategy:
+      matrix:
+        LUA: ['luajit-2.0.5', 'tarantool']
+      fail-fast: false
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Setup Tarantool
+        if: matrix.LUA == 'tarantool'
+        uses: tarantool/setup-tarantool@v1
+        with:
+          tarantool-version: '2.10'
+
+      - name: Setup LuaJIT (${{ matrix.LUA }})
+        if: matrix.LUA != 'tarantool'
+        uses: leafo/gh-actions-lua@v8
+        with:
+          luaVersion: ${{ matrix.LUA }}
+
+      - name: Setup luarocks
+        run: sudo apt install -y luarocks
+
+      - name: Setup dependencies
+        run: make deps
+
+      - run: echo $(luarocks path --lr-bin) >> $GITHUB_PATH
