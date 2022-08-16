@@ -1,0 +1,30 @@
+name: Static analysis
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  static-analysis:
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup luarocks
+        run: sudo apt install -y luarocks
+
+      - name: Setup luacheck
+        run: luarocks --local install luacheck
+
+      - run: echo $(luarocks path --lr-bin) >> $GITHUB_PATH
+
+      - name: Run luacheck
+        run: luacheck .
+
+      - run: luarocks lint luzer-scm-1.rockspec

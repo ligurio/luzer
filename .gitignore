@@ -1,0 +1,7 @@
+build
+build.luarocks
+crash-*
+.ccls-cache
+.luarc.json
+.rocks
+tags

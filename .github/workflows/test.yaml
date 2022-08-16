@@ -1,0 +1,53 @@
+name: Testing
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  testing:
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+    strategy:
+      matrix:
+        LIBLUA:
+          - "5.4"
+          - "5.3"
+          - "5.2"
+          - "5.1"
+      fail-fast: false
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup common packages
+        run: sudo apt install -y clang-14 libclang-common-14-dev
+
+      - name: Setup Lua 5.1 packages
+        run: sudo apt install -y lua5.1 liblua5.1-0-dev
+        if: ${{ matrix.LIBLUA == '5.1' }}
+
+      - name: Setup Lua 5.2 packages
+        run: sudo apt install -y lua5.2 liblua5.2-dev
+        if: ${{ matrix.LIBLUA == '5.2' }}
+
+      - name: Setup Lua 5.3 packages
+        run: sudo apt install -y lua5.3 liblua5.3-dev
+        if: ${{ matrix.LIBLUA == '5.3' }}
+
+      - name: Setup Lua 5.4 packages
+        run: sudo apt install -y lua5.4 liblua5.4-dev
+        if: ${{ matrix.LIBLUA == '5.4' }}
+
+      - name: Running CMake
+        run: cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DENABLE_TESTING=ON -S . -B build
+
+      - name: Building
+        run: cmake --build build --parallel $(nproc)
+
+      - name: Testing
+        run: cmake --build build --target test
+        env:
+          CTEST_OUTPUT_ON_FAILURE: 1

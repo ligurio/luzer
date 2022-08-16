@@ -1,0 +1,59 @@
+name: Publish
+
+on:
+  push:
+    branches: [master]
+    tags: ['*']
+
+jobs:
+  publish-scm-1:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup luarocks
+        run: sudo apt install -y luarocks
+
+      - name: Setup cjson (required for upload)
+        run: luarocks install --local lua-cjson
+
+      - name: Upload rockspec scm-1
+        run: luarocks upload --force --api-key=${{ secrets.LUAROCKS_API_KEY }} luzer-scm-1.rockspec
+
+  publish-tag:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/luarocks/luarocks/wiki/Types-of-rocks
+      - uses: actions/checkout@v3
+
+      - name: Setup luarocks
+        run: sudo apt install -y luarocks
+
+      # Make a release.
+      - run: |
+          echo TAG=${GITHUB_REF##*/} >> $GITHUB_ENV
+          luarocks new_version --tag ${{ env.TAG }}
+          luarocks install luzer-${{ env.TAG }}-1.rockspec
+          luarocks pack luzer-${{ env.TAG }}-1.rockspec
+
+      - name: Upload .rockspec and .src.rock ${{ env.TAG }}
+        run: |
+            luarocks upload --api-key=${{ secrets.LUAROCKS_API_KEY }} luzer-${{ env.TAG }}-1.rockspec
+            luarocks upload --api-key=${{ secrets.LUAROCKS_API_KEY }} luzer-${{ env.TAG }}-1.src.rock
+
+  build-rock:
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: sudo apt install -y luarocks lua5.2 liblua5.2-dev libclang-common-14-dev clang-14
+
+      - run: luarocks --local build luzer-scm-1.rockspec
+
+      - run: luarocks --local make
