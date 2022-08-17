@@ -1,6 +1,6 @@
 [![Static analysis](https://github.com/ligurio/luzer/actions/workflows/check.yaml/badge.svg)](https://github.com/ligurio/luzer/actions/workflows/check.yaml)
 [![Testing](https://github.com/ligurio/luzer/actions/workflows/test.yaml/badge.svg)](https://github.com/ligurio/luzer/actions/workflows/test.yaml)
-[![Coverage Status](https://coveralls.io/repos/github/ligurio/luzer/badge.svg?branch=master)](https://coveralls.io/github/ligurio/luzer?branch=master)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
 # luzer: A Coverage-Guided, Native Lua Fuzzer
 
