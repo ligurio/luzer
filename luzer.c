@@ -145,9 +145,9 @@ luaL_fuzz(lua_State *L)
 }
 
 static const struct luaL_Reg Module[] = {
-	{"Setup", luaL_setup},
-	{"Fuzz", luaL_fuzz},
-	{NULL, NULL}
+	{ "Setup", luaL_setup },
+	{ "Fuzz", luaL_fuzz },
+	{ NULL, NULL }
 };
 
 /* A useful tool for generating various types of data from the arbitrary bytes

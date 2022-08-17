@@ -82,6 +82,112 @@ $ export LUA_PATH="$LUA_PATH;modules/lib/lua/5.3/?.lua"
 $ export LUA_CPATH="$LUA_CPATH;modules/lib/lua/5.3/?.so"
 ```
 
+## API
+
+The luzer module provides two key functions: `Setup()` and `Fuzz()`.
+
+- `Setup(args, test_one_input, internal_libfuzzer=None)`
+
+- `args`: A list of strings: the process arguments to pass to the fuzzer,
+  typically sys.argv. This argument list may be modified in-place, to remove
+arguments consumed by the fuzzer. See the LibFuzzer docs for a list of such
+options.
+- `test_one_input`: your fuzzer's entry point. Must take a single bytes
+  argument. This will be repeatedly invoked with a single bytes container.
+- `internal_libfuzzer`: Indicates whether libfuzzer will be provided by atheris
+  or by an external library (see native_extension_fuzzing.md). If unspecified,
+Atheris will determine this automatically. If fuzzing pure Python, leave this
+as True.
+
+- `Fuzz()`
+
+This starts the fuzzer. You must have called `Setup()` before calling this
+function. This function does not return.
+
+In many cases `Setup()` and `Fuzz()` could be combined into a single function,
+but they are separated because you may want the fuzzer to consume the
+command-line arguments it handles before passing any remaining arguments to
+another setup function.
+
+- `FuzzedDataProvider`
+
+Often, a `bytes` object is not convenient input to your code being fuzzed.
+Similar to libFuzzer, we provide a FuzzedDataProvider to translate these bytes
+into other input forms.
+
+You can construct the `FuzzedDataProvider` with:
+
+```lua
+fdp = atheris.FuzzedDataProvider(input_bytes)
+```
+
+The `FuzzedDataProvider` then supports the following functions:
+
+`def ConsumeBytes(count: int)`
+Consume `count` bytes.
+
+`def ConsumeUnicode(count: int)`
+Consume unicode characters. Might contain surrogate pair characters, which
+according to the specification are invalid in this situation. However, many
+core software tools (e.g. Windows file paths) support them, so other software
+often needs to too.
+
+`def ConsumeUnicodeNoSurrogates(count: int)`
+Consume unicode characters, but never generate surrogate pair characters.
+
+`def ConsumeString(count: int)`
+Alias for `ConsumeBytes` in Python 2, or `ConsumeUnicode` in Python 3.
+
+`def ConsumeInt(int: bytes)`
+Consume a signed integer of the specified size (when written in two's
+complement notation).
+
+`def ConsumeUInt(int: bytes)`
+Consume an unsigned integer of the specified size.
+
+`def ConsumeIntInRange(min: int, max: int)`
+Consume an integer in the range [min, max].
+
+`def ConsumeIntList(count: int, bytes: int)`
+Consume a list of count integers of size bytes.
+
+`def ConsumeIntListInRange(count: int, min: int, max: int)`
+Consume a list of count integers in the range [`min`, `max`].
+
+`def ConsumeFloat()`
+Consume an arbitrary floating-point value. Might produce weird values like `NaN`
+and `Inf`.
+
+`def ConsumeRegularFloat()`
+Consume an arbitrary numeric floating-point value; never produces a special
+type like `NaN` or `Inf`.
+
+`def ConsumeProbability()`
+Consume a floating-point value in the range [0, 1].
+
+`def ConsumeFloatInRange(min: float, max: float)`
+Consume a floating-point value in the range [`min`, `max`].
+
+`def ConsumeFloatList(count: int)`
+Consume a list of count arbitrary floating-point values. Might produce weird
+values like `NaN` and `Inf`.
+
+`def ConsumeRegularFloatList(count: int)`
+Consume a list of count arbitrary numeric floating-point values; never produces
+special types like `NaN` or `Inf`.
+
+`def ConsumeProbabilityList(count: int)`
+Consume a list of count floats in the range [0, 1].
+
+`def ConsumeFloatListInRange(count: int, min: float, max: float)`
+Consume a list of count floats in the range [`min`, `max`]
+
+`def PickValueInList(l: list)`
+Given a list, pick a random value
+
+`def ConsumeBool()`
+Consume either `true` or `false`.
+
 ## Hacking
 
 For developing `luzer` you need to install packages with libraries and headers
