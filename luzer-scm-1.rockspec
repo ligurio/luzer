@@ -33,7 +33,9 @@ build = {
   type = "builtin",
   modules = {
     hello = {
-      sources = {"luzer.c"}
+      sources = {
+          "luzer.c"
+      },
     }
   }
 }
