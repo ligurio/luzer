@@ -121,69 +121,126 @@ fdp = atheris.FuzzedDataProvider(input_bytes)
 
 The `FuzzedDataProvider` then supports the following functions:
 
-`def ConsumeBytes(count: int)`
+```lua
+def ConsumeBytes(count: int)
+```
+
 Consume `count` bytes.
 
-`def ConsumeUnicode(count: int)`
+```lua
+def ConsumeUnicode(count: int)
+```
+
 Consume unicode characters. Might contain surrogate pair characters, which
 according to the specification are invalid in this situation. However, many
 core software tools (e.g. Windows file paths) support them, so other software
 often needs to too.
 
-`def ConsumeUnicodeNoSurrogates(count: int)`
+```lua
+def ConsumeUnicodeNoSurrogates(count: int)
+```
+
 Consume unicode characters, but never generate surrogate pair characters.
 
-`def ConsumeString(count: int)`
+```lua
+def ConsumeString(count: int)
+```
+
 Alias for `ConsumeBytes` in Python 2, or `ConsumeUnicode` in Python 3.
 
-`def ConsumeInt(int: bytes)`
+```lua
+def ConsumeInt(int: bytes)
+```
+
 Consume a signed integer of the specified size (when written in two's
 complement notation).
 
-`def ConsumeUInt(int: bytes)`
+```lua
+def ConsumeUInt(int: bytes)
+```
+
 Consume an unsigned integer of the specified size.
 
-`def ConsumeIntInRange(min: int, max: int)`
+```lua
+def ConsumeIntInRange(min: int, max: int)
+```
+
 Consume an integer in the range [min, max].
 
-`def ConsumeIntList(count: int, bytes: int)`
+```lua
+def ConsumeIntList(count: int, bytes: int)
+```
+
 Consume a list of count integers of size bytes.
 
-`def ConsumeIntListInRange(count: int, min: int, max: int)`
+```lua
+def ConsumeIntListInRange(count: int, min: int, max: int)
+```
+
 Consume a list of count integers in the range [`min`, `max`].
 
-`def ConsumeFloat()`
+```lua
+def ConsumeFloat()
+```
+
 Consume an arbitrary floating-point value. Might produce weird values like `NaN`
 and `Inf`.
 
-`def ConsumeRegularFloat()`
+```lua
+def ConsumeRegularFloat()
+```
+
 Consume an arbitrary numeric floating-point value; never produces a special
 type like `NaN` or `Inf`.
 
-`def ConsumeProbability()`
+```lua
+def ConsumeProbability()
+```
+
 Consume a floating-point value in the range [0, 1].
 
-`def ConsumeFloatInRange(min: float, max: float)`
+```lua
+def ConsumeFloatInRange(min: float, max: float)
+```
+
 Consume a floating-point value in the range [`min`, `max`].
 
-`def ConsumeFloatList(count: int)`
+```lua
+def ConsumeFloatList(count: int)
+```
+
 Consume a list of count arbitrary floating-point values. Might produce weird
 values like `NaN` and `Inf`.
 
-`def ConsumeRegularFloatList(count: int)`
+```lua
+def ConsumeRegularFloatList(count: int)
+```
+
 Consume a list of count arbitrary numeric floating-point values; never produces
 special types like `NaN` or `Inf`.
 
-`def ConsumeProbabilityList(count: int)`
+```lua
+def ConsumeProbabilityList(count: int)
+```
+
 Consume a list of count floats in the range [0, 1].
 
-`def ConsumeFloatListInRange(count: int, min: float, max: float)`
+```lua
+def ConsumeFloatListInRange(count: int, min: float, max: float)
+```
+
 Consume a list of count floats in the range [`min`, `max`]
 
-`def PickValueInList(l: list)`
+```lua
+def PickValueInList(l: list)
+```
+
 Given a list, pick a random value
 
-`def ConsumeBool()`
+```lua
+def ConsumeBool()
+```
+
 Consume either `true` or `false`.
 
 ## Hacking
