@@ -5,8 +5,8 @@
 # luzer: A Coverage-Guided, Native Lua Fuzzer
 
 luzer is a coverage-guided Lua fuzzing engine. It supports fuzzing of Lua code,
-but also native extensions written for Lua. Lua is based off of
-[libFuzzer][libfuzzer-url]. When fuzzing native code, Lua can be used in
+but also native extensions written for Lua. Luzer is based off of
+[libFuzzer][libfuzzer-url]. When fuzzing native code, luzer can be used in
 combination with Address Sanitizer or Undefined Behavior Sanitizer to catch
 extra bugs.
 
