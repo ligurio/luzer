@@ -47,8 +47,6 @@ might want to use the `libfuzzer_mutator.lua` script. The environment variable
 script. The default path is `./libfuzzer_mutator.lua`. Then just run your fuzzing as
 shown in the examples above.
 
-API (see example: https://github.com/google/atheris):
-
 - `LLVMFuzzerCustomMutator()`
 - `LLVMFuzzerMutate()`
 
@@ -86,7 +84,7 @@ $ export LUA_CPATH="$LUA_CPATH;modules/lib/lua/5.3/?.so"
 
 The luzer module provides two key functions: `Setup()` and `Fuzz()`.
 
-- `Setup(args, test_one_input, internal_libfuzzer=None)`
+### `Setup(args, test_one_input, internal_libfuzzer=None)`
 
 - `args`: A list of strings: the process arguments to pass to the fuzzer,
   typically sys.argv. This argument list may be modified in-place, to remove
@@ -99,7 +97,7 @@ options.
 Atheris will determine this automatically. If fuzzing pure Python, leave this
 as True.
 
-- `Fuzz()`
+### `Fuzz()`
 
 This starts the fuzzer. You must have called `Setup()` before calling this
 function. This function does not return.
@@ -109,7 +107,7 @@ but they are separated because you may want the fuzzer to consume the
 command-line arguments it handles before passing any remaining arguments to
 another setup function.
 
-- `FuzzedDataProvider`
+### `FuzzedDataProvider`
 
 Often, a `bytes` object is not convenient input to your code being fuzzed.
 Similar to libFuzzer, we provide a FuzzedDataProvider to translate these bytes
