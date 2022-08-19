@@ -250,7 +250,7 @@ and CMake. On Debian: `apt install -y liblua5.1-0-dev libclang-common-14-dev
 libstdc++-11-dev cmake`.
 
 ```sh
-$ cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build
+$ cmake -S . -B build
 $ cmake --build build --parallel
 $ cmake --build build --target test
 ```

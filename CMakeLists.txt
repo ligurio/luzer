@@ -20,10 +20,11 @@ target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-s
 
 enable_testing()
 
-set(LUA_EXECUTABLE lua)
+set(LUA_EXECUTABLE luajit)
 
 add_test(
   COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test.lua
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 ## Install ####################################################################
