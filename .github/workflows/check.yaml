@@ -25,4 +25,4 @@ jobs:
       - run: echo $(luarocks path --lr-bin) >> $GITHUB_PATH
 
       - name: Run static analysis
-        run: luacheck .
+        run: luacheck --config .luacheckrc .
