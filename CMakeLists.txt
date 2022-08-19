@@ -9,33 +9,24 @@ message(STATUS "Found Lua  ${LUA_VERSION_STRING}")
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
-#### luaL_loadbuffer()
+add_library(${CMAKE_PROJECT_NAME} SHARED luzer.c)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR} ${LLVM_INCLUDE_DIRS} /usr/include/x86_64-linux-gnu/c++/11/)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LLVM_LIBRARIES})
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -Wall -Wextra -Wno-unused-parameter)
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++11 -stdlib=libc++ -stdlib=libstdc++ -pedantic -Wall>)
 
-add_executable(luaL_loadbuffer luaL_loadbuffer.c)
-target_include_directories(luaL_loadbuffer PRIVATE ${LUA_INCLUDE_DIR})
-target_link_libraries(luaL_loadbuffer PRIVATE ${LUA_LIBRARIES} -fsanitize=fuzzer)
-target_compile_options(luaL_loadbuffer PUBLIC -Wall -Wextra -Wno-unused-parameter -fsanitize=fuzzer)
-target_compile_options(luaL_loadbuffer PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++11>)
+## Install ####################################################################
+###############################################################################
 
-#### LibFuzzer Lua custom mutator example
+install(
+  TARGETS ${CMAKE_PROJECT_NAME}
+  DESTINATION ${LIBDIR}
+)
 
-add_executable(libfuzzer_mutator_example libfuzzer_mutator_example.cpp)
-target_link_libraries(libfuzzer_mutator_example PRIVATE -fsanitize=fuzzer)
-target_compile_options(libfuzzer_mutator_example PUBLIC -Wall -Wextra -Wno-unused-parameter -fsanitize=fuzzer)
-target_compile_options(libfuzzer_mutator_example PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++11>)
-
-#### LibFuzzer Lua custom mutator test
-
-add_executable(libfuzzer_mutator_test libfuzzer_mutator.cpp)
-target_include_directories(libfuzzer_mutator_test PRIVATE ${LUA_INCLUDE_DIR})
-target_link_libraries(libfuzzer_mutator_test PRIVATE ${LUA_LIBRARIES})
-target_compile_options(libfuzzer_mutator_test PUBLIC -Wall -Wextra -Wno-unused-parameter)
-target_compile_options(libfuzzer_mutator_test PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++11>)
-
-#### luzer
-
-add_library(luzer SHARED luzer.c)
-target_include_directories(luzer PRIVATE ${LUA_INCLUDE_DIR} ${LLVM_INCLUDE_DIRS} /usr/include/x86_64-linux-gnu/c++/11/)
-target_link_libraries(luzer PRIVATE ${LUA_LIBRARIES} ${LLVM_LIBRARIES})
-target_compile_options(luzer PUBLIC -Wall -Wextra -Wno-unused-parameter)
-target_compile_options(luzer PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++11 -stdlib=libc++ -stdlib=libstdc++ -pedantic -Wall>)
+install(
+  FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/README.md
+    ${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_mutator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_mutator.lua
+  DESTINATION ${LUADIR}/${PROJECT_NAME}/
+)

@@ -1,3 +1,4 @@
+rockspec_format = "3.0"
 package = 'luzer'
 version = 'scm-1'
 source = {
@@ -8,34 +9,20 @@ source = {
 description = {
     summary = 'A coverage-guided, native Lua fuzzer',
     homepage = 'https://github.com/ligurio/luzer',
+    issues_url = "https://github.com/ligurio/luzer/issues",
     maintainer = 'Sergey Bronnikov <estetus@gmail.com>',
     license = 'ISC',
+    labels = {
+        "testing",
+        "fuzzing",
+        "libfuzzer",
+    },
 }
 
-dependencies = {
-    'lua >= 5.1',
-}
-
---[[
 build = {
-    type = 'make',
-    -- Nothing to build.
-    build_pass = false,
+    type = "cmake",
     variables = {
-        LUADIR='$(LUADIR)',
+        LUADIR = "$(LUADIR)",
+        LIBDIR = "$(LIBDIR)",
     },
-    copy_directories = {
-    },
-}
-]]
-
-build = {
-  type = "builtin",
-  modules = {
-    hello = {
-      sources = {
-          "luzer.c"
-      },
-    }
-  }
 }
