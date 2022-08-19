@@ -15,6 +15,17 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LLVM_LIBR
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -Wall -Wextra -Wno-unused-parameter)
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++11 -stdlib=libc++ -stdlib=libstdc++ -pedantic -Wall>)
 
+## Testing ####################################################################
+###############################################################################
+
+enable_testing()
+
+set(LUA_EXECUTABLE lua)
+
+add_test(
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test.lua
+)
+
 ## Install ####################################################################
 ###############################################################################
 
