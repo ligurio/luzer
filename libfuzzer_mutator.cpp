@@ -63,7 +63,7 @@ int main() {
 	size_t res = mutate(Data, Size, MaxSize, Seed);
 	fprintf(stdout, "DEBUG: result %zu\n", res);
 
-	return res;
+	return 0;
 }
 
 #endif // CUSTOM_MUTATOR

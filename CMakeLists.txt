@@ -24,12 +24,25 @@ target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-s
 ## Testing ####################################################################
 ###############################################################################
 
+add_executable(libfuzzer_mutator_test libfuzzer_mutator.cpp)
+target_include_directories(libfuzzer_mutator_test PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(libfuzzer_mutator_test PRIVATE ${LUA_LIBRARIES})
+target_compile_options(libfuzzer_mutator_test PUBLIC -Wall -Wextra -Wno-unused-parameter)
+target_compile_options(libfuzzer_mutator_test PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++11>)
+
 if(EXISTS ${LUA_EXECUTABLE})
   enable_testing()
   add_test(
+    NAME luzer_test
     COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test.lua
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
+  add_test(
+    NAME mutator_test
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/libfuzzer_mutator_test
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
+  set_property(TEST mutator_test PROPERTY ENVIRONMENT "LIBFUZZER_MUTATOR_LUA_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_mutator.lua")
 endif()
 
 ## Install ####################################################################
