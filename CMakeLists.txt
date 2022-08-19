@@ -5,7 +5,13 @@ project(luzer)
 find_package(Lua 5.1 REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 
+find_program(LUA_EXECUTABLE luajit)
+if(NOT EXISTS ${LUA_EXECUTABLE})
+  find_program(LUA_EXECUTABLE lua)
+endif()
+
 message(STATUS "Found Lua  ${LUA_VERSION_STRING}")
+message(STATUS "Found Lua interpreter ${LUA_EXECUTABLE}")
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
@@ -18,9 +24,9 @@ target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-s
 ## Testing ####################################################################
 ###############################################################################
 
-enable_testing()
-
-set(LUA_EXECUTABLE luajit)
+if(EXISTS ${LUA_EXECUTABLE})
+  enable_testing()
+endif()
 
 add_test(
   COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test.lua

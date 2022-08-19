@@ -24,7 +24,11 @@ jobs:
         with:
           luaVersion: ${{ matrix.LUA }}
 
-      - name: Setup luarocks
-        run: sudo apt install -y luarocks
+      - name: Run CMake generation
+        run: cmake -S . -B build
 
-      - run: echo $(luarocks path --lr-bin) >> $GITHUB_PATH
+      - name: Building
+        run: cmake --build build --parallel $(nproc)
+
+      - name: Testing
+        run: cmake --build build --target test
