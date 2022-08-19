@@ -1,6 +1,6 @@
-#include "lua.h"
-#include "lauxlib.h"
-// #include <fuzzer/FuzzedDataProvider.h>
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 
 #define LUZER_VERSION "0.1.0"
 

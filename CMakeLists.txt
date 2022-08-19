@@ -10,16 +10,18 @@ if(NOT EXISTS ${LUA_EXECUTABLE})
   find_program(LUA_EXECUTABLE lua)
 endif()
 
-message(STATUS "Found Lua  ${LUA_VERSION_STRING}")
+message(STATUS "Found Lua ${LUA_VERSION_STRING}")
 message(STATUS "Found Lua interpreter ${LUA_EXECUTABLE}")
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
 add_library(${CMAKE_PROJECT_NAME} SHARED luzer.c)
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR} ${LLVM_INCLUDE_DIRS} /usr/include/x86_64-linux-gnu/c++/11/)
+target_include_directories(${CMAKE_PROJECT_NAME}
+	PRIVATE ${LUA_INCLUDE_DIR}
+)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LLVM_LIBRARIES})
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -Wall -Wextra -Wno-unused-parameter)
-target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++11 -stdlib=libc++ -stdlib=libstdc++ -pedantic -Wall>)
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC
+	$<$<COMPILE_LANGUAGE:CXX>:-std=c++11 -stdlib=libc++ -stdlib=libstdc++>)
 
 ## Testing ####################################################################
 ###############################################################################
@@ -28,7 +30,6 @@ add_executable(libfuzzer_mutator_test libfuzzer_mutator.cpp)
 target_include_directories(libfuzzer_mutator_test PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(libfuzzer_mutator_test PRIVATE ${LUA_LIBRARIES})
 target_compile_options(libfuzzer_mutator_test PUBLIC -Wall -Wextra -Wno-unused-parameter)
-target_compile_options(libfuzzer_mutator_test PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++11>)
 
 if(EXISTS ${LUA_EXECUTABLE})
   enable_testing()
