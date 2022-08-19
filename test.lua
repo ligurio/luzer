@@ -1,5 +1,9 @@
 package.cpath = "./?.so"
-local luzer = require("libluzer")
+local ok, luzer = pcall(require, "libluzer")
+if not ok then
+    print("libluzer is not found")
+    os.exit(1)
+end
 
 -- luzer.version
 local version = luzer.VERSION
