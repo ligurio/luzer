@@ -19,10 +19,10 @@ jobs:
       - name: Setup luarocks
         run: sudo apt install -y luarocks
 
-      - name: Setup dependencies
-        run: make deps
+      - name: Setup luacheck
+        run: luarocks --local install luacheck
 
       - run: echo $(luarocks path --lr-bin) >> $GITHUB_PATH
 
       - name: Run static analysis
-        run: make check
+        run: luacheck .
