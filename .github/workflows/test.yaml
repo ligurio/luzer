@@ -18,11 +18,13 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Setup LuaJIT (${{ matrix.LUA }})
-        if: matrix.LUA != 'tarantool'
-        uses: leafo/gh-actions-lua@v8
+      - name: Setup Lua (${{ matrix.LUA }})
+        uses: leafo/gh-actions-lua@v9
         with:
           luaVersion: ${{ matrix.LUA }}
+
+      - name: Setup Lua development libraries
+        run: sudo apt install -y liblua5.1-0-dev
 
       - name: Run CMake generation
         run: cmake -S . -B build
