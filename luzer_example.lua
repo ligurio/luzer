@@ -1,9 +1,9 @@
 local luzer = require("luzer")
 local fdp = luzer.FuzzedDataProvider(10)
-local math = require("math")
-local lib = luzer.require_instrument("lib")
+local _ = luzer.require_instrument("lib")
 
 local function custom_mutator(data, max_size, seed)
+    print(data, max_size, seed)
     return data .. "xxx"
 end
 
@@ -18,7 +18,7 @@ local function TestOneInput(data)
     --
     -- Args:
     --    data: string coming from the fuzzing engine.
-    local fdp = luzer.FuzzedDataProvider(10)
+    fdp = luzer.FuzzedDataProvider(10)
     print(data .. fdp.consume_string())
 
     return
