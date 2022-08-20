@@ -1,7 +1,7 @@
 package.cpath = "./?.so"
-local ok, luzer = pcall(require, "libluzer")
+local ok, luzer = pcall(require, "luzer")
 if not ok then
-    print("libluzer is not found")
+    print("luzer is not found")
     os.exit(1)
 end
 
@@ -10,7 +10,8 @@ local version = luzer.VERSION
 assert(type(version) == "string")
 
 -- luzer.FuzzedDataProvider
-local fdp = luzer.FuzzedDataProvider
+assert(type(luzer.FuzzedDataProvider) == "function")
+local fdp = luzer.FuzzedDataProvider()
 
 assert(type(fdp.consume_string) == "function")
 local res = fdp.consume_string()
@@ -25,8 +26,8 @@ assert(res == true)
 assert(type(fdp.consume_booleans) == "function")
 res = fdp.consume_booleans()
 assert(type(res) == "table")
---assert(res[1] == true)
---assert(res[2] == false)
+assert(res[1] == false)
+assert(res[2] == true)
 
 assert(type(fdp.consume_number) == "function")
 res = fdp.consume_number()
@@ -36,8 +37,8 @@ assert(res == 300)
 assert(type(fdp.consume_numbers) == "function")
 res = fdp.consume_numbers()
 assert(type(res) == "table")
---assert(res[1] == 200)
---assert(res[2] == 400)
+assert(res[1] == 400)
+assert(res[2] == 200)
 
 assert(type(fdp.consume_integer) == "function")
 res = fdp.consume_integer()
@@ -47,8 +48,8 @@ assert(res == 300)
 assert(type(fdp.consume_integers) == "function")
 res = fdp.consume_integers()
 assert(type(res) == "table")
---assert(res[1] == 200)
---assert(res[2] == 400)
+assert(res[1] == 230)
+assert(res[2] == 430)
 
 assert(type(fdp.consume_cdata) == "function")
 res = fdp.consume_cdata()

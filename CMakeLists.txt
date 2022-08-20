@@ -15,9 +15,7 @@ message(STATUS "Found Lua interpreter ${LUA_EXECUTABLE}")
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 
 add_library(${CMAKE_PROJECT_NAME} SHARED luzer.c)
-target_include_directories(${CMAKE_PROJECT_NAME}
-	PRIVATE ${LUA_INCLUDE_DIR}
-)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LLVM_LIBRARIES})
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -Wall -Wextra -Wno-unused-parameter)
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC
@@ -52,6 +50,7 @@ endif()
 install(
   TARGETS ${CMAKE_PROJECT_NAME}
   DESTINATION ${LIBDIR}
+  RENAME luzer.so
 )
 
 install(

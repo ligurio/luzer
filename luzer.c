@@ -5,6 +5,10 @@
 #define LUZER_VERSION "0.1.0"
 
 /*
+ * https://releases.llvm.org/8.0.0/tools/clang/docs/SanitizerCoverage.html
+ * https://chromium.googlesource.com/chromiumos/third_party/compiler-rt/+/google/stable/include/sanitizer/common_interface_defs.h
+ * https://github.com/llvm-mirror/llvm/blob/master/lib/Transforms/Instrumentation/SanitizerCoverage.cpp
+ *
  * A convenience wrapper turning the raw fuzzer input bytes into Lua primitive
  * types. The methods behave similarly to math.random(), with all returned
  * values depending deterministically on the fuzzer input for the current run.
@@ -33,9 +37,12 @@ static int
 luaL_consume_booleans(lua_State *L)
 {
     lua_newtable(L);
-    lua_pushboolean(L, 1);
+    lua_pushnumber(L, 1);
     lua_pushboolean(L, 0);
-    lua_rawset(L, -3);
+    lua_settable(L, -3);
+    lua_pushnumber(L, 2);
+    lua_pushboolean(L, 1);
+    lua_settable(L, -3);
     return 1;
 }
 
@@ -50,9 +57,12 @@ static int
 luaL_consume_numbers(lua_State *L)
 {
     lua_newtable(L);
-    lua_pushnumber(L, 200);
+    lua_pushnumber(L, 1);
     lua_pushnumber(L, 400);
-    lua_rawset(L, -3);
+    lua_settable(L, -3);
+    lua_pushnumber(L, 2);
+    lua_pushnumber(L, 200);
+    lua_settable(L, -3);
     return 1;
 }
 
@@ -67,9 +77,12 @@ static int
 luaL_consume_integers(lua_State *L)
 {
     lua_newtable(L);
-    lua_pushinteger(L, 200);
-    lua_pushinteger(L, 400);
-    lua_rawset(L, -3);
+    lua_pushnumber(L, 1);
+    lua_pushinteger(L, 230);
+    lua_settable(L, -3);
+    lua_pushnumber(L, 2);
+    lua_pushinteger(L, 430);
+    lua_settable(L, -3);
     return 1;
 }
 
@@ -123,7 +136,6 @@ luaL_remaining_bytes(lua_State *L)
 static int
 luaL_setup(lua_State *L)
 {
-
     return 0;
 }
 
@@ -141,20 +153,29 @@ luaL_setup(lua_State *L)
 static int
 luaL_fuzz(lua_State *L)
 {
+	/* TODO: calls LibFuzzer's Fuzz() function */
     return 0;
 }
 
-static const struct luaL_Reg Module[] = {
-	{ "Setup", luaL_setup },
-	{ "Fuzz", luaL_fuzz },
-	{ NULL, NULL }
-};
+static int
+luaL_require_instrument(lua_State *L)
+{
+	/* TODO: wraps "require()" and remember instrumented modules */
+    return 0;
+}
+
+static int
+luaL_custom_mutator(lua_State *L)
+{
+	/* TODO: process data, max_size, seed */
+    return 0;
+}
 
 /* A useful tool for generating various types of data from the arbitrary bytes
  * produced by the fuzzer.
  */
 static const struct {
-    char name[32];
+    char name[30];
     lua_CFunction func;
 } FuzzedDataProvider_functions[] = {
 	{"consume_string", luaL_consume_string},
@@ -188,22 +209,36 @@ byte[]	consumeRemainingAsBytes()	Consumes the remaining fuzzer input as a byte a
 int	remainingBytes()	Returns the number of unconsumed bytes in the fuzzer input.
 */
 
-int luaopen_libluzer(lua_State *L)
+static int
+luaL_fuzzed_data_provider(lua_State *L)
 {
-    luaL_register(L, "luzer", Module);
-
-    lua_pushstring(L, "VERSION");
-    lua_pushstring(L, LUZER_VERSION);
-    lua_rawset(L, -3);
-
-    lua_pushliteral(L, "FuzzedDataProvider");
-    lua_newtable(L);
-
+	/* TODO: FuzzedDataProvider accepts a number of bytes */
+	size_t n = sizeof(FuzzedDataProvider_functions)/
+			   sizeof(FuzzedDataProvider_functions[0]);
+	lua_createtable(L, 0, n);
     for (int i = 0; FuzzedDataProvider_functions[i].name[0]; i++) {
         lua_pushstring(L, FuzzedDataProvider_functions[i].name);
         lua_pushcfunction(L, FuzzedDataProvider_functions[i].func);
-        lua_rawset(L, -3);
+		lua_settable(L, -3);
     }
+
+    return 1;
+}
+
+static const struct luaL_Reg Module[] = {
+	{ "Setup", luaL_setup },
+	{ "Fuzz", luaL_fuzz },
+	{ "FuzzedDataProvider", luaL_fuzzed_data_provider },
+	{ "require_instrument", luaL_require_instrument },
+	{ "Mutate", luaL_custom_mutator },
+	{ NULL, NULL }
+};
+
+int luaopen_luzer(lua_State *L)
+{
+    luaL_register(L, "luzer", Module);
+    lua_pushstring(L, "VERSION");
+    lua_pushstring(L, LUZER_VERSION);
     lua_rawset(L, -3);
 
     return 1;
