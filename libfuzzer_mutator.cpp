@@ -16,6 +16,7 @@ static size_t mutate(uint8_t *Data, size_t Size,
 		fprintf(stderr, "LIBFUZZER_MUTATOR_LUA_SCRIPT is not specified.\n");
 		return -1;
 	}
+	/* TODO: make sure file specified by LIBFUZZER_MUTATOR_LUA_SCRIPT is exist */
 	lua_State* L = luaL_newstate();
 	if (!L) {
 		fprintf(stderr, "Unable to create Lua state.\n");

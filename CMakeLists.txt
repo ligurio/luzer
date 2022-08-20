@@ -36,6 +36,7 @@ if(EXISTS ${LUA_EXECUTABLE})
     COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test.lua
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
+  set_property(TEST luzer_test PROPERTY ENVIRONMENT "LUA_CPATH='./${CMAKE_CURRENT_BINARY_DIR}/?.so;'")
   add_test(
     NAME mutator_test
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/libfuzzer_mutator_test

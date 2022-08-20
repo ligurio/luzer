@@ -1,6 +1,7 @@
 package.cpath = "./?.so"
-local ok, luzer = pcall(require, "luzer")
-if not ok then
+
+local has_luzer, luzer = pcall(require, "luzer")
+if not has_luzer then
     print("luzer is not found")
     os.exit(1)
 end
