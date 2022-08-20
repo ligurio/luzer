@@ -36,6 +36,7 @@ luaL_consume_boolean(lua_State *L)
 static int
 luaL_consume_booleans(lua_State *L)
 {
+    /* TODO: accepts a number of elements */
     lua_newtable(L);
     lua_pushnumber(L, 1);
     lua_pushboolean(L, 0);
@@ -56,6 +57,7 @@ luaL_consume_number(lua_State *L)
 static int
 luaL_consume_numbers(lua_State *L)
 {
+    /* TODO: accepts a number of elements */
     lua_newtable(L);
     lua_pushnumber(L, 1);
     lua_pushnumber(L, 400);
@@ -76,6 +78,7 @@ luaL_consume_integer(lua_State *L)
 static int
 luaL_consume_integers(lua_State *L)
 {
+    /* TODO: accepts a number of elements */
     lua_newtable(L);
     lua_pushnumber(L, 1);
     lua_pushinteger(L, 230);
@@ -153,21 +156,21 @@ luaL_setup(lua_State *L)
 static int
 luaL_fuzz(lua_State *L)
 {
-	/* TODO: calls LibFuzzer's Fuzz() function */
+    /* TODO: calls LibFuzzer's Fuzz() function */
     return 0;
 }
 
 static int
 luaL_require_instrument(lua_State *L)
 {
-	/* TODO: wraps "require()" and remember instrumented modules */
+    /* TODO: wraps "require()" and remember instrumented modules */
     return 0;
 }
 
 static int
 luaL_custom_mutator(lua_State *L)
 {
-	/* TODO: process data, max_size, seed */
+    /* TODO: process data, max_size, seed */
     return 0;
 }
 
