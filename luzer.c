@@ -2,7 +2,8 @@
 #include <lauxlib.h>
 #include <lualib.h>
 #include <assert.h>
-// #include "FuzzedDataProvider.h"
+
+//#include "FuzzedDataProvider.h"
 
 #define LUZER_VERSION "0.1.0"
 
@@ -303,24 +304,19 @@ static const struct luaL_Reg Module[] = {
 	{ NULL, NULL }
 };
 
-/*
- * #define LUA_VERSION_MAJOR       "5"
- * #define LUA_VERSION_MINOR       "4"
- * #define LUA_VERSION_RELEASE     "4"
- *
- * #define LUA_VERSION_NUM                 504
- * #define LUA_VERSION_RELEASE_NUM         (LUA_VERSION_NUM * 100 + 4)
- *
- * #define LUA_VERSION     "Lua " LUA_VERSION_MAJOR "." LUA_VERSION_MINOR
- * #define LUA_RELEASE     LUA_VERSION "." LUA_VERSION_RELEASE
- */
-
 int luaopen_luzer(lua_State *L)
 {
     luaL_register(L, "luzer", Module);
-    lua_pushstring(L, "VERSION");
+
+    lua_createtable(L, 0, 3);
+    lua_pushstring(L, "LUZER");
     lua_pushstring(L, LUZER_VERSION);
-    /* TODO: put a Lua version, LLVM version and Clang version too */
+    lua_rawset(L, -3);
+    lua_pushstring(L, "LUA");
+    lua_pushstring(L, LUA_RELEASE);
+    lua_rawset(L, -3);
+    lua_pushstring(L, "LLVM");
+    lua_pushstring(L, "TODO");
     lua_rawset(L, -3);
 
     return 1;
