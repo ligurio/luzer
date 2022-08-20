@@ -37,13 +37,16 @@ if(EXISTS ${LUA_EXECUTABLE})
     COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test.lua
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
-  set_property(TEST luzer_test PROPERTY ENVIRONMENT "LUA_CPATH='./${CMAKE_CURRENT_BINARY_DIR}/?.so;'")
+  set_tests_properties(luzer_test PROPERTIES
+    ENVIRONMENT "LUA_CPATH='./${CMAKE_CURRENT_BINARY_DIR}/?.so;'")
   add_test(
     NAME mutator_test
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/libfuzzer_mutator_test
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
-  set_property(TEST mutator_test PROPERTY ENVIRONMENT "LIBFUZZER_MUTATOR_LUA_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_mutator.lua")
+  set_tests_properties(mutator_test PROPERTIES
+    ENVIRONMENT "LIBFUZZER_MUTATOR_LUA_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_mutator.lua"
+    PASS_REGULAR_EXPRESSION "data Hi,Sergey, size 9, max_size 10, seed 98")
 endif()
 
 ## Install ####################################################################

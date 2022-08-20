@@ -1,5 +1,4 @@
 local luzer = require("luzer")
-local fdp = luzer.FuzzedDataProvider(10)
 local _ = luzer.require_instrument("lib")
 
 local function custom_mutator(data, max_size, seed)

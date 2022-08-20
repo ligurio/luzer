@@ -89,7 +89,7 @@ The luzer module provides two key functions: `Setup()` and `Fuzz()`.
 - `args`: A list of strings: the process arguments to pass to the fuzzer,
   typically sys.argv. This argument list may be modified in-place, to remove
 arguments consumed by the fuzzer. See the LibFuzzer docs for a list of such
-options.
+options. https://llvm.org/docs/LibFuzzer.html#options
 - `test_one_input`: your fuzzer's entry point. Must take a single bytes
   argument. This will be repeatedly invoked with a single bytes container.
 - `internal_libfuzzer`: Indicates whether libfuzzer will be provided by atheris
