@@ -14,12 +14,13 @@ message(STATUS "Found Lua ${LUA_VERSION_STRING}")
 message(STATUS "Found Lua interpreter ${LUA_EXECUTABLE}")
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 
-add_library(${CMAKE_PROJECT_NAME} SHARED luzer.c)
+set(LUZER_SOURCES luzer.c
+                  fuzzed_data_provider.cc)
+
+add_library(${CMAKE_PROJECT_NAME} SHARED ${LUZER_SOURCES})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LLVM_LIBRARIES})
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -Wall -Wextra -Wno-unused-parameter)
-target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC
-	$<$<COMPILE_LANGUAGE:CXX>:-std=c++11 -stdlib=libc++ -stdlib=libstdc++>)
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
 
 ## Testing ####################################################################
