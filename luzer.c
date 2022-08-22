@@ -308,6 +308,7 @@ int luaopen_luzer(lua_State *L)
 {
     luaL_register(L, "luzer", Module);
 
+    lua_pushliteral(L, "VERSION");
     lua_createtable(L, 0, 3);
     lua_pushstring(L, "LUZER");
     lua_pushstring(L, LUZER_VERSION);
@@ -316,7 +317,8 @@ int luaopen_luzer(lua_State *L)
     lua_pushstring(L, LUA_RELEASE);
     lua_rawset(L, -3);
     lua_pushstring(L, "LLVM");
-    lua_pushstring(L, "TODO");
+    lua_pushstring(L, "13.0.1"); /* FIXME */
+    lua_rawset(L, -3);
     lua_rawset(L, -3);
 
     return 1;
