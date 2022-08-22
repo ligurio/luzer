@@ -3,7 +3,7 @@
 #include <lualib.h>
 #include <assert.h>
 
-//#include "FuzzedDataProvider.h"
+// #include "FuzzedDataProvider.h"
 
 #define LUZER_VERSION "0.1.0"
 
@@ -218,6 +218,7 @@ l_fuzz(lua_State *L)
 {
     /* TODO: calls LibFuzzer's Fuzz() function */
 	// LLVMFuzzerTestOneInput
+	// tracer https://github.com/mpeterv/cluacov/blob/master/src/cluacov/deepactivelines.c
     return 0;
 }
 
@@ -225,7 +226,12 @@ static int
 l_require_instrument(lua_State *L)
 {
     /* TODO: wraps "require()" and remember instrumented modules */
-    return 0;
+    const char *module_name = lua_tostring(L, 1);
+    lua_pushstring(L, module_name);
+    lua_call(L, 1, LUA_MULTRET);
+    /* TODO: check result of lua_call ^^^^ */
+    printf("module name is %s\n", module_name);
+    return 1;
 }
 
 static int
