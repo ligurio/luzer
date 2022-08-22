@@ -14,6 +14,16 @@ message(STATUS "Found Lua ${LUA_VERSION_STRING}")
 message(STATUS "Found Lua interpreter ${LUA_EXECUTABLE}")
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 
+if(CMAKE_COMPILER_IS_GNUCC)
+message(FATAL_ERROR
+    "\n"
+    "Building is unsupported with GCC compiler. Use Clang:\n"
+    " $ rm -rf build\n"
+    " $ cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build\n"
+    " $ cmake --build build\n"
+    "\n")
+endif()
+
 set(LUZER_SOURCES luzer.c
                   fuzzed_data_provider.cc)
 
