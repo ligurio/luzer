@@ -24,5 +24,7 @@ jobs:
 
       - run: echo $(luarocks path --lr-bin) >> $GITHUB_PATH
 
-      - name: Run static analysis
+      - name: Run luacheck
         run: luacheck .
+
+      - run: luarocks lint luzer-scm-1.rockspec
