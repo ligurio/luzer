@@ -88,38 +88,29 @@ $ export LUA_PATH="$LUA_PATH;modules/lib/lua/5.3/?.lua"
 $ export LUA_CPATH="$LUA_CPATH;modules/lib/lua/5.3/?.so"
 ```
 
-## API
+### API
 
 The luzer module provides two key functions: `Setup()` and `Fuzz()`.
 
-### `Setup(args, test_one_input, internal_libfuzzer=None)`
-
-- `args`: A list of strings: the process arguments to pass to the fuzzer,
-  typically sys.argv. This argument list may be modified in-place, to remove
-arguments consumed by the fuzzer. See the LibFuzzer docs for a list of such
-options. https://llvm.org/docs/LibFuzzer.html#options
-- `test_one_input`: your fuzzer's entry point. Must take a single bytes
-  argument. This will be repeatedly invoked with a single bytes container.
-- `internal_libfuzzer`: Indicates whether libfuzzer will be provided by atheris
-  or by an external library (see native_extension_fuzzing.md). If unspecified,
-Atheris will determine this automatically. If fuzzing pure Python, leave this
-as True.
-
-### `Fuzz()`
-
-This starts the fuzzer. You must have called `Setup()` before calling this
-function. This function does not return.
-
-In many cases `Setup()` and `Fuzz()` could be combined into a single function,
-but they are separated because you may want the fuzzer to consume the
-command-line arguments it handles before passing any remaining arguments to
-another setup function.
-
-### `FuzzedDataProvider`
-
-Often, a `bytes` object is not convenient input to your code being fuzzed.
-Similar to libFuzzer, we provide a FuzzedDataProvider to translate these bytes
-into other input forms.
+- `Setup(args, test_one_input, internal_libfuzzer=None)`
+  - `args`: A list of strings: the process arguments to pass to the fuzzer,
+    typically sys.argv. This argument list may be modified in-place, to remove
+    arguments consumed by the fuzzer. See the LibFuzzer docs for a list of such
+    options. https://llvm.org/docs/LibFuzzer.html#options
+  - `test_one_input`: your fuzzer's entry point. Must take a single bytes
+    argument. This will be repeatedly invoked with a single bytes container.
+  - `internal_libfuzzer`: Indicates whether libfuzzer will be provided by atheris
+    or by an external library (see native_extension_fuzzing.md). If unspecified,
+    luzer will determine this automatically. If fuzzing pure Lua, leave this
+    as `true`.
+- `Fuzz()` starts the fuzzer. You must have called `Setup()` before calling
+  this function. This function does not return. In many cases `Setup()` and
+  `Fuzz()` could be combined into a single function, but they are separated
+  because you may want the fuzzer to consume the command-line arguments it
+  handles before passing any remaining arguments to another setup function.
+- `FuzzedDataProvider` Often, a `bytes` object is not convenient input to your
+  code being fuzzed. Similar to libFuzzer, we provide a FuzzedDataProvider to
+  translate these bytes into other input forms.
 
 You can construct the `FuzzedDataProvider` with:
 
