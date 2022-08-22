@@ -47,8 +47,16 @@ might want to use the `libfuzzer_mutator.lua` script. The environment variable
 script. The default path is `./libfuzzer_mutator.lua`. Then just run your fuzzing as
 shown in the examples above.
 
-- `LLVMFuzzerCustomMutator()`
-- `LLVMFuzzerMutate()`
+### API
+
+- `LLVMFuzzerCustomMutator(data, size, max_size, seed)` - function that called
+  for each mutation. Optional user-provided custom mutator. Mutates raw data in
+  `[data, data+size)` inplace. Returns the new size, which is not greater than
+  `max_size`. Given the same seed produces the same mutation.
+- `LLVMFuzzerMutate(data, size, max_size)` - function that called for each
+  mutation. libFuzzer-provided function to be used inside
+  `LLVMFuzzerCustomMutator`. Mutates raw data in `[data, data+size)` inplace.
+  Returns the new size, which is not greater than `max_size`.
 
 ## Fuzzing Lua programs
 
