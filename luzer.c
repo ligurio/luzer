@@ -3,8 +3,6 @@
 #include <lualib.h>
 #include <assert.h>
 
-// #include "FuzzedDataProvider.h"
-
 #define LUZER_VERSION "0.1.0"
 
 /*
