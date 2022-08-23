@@ -62,7 +62,9 @@ shown in the examples above.
 
 ```sh
 $ cat << EOF > sample.lua
-local function crash(buf)
+local luzer = require("luzer")
+
+local function TestOneInput(buf)
     local b = {}
     buf:gsub(".", function(c) table.insert(b, c) end)
     if b[1] == 'c' then
@@ -77,6 +79,9 @@ local function crash(buf)
         end
     end
 end
+
+luzer.Setup({}, TestOneInput)
+luzer.Fuzz()
 EOF
 $
 ```
@@ -266,6 +271,8 @@ Distributed under the ISC License.
 
 - Promote:
   - https://groups.google.com/g/libfuzzer
+  - https://github.com/uhub/awesome-lua
+  - lobsters
 
 [libfuzzer-url]: https://llvm.org/docs/LibFuzzer.html
 [libfuzzer-mutators-url]: https://github.com/google/fuzzing/blob/master/docs/structure-aware-fuzzing.md

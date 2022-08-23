@@ -73,16 +73,20 @@ l_setup(lua_State *L)
 static int
 l_fuzz(lua_State *L)
 {
-    /* TODO: calls LibFuzzer's Fuzz() function */
-	// LLVMFuzzerTestOneInput
+    /* TODO: call LibFuzzer's Fuzz() function */
 	// tracer https://github.com/mpeterv/cluacov/blob/master/src/cluacov/deepactivelines.c
+	// trash/jazzer/agent/src/jmh/native/com/code_intelligence/jazzer/runtime/fuzzer_callbacks.cpp
 	/*
 	int main(int argc, char *argv[]) {
 		return LLVMFuzzerRunDriver(&argc, &argv, &LLVMFuzzerTestOneInput);
 	}
+	int argc = 0;
+	char *argv[] = {
+		{ "Setup" },
+	};
+	return LLVMFuzzerRunDriver(&argc, &argv, &LLVMFuzzerTestOneInput);
 	*/
-
-    return 0;
+	return 0;
 }
 
 static int
