@@ -26,11 +26,11 @@ jobs:
       - name: Setup Lua development libraries
         run: sudo apt install -y liblua5.1-0-dev
 
-      - name: Run CMake generation
-        run: cmake -S . -B build
+      - name: Setup Clang
+        run: sudo apt install -y clang
 
-      - name: Building
-        run: cmake --build build --parallel $(nproc)
+      - run: cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build
 
-      - name: Testing
-        run: cmake --build build --target test
+      - run: cmake --build build --parallel $(nproc)
+
+      - run: cmake --build build --target test
