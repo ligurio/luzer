@@ -262,5 +262,10 @@ Copyright © 2021-2022 [Sergey Bronnikov](https://bronevichok.ru/)
 
 Distributed under the ISC License.
 
+## TODO
+
+- Promote:
+  - https://groups.google.com/g/libfuzzer
+
 [libfuzzer-url]: https://llvm.org/docs/LibFuzzer.html
 [libfuzzer-mutators-url]: https://github.com/google/fuzzing/blob/master/docs/structure-aware-fuzzing.md

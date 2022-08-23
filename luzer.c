@@ -76,6 +76,12 @@ l_fuzz(lua_State *L)
     /* TODO: calls LibFuzzer's Fuzz() function */
 	// LLVMFuzzerTestOneInput
 	// tracer https://github.com/mpeterv/cluacov/blob/master/src/cluacov/deepactivelines.c
+	/*
+	int main(int argc, char *argv[]) {
+		return LLVMFuzzerRunDriver(&argc, &argv, &LLVMFuzzerTestOneInput);
+	}
+	*/
+
     return 0;
 }
 
@@ -125,7 +131,17 @@ static const struct luaL_Reg Module[] = {
 
 int luaopen_luzer(lua_State *L)
 {
+#if LUA_VERSION_NUM == 501
     luaL_register(L, "luzer", Module);
+#else
+	luaL_newlib(L, Module);
+#endif
+
+/*
+	luaL_setfuncs(L, mcch_funcs, 0);
+	lua_pushvalue(L, -1);
+	lua_setglobal(L, LUA_MCCHLIBNAME);
+*/
 
     lua_pushliteral(L, "VERSION");
     lua_createtable(L, 0, 3);
