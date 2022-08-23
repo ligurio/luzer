@@ -60,7 +60,7 @@ shown in the examples above.
 
 ## Fuzzing Lua programs
 
-```sh
+```lua
 $ cat << EOF > sample.lua
 local luzer = require("luzer")
 
