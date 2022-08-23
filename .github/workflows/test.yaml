@@ -12,14 +12,14 @@ jobs:
       github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       matrix:
-        LIBLUA: [ "libluajit-5.1", "liblua5.3", "liblua5.4", "liblua5.2", "liblua5.1-0" ]
+        LIBLUA: [ "libluajit-5.1-dev", "liblua5.3-dev", "liblua5.4-dev", "liblua5.2-dev", "liblua5.1-0-dev" ]
       fail-fast: false
     runs-on: [ubuntu-latest]
     steps:
       - uses: actions/checkout@master
 
       - name: Setup packages
-        run: sudo apt install -y luajit lua5.2 ${LIBLUA}-dev clang
+        run: sudo apt install -y luajit lua5.2 ${LIBLUA} clang
 
       - run: cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build
 
