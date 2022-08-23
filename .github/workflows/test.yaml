@@ -13,10 +13,11 @@ jobs:
     strategy:
       matrix:
         LIBLUA:
-          - "libluajit-5.1-dev"
-          - "liblua5.3-dev"
+          # TODO
+          #- "libluajit-5.1-dev"
+          #- "liblua5.3-dev"
           - "liblua5.2-dev"
-          - "liblua5.1-0-dev"
+          #- "liblua5.1-0-dev"
       fail-fast: false
     runs-on: [ubuntu-latest]
     steps:
