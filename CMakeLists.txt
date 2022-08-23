@@ -44,6 +44,8 @@ target_include_directories(libfuzzer_mutator_test PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(libfuzzer_mutator_test PRIVATE ${LUA_LIBRARIES})
 target_compile_options(libfuzzer_mutator_test PUBLIC -Wall -Wextra -Wno-unused-parameter)
 
+set(CMAKE_CTEST_ARGUMENTS "--verbose")
+
 if(EXISTS ${LUA_EXECUTABLE})
   enable_testing()
   add_test(
