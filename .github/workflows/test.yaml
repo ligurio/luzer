@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@master
 
       - name: Setup packages
-        run: sudo apt install -y luajit lua5.2 ${LIBLUA} clang
+        run: sudo apt install -y lua5.2 clang ${{ matrix.LIBLUA }}
 
       - run: cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build
 
