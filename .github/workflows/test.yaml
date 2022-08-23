@@ -12,22 +12,19 @@ jobs:
       github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       matrix:
-        LUA: ["5.1.5", "5.2.4", "5.3.5", "5.4.1", "luajit-2.0.5", "luajit-2.1.0-beta3"]
+        LIBLUA:
+          - "libluajit-5.1"
+          - "liblua5.3"
+          - "liblua5.4"
+          - "liblua5.2"
+          - "liblua5.1-0"
       fail-fast: false
     runs-on: [ubuntu-latest]
     steps:
       - uses: actions/checkout@master
 
-      - name: Setup Lua (${{ matrix.LUA }})
-        uses: leafo/gh-actions-lua@v9
-        with:
-          luaVersion: ${{ matrix.LUA }}
-
-      - name: Setup Lua development libraries
-        run: sudo apt install -y liblua5.1-0-dev
-
-      - name: Setup Clang
-        run: sudo apt install -y clang
+      - name: Setup packages
+        run: sudo apt install -y luajit lua5.2 ${LIBLUA}-dev clang
 
       - run: cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build
 
