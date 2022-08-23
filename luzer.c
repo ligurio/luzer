@@ -132,7 +132,7 @@ static const struct luaL_Reg Module[] = {
 int luaopen_luzer(lua_State *L)
 {
 #if LUA_VERSION_NUM == 501
-    luaL_register(L, "luzer", Module);
+	luaL_register(L, "luzer", Module);
 #else
 	luaL_newlib(L, Module);
 #endif
