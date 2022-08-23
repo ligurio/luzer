@@ -23,7 +23,7 @@ message(FATAL_ERROR
     "Building is unsupported with GCC compiler. Use Clang:\n"
     " $ rm -rf build\n"
     " $ cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build\n"
-    " $ cmake --build build\n"
+    " $ cmake --build build --parallel\n"
     "\n")
 endif()
 
@@ -61,6 +61,8 @@ if(EXISTS ${LUA_EXECUTABLE})
   set_tests_properties(mutator_test PROPERTIES
     ENVIRONMENT "LIBFUZZER_MUTATOR_LUA_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_mutator.lua"
     PASS_REGULAR_EXPRESSION "data Hi,Sergey, size 9, max_size 10, seed 98")
+else()
+  message(WARNING "Lua executable is not found, testing is not available.")
 endif()
 
 ## Install ####################################################################
