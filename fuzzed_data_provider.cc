@@ -46,11 +46,13 @@ extern "C" int
 luaL_consume_boolean(lua_State *L)
 {
 	// bool ConsumeBool();
+	/*
 	const uint8_t *data = {};
 	size_t size = 1;
 	FuzzedDataProvider* fdp = new FuzzedDataProvider(data, size);
 	bool a = fdp->ConsumeBool();
 	printf("%i\n", a);
+	*/
     lua_pushboolean(L, 1);
     return 1;
 }
