@@ -32,8 +32,8 @@ set(LUZER_SOURCES luzer.c
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${LUZER_SOURCES})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LIBRT})
-target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -Wall -Wextra -Wpedantic -Wno-unused-parameter)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LIBRT} -fsanitize=fuzzer-no-link)
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -Wall -Wextra -Wpedantic -Wno-unused-parameter -fsanitize=fuzzer-no-link)
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
 
 ## Testing ####################################################################

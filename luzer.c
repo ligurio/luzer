@@ -3,9 +3,16 @@
 #include <lualib.h>
 #include <assert.h>
 
+#include <stdint.h>
+#include <stddef.h>
+
 #include "fuzzed_data_provider.h"
 
 #define LUZER_VERSION "0.1.0"
+
+extern int
+LLVMFuzzerRunDriver(int *argc, char ***argv,
+                    int (*UserCb)(const uint8_t *Data, size_t Size));
 
 /*
  * https://releases.llvm.org/8.0.0/tools/clang/docs/SanitizerCoverage.html
@@ -59,6 +66,16 @@ l_setup(lua_State *L)
     return 0;
 }
 
+int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
+/*
+  if (size > 0 && data[0] == 'H')
+    if (size > 1 && data[1] == 'I')
+       if (size > 2 && data[2] == '!')
+       __builtin_trap();
+*/
+  return 0;
+}
+
 /*
  * Fuzz()
  *
@@ -76,16 +93,16 @@ l_fuzz(lua_State *L)
     /* TODO: call LibFuzzer's Fuzz() function */
 	// tracer https://github.com/mpeterv/cluacov/blob/master/src/cluacov/deepactivelines.c
 	// trash/jazzer/agent/src/jmh/native/com/code_intelligence/jazzer/runtime/fuzzer_callbacks.cpp
-	/*
-	int main(int argc, char *argv[]) {
-		return LLVMFuzzerRunDriver(&argc, &argv, &LLVMFuzzerTestOneInput);
-	}
+/*
 	int argc = 0;
-	char *argv[] = {
-		{ "Setup" },
-	};
-	return LLVMFuzzerRunDriver(&argc, &argv, &LLVMFuzzerTestOneInput);
-	*/
+	(char *)argv[5];
+    argv[0]="prog_name.exe";
+    argv[1]="-c";
+    argv[2]="4";
+    argv[3]="sTriNg";
+    argc=4;
+	return LLVMFuzzerRunDriver(NULL, NULL, &LLVMFuzzerTestOneInput);
+*/
 	return 0;
 }
 
