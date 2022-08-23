@@ -14,6 +14,8 @@ message(STATUS "Found Lua ${LUA_VERSION_STRING}")
 message(STATUS "Found Lua interpreter ${LUA_EXECUTABLE}")
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 
+# TODO: check a minimal version of LLVM where FuzzedDataProvider.h is present.
+
 if(CMAKE_COMPILER_IS_GNUCC)
 message(FATAL_ERROR
     "\n"
