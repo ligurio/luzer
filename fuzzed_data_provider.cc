@@ -2,7 +2,7 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
-#include "FuzzedDataProvider.h"
+#include <fuzzer/FuzzedDataProvider.h>
 
 /*
  * TODO:

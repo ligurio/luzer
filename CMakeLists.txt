@@ -4,6 +4,7 @@ project(luzer)
 
 find_package(Lua 5.1 REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
+find_library(LIBRT rt)
 
 find_program(LUA_EXECUTABLE luajit)
 if(NOT EXISTS ${LUA_EXECUTABLE})
@@ -31,8 +32,8 @@ set(LUZER_SOURCES luzer.c
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${LUZER_SOURCES})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} rt)
-target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -Wall -Wextra -Wno-unused-parameter)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LIBRT})
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -Wall -Wextra -Wpedantic -Wno-unused-parameter)
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
 
 ## Testing ####################################################################
