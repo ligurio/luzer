@@ -12,12 +12,7 @@ jobs:
       github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       matrix:
-        LIBLUA:
-          - "libluajit-5.1"
-          - "liblua5.3"
-          - "liblua5.4"
-          - "liblua5.2"
-          - "liblua5.1-0"
+        LIBLUA: [ "libluajit-5.1", "liblua5.3", "liblua5.4", "liblua5.2", "liblua5.1-0" ]
       fail-fast: false
     runs-on: [ubuntu-latest]
     steps:
