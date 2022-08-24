@@ -137,29 +137,42 @@ fdp = luzer.FuzzedDataProvider(input_bytes)
 
 The `FuzzedDataProvider` then supports the following functions:
 
-- `def ConsumeBytes(count: int)` - consume `count` bytes.
-- `def ConsumeUnicode(count: int)` - consume unicode characters. Might contain surrogate pair characters, which
-according to the specification are invalid in this situation. However, many
-core software tools (e.g. Windows file paths) support them, so other software
-often needs to too.
-- `def ConsumeUnicodeNoSurrogates(count: int)` - consume unicode characters, but never generate surrogate pair characters.
-- `def ConsumeString(count: int)` - Alias for `ConsumeBytes` in Python 2, or `ConsumeUnicode` in Python 3.
-- `def ConsumeInt(int: bytes)` - consume a signed integer of the specified size (when written in two's complement notation).
-- def ConsumeUInt(int: bytes) - consume an unsigned integer of the specified size.
-- `def ConsumeIntInRange(min: int, max: int)` - consume an integer in the range `[min, max]`.
-- `def ConsumeIntList(count: int, bytes: int)` - consume a list of count integers of size bytes.
-- `def ConsumeIntListInRange(count: int, min: int, max: int)` - consume a list of count integers in the range `[min, max]`.
-- `def ConsumeFloat()` - consume an arbitrary floating-point value. Might produce weird values like `NaN` and `Inf`.
-- `def ConsumeRegularFloat()` - consume an arbitrary numeric floating-point value; never produces a special type like `NaN` or `Inf`.
-- `def ConsumeProbability()` - consume a floating-point value in the range `[0, 1]`.
-- `def ConsumeFloatInRange(min: float, max: float)` - consume a floating-point value in the range `[min, max]`.
-- `def ConsumeFloatList(count: int)` - consume a list of count arbitrary floating-point values. Might produce weird values like `NaN` and `Inf`.
-- `def ConsumeRegularFloatList(count: int)` - consume a list of count arbitrary numeric floating-point values; never produces
-special types like `NaN` or `Inf`.
-- `def ConsumeProbabilityList(count: int)` - consume a list of count floats in the range `[0, 1]`.
-- `def ConsumeFloatListInRange(count: int, min: float, max: float)` - consume a list of count floats in the range `[min, max]`.
-- `def PickValueInList(l: list)` - given a list, pick a random value.
-- `def ConsumeBool()` - consume either `true` or `false`.
+- `ConsumeBytes(count: int)` - consume `count` bytes.
+- `ConsumeUnicode(count: int)` - consume unicode characters. Might contain
+  surrogate pair characters, which according to the specification are invalid
+  in this situation. However, many core software tools (e.g. Windows file paths)
+  support them, so other software often needs to too.
+- `ConsumeUnicodeNoSurrogates(count: int)` - consume unicode characters, but
+  never generate surrogate pair characters.
+- `ConsumeString(count: int)` - Alias for `ConsumeBytes` in Python 2, or
+  `ConsumeUnicode` in Python 3.
+- `ConsumeInt(int: bytes)` - consume a signed integer of the specified size
+  (when written in two's complement notation).
+- `ConsumeUInt(int: bytes)` - consume an unsigned integer of the specified
+  size.
+- `ConsumeIntInRange(min: int, max: int)` - consume an integer in the range
+  `[min, max]`.
+- `ConsumeIntList(count: int, bytes: int)` - consume a list of count integers
+  of size bytes.
+- `ConsumeIntListInRange(count: int, min: int, max: int)` - consume a list of
+  count integers in the range `[min, max]`.
+- `ConsumeFloat()` - consume an arbitrary floating-point value. Might produce
+  weird values like `NaN` and `Inf`.
+- `ConsumeRegularFloat()` - consume an arbitrary numeric floating-point value;
+  never produces a special type like `NaN` or `Inf`.
+- `ConsumeProbability()` - consume a floating-point value in the range `[0, 1]`.
+- `ConsumeFloatInRange(min: float, max: float)` - consume a floating-point
+  value in the range `[min, max]`.
+- `ConsumeFloatList(count: int)` - consume a list of count arbitrary
+  floating-point values. Might produce weird values like `NaN` and `Inf`.
+- `ConsumeRegularFloatList(count: int)` - consume a list of count arbitrary
+  numeric floating-point values; never produces special types like `NaN` or `Inf`.
+- `ConsumeProbabilityList(count: int)` - consume a list of count floats in the
+  range `[0, 1]`.
+- `ConsumeFloatListInRange(count: int, min: float, max: float)` - consume a
+  list of count floats in the range `[min, max]`.
+- `PickValueInList(l: list)` - given a list, pick a random value.
+- `ConsumeBool()` - consume either `true` or `false`.
 
 ## Hacking
 
