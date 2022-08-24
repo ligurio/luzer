@@ -1,12 +1,25 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include <iostream>
+#include <iostream> /* TODO: remove */
 
-#include "FuzzedDataProvider.h"
+#include "FuzzedDataProvider.h" /* FIXME: import from libFuzzer */
 
 #include "fuzzed_data_provider.h"
+#include "macros.h"
 
+/*
+ * A convenience wrapper turning the raw fuzzer input bytes into Lua primitive
+ * types. The methods behave similarly to math.random(), with all returned
+ * values depending deterministically on the fuzzer input for the current run.
+ *
+ * https://github.com/llvm/llvm-project/blob/main/compiler-rt/include/fuzzer/FuzzedDataProvider.h
+ * https://github.com/google/atheris#fuzzeddataprovider
+ * https://github.com/google/fuzzing/blob/master/docs/split-inputs.md
+ * https://codeintelligencetesting.github.io/jazzer-api/com/code_intelligence/jazzer/api/FuzzedDataProvider.html
+ */
+
+/* TODO: it should be gc'ed, otherwise it is not thread-safe  */
 static FuzzedDataProvider *fdp = NULL;
 
 /*
@@ -45,7 +58,7 @@ static int
 luaL_consume_boolean(lua_State *L)
 {
 	if (!fdp)
-		assert(0);
+		unreachable();
 	bool v = fdp->ConsumeBool();
     lua_pushboolean(L, (int)v);
     return 1;
@@ -57,7 +70,7 @@ luaL_consume_booleans(lua_State *L)
 {
 	/* input: int maxLength */
 	if (!fdp)
-		assert(0);
+		unreachable();
     /* TODO: accepts a number of elements */
     lua_newtable(L);
     lua_pushnumber(L, 1);
@@ -143,7 +156,7 @@ static int
 luaL_consume_probability(lua_State *L)
 {
 	if (!fdp)
-		assert(0);
+		unreachable();
 	// template <typename T> T ConsumeProbability();
     /* TODO: test me */
     lua_pushnumber(L, 1);
@@ -167,7 +180,7 @@ static int
 luaL_remaining_bytes(lua_State *L)
 {
 	if (!fdp)
-		assert(0);
+		unreachable();
 	size_t sz = fdp->remaining_bytes();
     lua_pushnumber(L, sz);
     return 1;

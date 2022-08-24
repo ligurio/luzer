@@ -13,4 +13,6 @@ include_files = {
 
 exclude_files = {
     '.rocks',
+
+    'trash/',
 }

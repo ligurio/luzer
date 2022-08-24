@@ -28,7 +28,8 @@ message(FATAL_ERROR
 endif()
 
 set(LUZER_SOURCES luzer.c
-                  fuzzed_data_provider.cc)
+                  fuzzed_data_provider.cc
+                  tracer.c)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${LUZER_SOURCES})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})

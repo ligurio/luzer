@@ -1,33 +1,13 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include <assert.h>
-
 #include <stdint.h>
 #include <stddef.h>
 
 #include "fuzzed_data_provider.h"
+#include "macros.h"
 
 #define LUZER_VERSION "0.1.0"
-
-extern int
-LLVMFuzzerRunDriver(int *argc, char ***argv,
-                    int (*UserCb)(const uint8_t *Data, size_t Size));
-
-/*
- * https://releases.llvm.org/8.0.0/tools/clang/docs/SanitizerCoverage.html
- * https://chromium.googlesource.com/chromiumos/third_party/compiler-rt/+/google/stable/include/sanitizer/common_interface_defs.h
- * https://github.com/llvm-mirror/llvm/blob/master/lib/Transforms/Instrumentation/SanitizerCoverage.cpp
- *
- * A convenience wrapper turning the raw fuzzer input bytes into Lua primitive
- * types. The methods behave similarly to math.random(), with all returned
- * values depending deterministically on the fuzzer input for the current run.
- *
- * https://github.com/llvm/llvm-project/blob/main/compiler-rt/include/fuzzer/FuzzedDataProvider.h
- * https://github.com/google/atheris#fuzzeddataprovider
- * https://github.com/google/fuzzing/blob/master/docs/split-inputs.md
- * https://codeintelligencetesting.github.io/jazzer-api/com/code_intelligence/jazzer/api/FuzzedDataProvider.html
-*/
 
 /*
  * Setup(args, test_one_input, internal_libfuzzer=None)
@@ -90,9 +70,6 @@ int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
 static int
 luaL_fuzz(lua_State *L)
 {
-    /* TODO: call LibFuzzer's Fuzz() function */
-	// tracer https://github.com/mpeterv/cluacov/blob/master/src/cluacov/deepactivelines.c
-	// trash/jazzer/agent/src/jmh/native/com/code_intelligence/jazzer/runtime/fuzzer_callbacks.cpp
 /*
 	int argc = 0;
 	(char *)argv[5];
@@ -121,7 +98,7 @@ luaL_require_instrument(lua_State *L)
 static int
 luaL_custom_mutator(lua_State *L)
 {
-    /* TODO: process data, max_size, seed */
+    /* TODO: process data, max_size and a seed */
     return 0;
 }
 
@@ -141,13 +118,6 @@ int luaopen_luzer(lua_State *L)
 #else
 	luaL_newlib(L, Module);
 #endif
-
-/*
-	luaL_setfuncs(L, mcch_funcs, 0);
-	lua_pushvalue(L, -1);
-	lua_setglobal(L, LUA_MCCHLIBNAME);
-*/
-
     lua_pushliteral(L, "VERSION");
     lua_createtable(L, 0, 3);
     lua_pushstring(L, "LUZER");
@@ -157,7 +127,7 @@ int luaopen_luzer(lua_State *L)
     lua_pushstring(L, LUA_RELEASE);
     lua_rawset(L, -3);
     lua_pushstring(L, "LLVM");
-    lua_pushstring(L, "13.0.1"); /* FIXME */
+    lua_pushstring(L, "13.0.1"); /* FIXME: set a real LLVM version */
     lua_rawset(L, -3);
     lua_rawset(L, -3);
 
