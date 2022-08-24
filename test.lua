@@ -6,7 +6,7 @@ if not has_luzer then
     os.exit(1)
 end
 
-local function trace(event, line)
+local function trace(_, line)
     local s = debug.getinfo(2).short_src
     print(s .. ":" .. line)
 end
