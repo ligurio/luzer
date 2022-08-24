@@ -16,48 +16,6 @@ extra bugs.
 $ luarocks --local install luzer
 ```
 
-## Using custom mutators
-
-luzer allows [custom mutators][libfuzzer-mutators-url] to be written in Lua 5.1
-(including Lua-JIT), 5.2, 5.3 or 5.4.
-
-The environment variable `LIBFUZZER_CUSTOM_MUTATOR_LUA_SCRIPT` can be set to
-the path to the Lua mutator script. The default path is
-`./libfuzzer_mutator.lua`.
-
-To run the Lua example, use
-
-```sh
-LIBFUZZER_CUSTOM_MUTATOR_LUA_SCRIPT=./libfuzzer_mutator.lua example_compressed
-```
-
-All you need to do on the C/C++ side is
-
-```
-#include "libfuzzer_mutator.cpp"
-```
-
-in the target file where you have `LLVMFuzzerTestOneInput` (or any other
-compilation unit that is linked to the target) and then build with the Lua
-include and linker flags added to your build configuration.
-
-Then write a Lua script that does what you would like the fuzzer to do, you
-might want to use the `libfuzzer_mutator.lua` script. The environment variable
-`LIBFUZZER_CUSTOM_MUTATOR_LUA_SCRIPT` can be set to the path to the Lua mutator
-script. The default path is `./libfuzzer_mutator.lua`. Then just run your fuzzing as
-shown in the examples above.
-
-### API
-
-- `LLVMFuzzerCustomMutator(data, size, max_size, seed)` - function that called
-  for each mutation. Optional user-provided custom mutator. Mutates raw data in
-  `[data, data+size)` inplace. Returns the new size, which is not greater than
-  `max_size`. Given the same seed produces the same mutation.
-- `LLVMFuzzerMutate(data, size, max_size)` - function that called for each
-  mutation. libFuzzer-provided function to be used inside
-  `LLVMFuzzerCustomMutator`. Mutates raw data in `[data, data+size)` inplace.
-  Returns the new size, which is not greater than `max_size`.
-
 ## Fuzzing Lua programs
 
 ```lua
@@ -111,9 +69,9 @@ The luzer module provides two key functions: `Setup()` and `Fuzz()`.
 
 - `Setup(args, test_one_input, internal_libfuzzer=None)`
   - `args`: A list of strings: the process arguments to pass to the fuzzer,
-    typically sys.argv. This argument list may be modified in-place, to remove
-    arguments consumed by the fuzzer. See the LibFuzzer docs for a list of such
-    options. https://llvm.org/docs/LibFuzzer.html#options
+    typically `argv`. This argument list may be modified in-place, to remove
+    arguments consumed by the fuzzer. See the [libFuzzer docs][libfuzzer-options-url]
+    for a list of such options.
   - `test_one_input`: your fuzzer's entry point. Must take a single bytes
     argument. This will be repeatedly invoked with a single bytes container.
   - `internal_libfuzzer`: Indicates whether libfuzzer will be provided by atheris
@@ -174,6 +132,49 @@ The `FuzzedDataProvider` then supports the following functions:
 - `PickValueInList(l: list)` - given a list, pick a random value.
 - `ConsumeBool()` - consume either `true` or `false`.
 
+## Using custom mutators
+
+luzer allows [custom mutators][libfuzzer-mutators-url] to be written in Lua 5.1
+(including Lua-JIT), 5.2, 5.3 or 5.4.
+
+The environment variable `LIBFUZZER_CUSTOM_MUTATOR_LUA_SCRIPT` can be set to
+the path to the Lua mutator script. The default path is
+`./libfuzzer_mutator.lua`.
+
+To run the Lua example, use
+
+```sh
+LIBFUZZER_CUSTOM_MUTATOR_LUA_SCRIPT=./libfuzzer_mutator.lua example_compressed
+```
+
+All you need to do on the C/C++ side is
+
+```
+#include "libfuzzer_mutator.cpp"
+```
+
+in the target file where you have `LLVMFuzzerTestOneInput` (or any other
+compilation unit that is linked to the target) and then build with the Lua
+include and linker flags added to your build configuration.
+
+Then write a Lua script that does what you would like the fuzzer to do, you
+might want to use the `libfuzzer_mutator.lua` script. The environment variable
+`LIBFUZZER_CUSTOM_MUTATOR_LUA_SCRIPT` can be set to the path to the Lua mutator
+script. The default path is `./libfuzzer_mutator.lua`. Then just run your fuzzing as
+shown in the examples above.
+
+### API
+
+- `LLVMFuzzerCustomMutator(data, size, max_size, seed)` - function that called
+  for each mutation. Optional user-provided custom mutator. Mutates raw data in
+  `[data, data+size)` inplace. Returns the new size, which is not greater than
+  `max_size`. Given the same seed produces the same mutation.
+- `LLVMFuzzerMutate(data, size, max_size)` - function that called for each
+  mutation. libFuzzer-provided function to be used inside
+  `LLVMFuzzerCustomMutator`. Mutates raw data in `[data, data+size)` inplace.
+  Returns the new size, which is not greater than `max_size`.
+
+
 ## Hacking
 
 For developing `luzer` you need to install packages with libraries and headers
@@ -202,4 +203,5 @@ Distributed under the ISC License.
   - группа в телеграме про фаззинг для ФСТЭК
 
 [libfuzzer-url]: https://llvm.org/docs/LibFuzzer.html
+[libfuzzer-options-url]: https://llvm.org/docs/LibFuzzer.html#options
 [libfuzzer-mutators-url]: https://github.com/google/fuzzing/blob/master/docs/structure-aware-fuzzing.md
