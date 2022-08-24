@@ -72,25 +72,25 @@ The luzer module provides two key functions: `Setup()` and `Fuzz()`.
     typically `argv`. This argument list may be modified in-place, to remove
     arguments consumed by the fuzzer. See the [libFuzzer docs][libfuzzer-options-url]
     for a list of such options.
-  - `test_one_input`: your fuzzer's entry point. Must take a single bytes
+  - `test_one_input`: Your fuzzer's entry point. Must take a single bytes
     argument. This will be repeatedly invoked with a single bytes container.
-  - `internal_libfuzzer`: Indicates whether libfuzzer will be provided by atheris
-    or by an external library (see native_extension_fuzzing.md). If unspecified,
-    luzer will determine this automatically. If fuzzing pure Lua, leave this
-    as `true`.
+  - `internal_libfuzzer`: Indicates whether libfuzzer will be provided by
+    luzer or by an external library. If unspecified, luzer will determine
+    this automatically. If fuzzing pure Lua, leave this as `true`.
 - `Fuzz()` starts the fuzzer. You must have called `Setup()` before calling
   this function. This function does not return. In many cases `Setup()` and
   `Fuzz()` could be combined into a single function, but they are separated
   because you may want the fuzzer to consume the command-line arguments it
   handles before passing any remaining arguments to another setup function.
-- `FuzzedDataProvider` Often, a `bytes` object is not convenient input to your
-  code being fuzzed. Similar to libFuzzer, we provide a FuzzedDataProvider to
-  translate these bytes into other input forms.
+
+Often, a `bytes` object is not convenient input to your code being fuzzed.
+Similar to libFuzzer, we provide a `FuzzedDataProvider` to translate these
+bytes into other input forms.
 
 You can construct the `FuzzedDataProvider` with:
 
 ```lua
-fdp = luzer.FuzzedDataProvider(input_bytes)
+local fdp = luzer.FuzzedDataProvider(input_bytes)
 ```
 
 The `FuzzedDataProvider` then supports the following functions:
@@ -102,7 +102,7 @@ The `FuzzedDataProvider` then supports the following functions:
   support them, so other software often needs to too.
 - `ConsumeUnicodeNoSurrogates(count: int)` - consume unicode characters, but
   never generate surrogate pair characters.
-- `ConsumeString(count: int)` - Alias for `ConsumeBytes` in Python 2, or
+- `ConsumeString(count: int)` - alias for `ConsumeBytes` in Python 2, or
   `ConsumeUnicode` in Python 3.
 - `ConsumeInt(int: bytes)` - consume a signed integer of the specified size
   (when written in two's complement notation).
