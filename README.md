@@ -87,10 +87,22 @@ $
 ```
 
 ```sh
-$ luarocks install --tree modules --lua-version 5.3 lua-cmsgpack 0.4.0-0 CC="afl-gcc" CFLAGS="-ggdb -fPIC"
+$ luarocks install --tree modules --lua-version 5.1 lua-cmsgpack 0.4.0-0 CC="clang" CFLAGS="-ggdb -fPIC"
 $ luarocks path
-$ export LUA_PATH="$LUA_PATH;modules/lib/lua/5.3/?.lua"
-$ export LUA_CPATH="$LUA_CPATH;modules/lib/lua/5.3/?.so"
+$ export LUA_PATH="$LUA_PATH;modules/lib/lua/5.1/?.lua"
+$ export LUA_CPATH="$LUA_CPATH;modules/lib/lua/5.1/?.so"
+$ cat test.lua
+local luzer = require("luzer")
+
+local function TestOneInput(buf)
+    local b = {}
+    buf:gsub(".", function(c) table.insert(b, c) end)
+    -- FIXME
+end
+
+luzer.Setup({}, TestOneInput)
+luzer.Fuzz()
+$ luajit test.lua
 ```
 
 ### API
@@ -250,8 +262,7 @@ Consume either `true` or `false`.
 ## Hacking
 
 For developing `luzer` you need to install packages with libraries and headers
-and CMake. On Debian: `apt install -y liblua5.1-0-dev libclang-common-14-dev
-libstdc++-11-dev cmake`.
+and CMake. On Debian: `apt install -y liblua5.1-0-dev libclang-common-14-dev cmake`.
 
 ```sh
 $ cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build
@@ -273,6 +284,7 @@ Distributed under the ISC License.
   - https://groups.google.com/g/libfuzzer
   - https://github.com/uhub/awesome-lua
   - lobsters
+  - группа в телеграме про фаззинг для ФСТЭК
 
 [libfuzzer-url]: https://llvm.org/docs/LibFuzzer.html
 [libfuzzer-mutators-url]: https://github.com/google/fuzzing/blob/master/docs/structure-aware-fuzzing.md
