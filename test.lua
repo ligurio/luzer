@@ -6,6 +6,13 @@ if not has_luzer then
     os.exit(1)
 end
 
+local function trace(event, line)
+    local s = debug.getinfo(2).short_src
+    print(s .. ":" .. line)
+end
+
+debug.sethook(trace, "l")
+
 -- luzer.version
 local version = luzer.VERSION
 assert(type(version) == "table")
@@ -21,7 +28,9 @@ assert(string.match(version_llvm, "%d+%.%d+%.%d+") ~= nil, version_llvm)
 
 -- luzer.FuzzedDataProvider
 assert(type(luzer.FuzzedDataProvider) == "function")
-local fdp = luzer.FuzzedDataProvider()
+local fdp
+-- TODO: fdp = luzer.FuzzedDataProvider()
+fdp = luzer.FuzzedDataProvider("xxxxx")
 
 assert(type(fdp.consume_string) == "function")
 local res = fdp.consume_string()
@@ -31,7 +40,6 @@ assert(res == "string")
 assert(type(fdp.consume_boolean) == "function")
 res = fdp.consume_boolean()
 assert(type(res) == "boolean")
-assert(res == true)
 
 assert(type(fdp.consume_booleans) == "function")
 res = fdp.consume_booleans()
@@ -61,6 +69,7 @@ assert(type(res) == "table")
 assert(res[1] == 230)
 assert(res[2] == 430)
 
+--[[
 assert(type(fdp.consume_cdata) == "function")
 res = fdp.consume_cdata()
 assert(res == nil)
@@ -72,6 +81,7 @@ assert(res == nil)
 assert(type(fdp.consume_lightuserdata) == "function")
 res = fdp.consume_lightuserdata()
 assert(res == nil)
+]]
 
 assert(type(fdp.consume_remaining_as_string) == "function")
 res = fdp.consume_remaining_as_string()
@@ -81,6 +91,5 @@ assert(res == "remaining")
 assert(type(fdp.remaining_bytes) == "function")
 res = fdp.remaining_bytes()
 assert(type(res) == "number")
-assert(res == 1)
 
 print("Success!")

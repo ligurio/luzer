@@ -45,7 +45,7 @@ LLVMFuzzerRunDriver(int *argc, char ***argv,
  * automatically. If fuzzing pure Lua, leave this as True.
  */
 static int
-l_setup(lua_State *L)
+luaL_setup(lua_State *L)
 {
 	/* argv */
 	if (!lua_istable(L, 1)) {
@@ -88,7 +88,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
  * another setup function.
  */
 static int
-l_fuzz(lua_State *L)
+luaL_fuzz(lua_State *L)
 {
     /* TODO: call LibFuzzer's Fuzz() function */
 	// tracer https://github.com/mpeterv/cluacov/blob/master/src/cluacov/deepactivelines.c
@@ -107,7 +107,7 @@ l_fuzz(lua_State *L)
 }
 
 static int
-l_require_instrument(lua_State *L)
+luaL_require_instrument(lua_State *L)
 {
     /* TODO: wraps "require()" and remember instrumented modules */
     const char *module_name = lua_tostring(L, 1);
@@ -119,34 +119,18 @@ l_require_instrument(lua_State *L)
 }
 
 static int
-l_custom_mutator(lua_State *L)
+luaL_custom_mutator(lua_State *L)
 {
     /* TODO: process data, max_size, seed */
     return 0;
 }
 
-int
-l_fuzzed_data_provider(lua_State *L)
-{
-	/* TODO: FuzzedDataProvider accepts a number of bytes */
-	size_t n = sizeof(FuzzedDataProvider_functions)/
-			   sizeof(FuzzedDataProvider_functions[0]);
-	lua_createtable(L, 0, n);
-    for (int i = 0; FuzzedDataProvider_functions[i].name[0]; i++) {
-        lua_pushstring(L, FuzzedDataProvider_functions[i].name);
-        lua_pushcfunction(L, FuzzedDataProvider_functions[i].func);
-		lua_settable(L, -3);
-    }
-
-    return 1;
-}
-
 static const struct luaL_Reg Module[] = {
-	{ "Setup", l_setup },
-	{ "Fuzz", l_fuzz },
-	{ "FuzzedDataProvider", l_fuzzed_data_provider },
-	{ "Mutate", l_custom_mutator },
-	{ "require_instrument", l_require_instrument },
+	{ "Setup", luaL_setup },
+	{ "Fuzz", luaL_fuzz },
+	{ "FuzzedDataProvider", luaL_fuzzed_data_provider },
+	{ "Mutate", luaL_custom_mutator },
+	{ "require_instrument", luaL_require_instrument },
 	{ NULL, NULL }
 };
 
