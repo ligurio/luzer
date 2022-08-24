@@ -96,9 +96,6 @@ luaL_consume_numbers(lua_State *L)
     return 1;
 }
 
- * int	    consumeInt(int min, int max)	Consumes an int between min and max from the fuzzer input.
- * int[]	consumeInts(int maxLength)	Consumes an int array from the fuzzer input.
-
 /* Consumes an arbitrary int or an int between min and max from the fuzzer
    input. */
 static int
