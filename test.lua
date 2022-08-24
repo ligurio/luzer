@@ -20,11 +20,12 @@ local version_lua = version.LUA
 local version_luzer = version.LUZER
 local version_llvm = version.LLVM
 assert(type(version_lua) == "string")
-assert(string.match(version_lua, "%d+%.%d+%.%d+") ~= nil, version_lua)
+local semver_re = "%d+%.%d+%.%d+"
+assert(string.match(version_lua, semver_re) ~= nil, version_lua)
 assert(type(version_luzer) == "string")
-assert(string.match(version_luzer, "%d+%.%d+%.%d+") ~= nil, version_luzer)
+assert(string.match(version_luzer, semver_re) ~= nil, version_luzer)
 assert(type(version_llvm) == "string")
-assert(string.match(version_llvm, "%d+%.%d+%.%d+") ~= nil, version_llvm)
+assert(string.match(version_llvm, semver_re) ~= nil, version_llvm)
 
 -- luzer.FuzzedDataProvider
 assert(type(luzer.FuzzedDataProvider) == "function")

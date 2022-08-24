@@ -125,26 +125,6 @@ luaL_consume_integers(lua_State *L)
     return 1;
 }
 
-/*
-static int
-luaL_consume_cdata(lua_State *L)
-{
-    return 0;
-}
-
-static int
-luaL_consume_userdata(lua_State *L)
-{
-    return 0;
-}
-
-static int
-luaL_consume_lightuserdata(lua_State *L)
-{
-    return 0;
-}
-*/
-
 static int
 luaL_consume_remaining_as_string(lua_State *L)
 {
@@ -219,13 +199,10 @@ static const struct {
 	{ "consume_strings", luaL_consume_strings },
 	{ "consume_boolean", luaL_consume_boolean },
 	{ "consume_booleans", luaL_consume_booleans },
-	{ "consume_number", luaL_consume_number }, // lua_Number
-	{ "consume_numbers", luaL_consume_numbers }, // lua_Number
-	{ "consume_integer", luaL_consume_integer }, // lua_Integer
+	{ "consume_number", luaL_consume_number },
+	{ "consume_numbers", luaL_consume_numbers },
+	{ "consume_integer", luaL_consume_integer },
 	{ "consume_integers", luaL_consume_integers },
-	//{ "consume_cdata", luaL_consume_cdata },
-	//{ "consume_userdata", luaL_consume_userdata }, // https://www.lua.org/pil/28.1.html
-	//{ "consume_lightuserdata", luaL_consume_lightuserdata }, // https://www.lua.org/pil/28.5.html
 	{ "consume_remaining_as_string", luaL_consume_remaining_as_string },
 	{ "consume_remaining_bytes", luaL_consume_remaining_bytes },
 	{ "consume_probability", luaL_consume_probability },
