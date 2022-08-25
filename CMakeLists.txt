@@ -15,16 +15,19 @@ message(STATUS "Found Lua ${LUA_VERSION_STRING}")
 message(STATUS "Found Lua interpreter ${LUA_EXECUTABLE}")
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 
-# TODO: check a minimal version of LLVM where FuzzedDataProvider.h is present.
+if(${LLVM_PACKAGE_VERSION} VERSION_LESS 5.0.0)
+  message(FATAL_ERROR "LLVM 5.0.0 or newer is required")
+endif()
 
-if(CMAKE_COMPILER_IS_GNUCC)
-message(FATAL_ERROR
-    "\n"
-    "Building is unsupported with GCC compiler. Use Clang:\n"
-    " $ rm -rf build\n"
-    " $ cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build\n"
-    " $ cmake --build build --parallel\n"
-    "\n")
+if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
+   NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
+  message(FATAL_ERROR
+      "\n"
+      "Building is supported with Clang compiler only.\n"
+      " $ rm -rf build\n"
+      " $ cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build\n"
+      " $ cmake --build build --parallel\n"
+      "\n")
 endif()
 
 set(LUZER_SOURCES luzer.c
@@ -45,8 +48,6 @@ target_include_directories(libfuzzer_mutator_test PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(libfuzzer_mutator_test PRIVATE ${LUA_LIBRARIES})
 target_compile_options(libfuzzer_mutator_test PUBLIC -Wall -Wextra -Wno-unused-parameter)
 
-set(CMAKE_CTEST_ARGUMENTS "--verbose")
-
 if(EXISTS ${LUA_EXECUTABLE})
   enable_testing()
   add_test(
@@ -64,6 +65,7 @@ if(EXISTS ${LUA_EXECUTABLE})
   set_tests_properties(mutator_test PROPERTIES
     ENVIRONMENT "LIBFUZZER_MUTATOR_LUA_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_mutator.lua"
     PASS_REGULAR_EXPRESSION "data Hi,Sergey, size 9, max_size 10, seed 98")
+  set(CMAKE_CTEST_ARGUMENTS "--verbose")
 else()
   message(WARNING "Lua executable is not found, testing is not available.")
 endif()
