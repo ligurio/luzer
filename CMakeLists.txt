@@ -30,13 +30,25 @@ if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
       "\n")
 endif()
 
+# Locate compiler-rt libraries.
+# Location is LLVM_LIBRARY_DIRS/clang/<version>/lib/<OS>/,
+# for example LLVM_LIBRARY_DIRS/clang/4.0.0/lib/darwin/.
+#
+set(LIBCLANG_RT_PATH ${LLVM_LIBRARY_DIRS}/clang/${LLVM_PACKAGE_VERSION}/lib/linux/libclang_rt.fuzzer_no_main-x86_64.a)
+if(EXISTS ${LIBCLANG_RT_PATH})
+	message(STATUS "Found libclang_rt ${LIBCLANG_RT_PATH}")
+else()
+  message(FATAL_ERROR "libclang_rt is not found")
+endif()
+
 set(LUZER_SOURCES luzer.c
                   fuzzed_data_provider.cc
                   tracer.c)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${LUZER_SOURCES})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LIBRT} -fsanitize=fuzzer-no-link /usr/lib/llvm-13/lib/clang/13.0.1/lib/linux/libclang_rt.fuzzer_no_main-x86_64.a)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LIBRT} ${LIBCLANG_RT_PATH} -fsanitize=fuzzer-no-link)
+# target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LIBRT} -fsanitize=fuzzer-no-link /usr/lib/llvm-13/lib/clang/13.0.1/lib/linux/libclang_rt.fuzzer_no_main-x86_64.a)
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wno-unused-parameter -g -fsanitize=fuzzer-no-link)
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
 
