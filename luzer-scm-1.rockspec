@@ -1,4 +1,3 @@
---rockspec_format = "3.0"
 package = 'luzer'
 version = 'scm-1'
 source = {
@@ -8,17 +7,14 @@ source = {
 
 description = {
     summary = 'A coverage-guided, native Lua fuzzer',
+    detailed = [[ luzer is a coverage-guided Lua fuzzing engine. It supports
+fuzzing of Lua code, but also native extensions written for Lua. Luzer is
+based off of libFuzzer. When fuzzing native code, luzer can be used in
+combination with Address Sanitizer or Undefined Behavior Sanitizer to catch
+extra bugs. ]],
     homepage = 'https://github.com/ligurio/luzer',
-    --issues_url = "https://github.com/ligurio/luzer/issues",
     maintainer = 'Sergey Bronnikov <estetus@gmail.com>',
     license = 'ISC',
-    --[[
-    labels = {
-        "testing",
-        "fuzzing",
-        "libfuzzer",
-    },
-    ]]
 }
 
 build = {
