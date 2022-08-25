@@ -49,11 +49,9 @@ set(LUZER_SOURCES luzer.c
                   fuzzed_data_provider.cc
                   tracer.c)
 
-set(LIBCLANG_INCLUDE ${LLVM_BASE}/include/)
 add_library(${CMAKE_PROJECT_NAME} SHARED ${LUZER_SOURCES})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 	${LUA_INCLUDE_DIR}
-	# FIXME: ${LIBCLANG_INCLUDE}
 )
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	${LUA_LIBRARIES}
