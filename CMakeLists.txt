@@ -36,8 +36,9 @@ endif()
 # for example LLVM_LIBRARY_DIRS/clang/4.0.0/lib/darwin/.
 #
 
+set(LLVM_BASE ${LLVM_LIBRARY_DIRS}/clang/${LLVM_PACKAGE_VERSION})
 string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} OS_NAME)
-set(LIBCLANG_RT ${LLVM_LIBRARY_DIRS}/clang/${LLVM_PACKAGE_VERSION}/lib/${OS_NAME}/libclang_rt.fuzzer_no_main-x86_64.a)
+set(LIBCLANG_RT ${LLVM_BASE}/lib/${OS_NAME}/libclang_rt.fuzzer_no_main-x86_64.a)
 if(EXISTS ${LIBCLANG_RT})
   message(STATUS "Found libclang_rt ${LIBCLANG_RT}")
 else()
@@ -48,8 +49,12 @@ set(LUZER_SOURCES luzer.c
                   fuzzed_data_provider.cc
                   tracer.c)
 
+set(LIBCLANG_INCLUDE ${LLVM_BASE}/include/)
 add_library(${CMAKE_PROJECT_NAME} SHARED ${LUZER_SOURCES})
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+	${LUA_INCLUDE_DIR}
+	# FIXME: ${LIBCLANG_INCLUDE}
+)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	${LUA_LIBRARIES}
 	${LIBRT}

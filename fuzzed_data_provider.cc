@@ -2,8 +2,7 @@
 #include <lauxlib.h>
 #include <lualib.h>
 #include <iostream> /* TODO: remove */
-
-#include "FuzzedDataProvider.h" /* FIXME: import from libFuzzer */
+#include <fuzzer/FuzzedDataProvider.h>
 
 #include "fuzzed_data_provider.h"
 #include "macros.h"
