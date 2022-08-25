@@ -73,9 +73,17 @@ endif()
 ## Install ####################################################################
 ###############################################################################
 
+if(NOT LIBDIR STREQUAL "")
+  set(CMAKE_LIBRARY_PATH ${LIBDIR})
+endif()
+
+if(NOT LUADIR STREQUAL "")
+  set(CMAKE_SYSTEM_PREFIX_PATH ${LUADIR})
+endif()
+
 install(
   TARGETS ${CMAKE_PROJECT_NAME}
-  DESTINATION ${LIBDIR}
+  DESTINATION ${CMAKE_SYSTEM_PREFIX_PATH}
   RENAME luzer.so
 )
 
@@ -84,5 +92,5 @@ install(
     ${CMAKE_CURRENT_SOURCE_DIR}/README.md
     ${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_mutator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_mutator.lua
-  DESTINATION ${LUADIR}/${PROJECT_NAME}/
+  DESTINATION ${CMAKE_LIBRARY_PATH}/${PROJECT_NAME}/
 )
