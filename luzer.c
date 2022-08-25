@@ -3,6 +3,7 @@
 #include <lualib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 #include "fuzzed_data_provider.h"
 #include "macros.h"
@@ -16,7 +17,7 @@ extern "C" {
 #endif
 int LLVMFuzzerRunDriver(int* argc, char*** argv,
                         int (*UserCb)(const uint8_t* Data, size_t Size));
-size_t LLVMFuzzerMutate(uint8_t* Data, size_t Size, size_t MaxSize);
+// size_t LLVMFuzzerMutate(uint8_t* Data, size_t Size, size_t MaxSize);
 void __sanitizer_cov_8bit_counters_init(uint8_t* start, uint8_t* stop);
 void __sanitizer_cov_pcs_init(uint8_t* pcs_beg, uint8_t* pcs_end);
 
@@ -82,6 +83,24 @@ luaL_setup(lua_State *L)
     return 0;
 }
 
+
+char **new_argv(int count, ...)
+{
+    va_list args;
+    int i;
+    char **argv = malloc((count+1) * sizeof(char*));
+    char *temp;
+    va_start(args, count);
+    for (i = 0; i < count; i++) {
+        temp = va_arg(args, char*);
+        argv[i] = malloc(sizeof(temp));
+        argv[i] = temp;
+    }
+    argv[i] = NULL;
+    va_end(args);
+    return argv;
+}
+
 /*
  * Fuzz()
  *
@@ -96,8 +115,9 @@ luaL_setup(lua_State *L)
 static int
 luaL_fuzz(lua_State *L)
 {
-    //return LLVMFuzzerRunDriver(NULL, NULL, &TestOneInput);
-	return 0;
+	int argc = 5;
+    char **argv = new_argv(4, "This", "is", "a", "test");
+    return LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 }
 
 static int

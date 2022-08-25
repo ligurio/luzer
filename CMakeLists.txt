@@ -36,8 +36,8 @@ set(LUZER_SOURCES luzer.c
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${LUZER_SOURCES})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LIBRT})
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wno-unused-parameter -g)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} ${LIBRT} -fsanitize=fuzzer-no-link /usr/lib/llvm-13/lib/clang/13.0.1/lib/linux/libclang_rt.fuzzer_no_main-x86_64.a)
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wno-unused-parameter -g -fsanitize=fuzzer-no-link)
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
 
 ## Testing ####################################################################
