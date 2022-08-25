@@ -9,6 +9,42 @@
 
 #define LUZER_VERSION "0.1.0"
 
+typedef int (*UserCb)(const uint8_t* Data, size_t Size);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+int LLVMFuzzerRunDriver(int* argc, char*** argv,
+                        int (*UserCb)(const uint8_t* Data, size_t Size));
+size_t LLVMFuzzerMutate(uint8_t* Data, size_t Size, size_t MaxSize);
+void __sanitizer_cov_8bit_counters_init(uint8_t* start, uint8_t* stop);
+void __sanitizer_cov_pcs_init(uint8_t* pcs_beg, uint8_t* pcs_end);
+
+// Called before a comparison instruction if exactly one of the arguments is constant.
+// Arg1 and Arg2 are arguments of the comparison, Arg1 is a compile-time constant.
+// These callbacks are emitted by -fsanitize-coverage=trace-cmp since 2017-08-11
+void __sanitizer_cov_trace_const_cmp1(uint8_t Arg1, uint8_t Arg2);
+void __sanitizer_cov_trace_const_cmp2(uint16_t Arg1, uint16_t Arg2);
+void __sanitizer_cov_trace_const_cmp4(uint32_t Arg1, uint32_t Arg2);
+void __sanitizer_cov_trace_const_cmp8(uint64_t Arg1, uint64_t Arg2);
+
+// Called before a comparison instruction.
+// Arg1 and Arg2 are arguments of the comparison.
+void __sanitizer_cov_trace_cmp1(uint8_t Arg1, uint8_t Arg2);
+void __sanitizer_cov_trace_cmp2(uint16_t Arg1, uint16_t Arg2);
+void __sanitizer_cov_trace_cmp4(uint32_t Arg1, uint32_t Arg2);
+void __sanitizer_cov_trace_cmp8(uint64_t Arg1, uint64_t Arg2);
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+NO_SANITIZE
+int TestOneInput(const uint8_t* data, size_t size) {
+  /* TODO: see trash/atheris/src/native/core.cc */
+
+  return 0;
+}
+
 /*
  * Setup(args, test_one_input, internal_libfuzzer=None)
  *
@@ -46,16 +82,6 @@ luaL_setup(lua_State *L)
     return 0;
 }
 
-int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
-/*
-  if (size > 0 && data[0] == 'H')
-    if (size > 1 && data[1] == 'I')
-       if (size > 2 && data[2] == '!')
-       __builtin_trap();
-*/
-  return 0;
-}
-
 /*
  * Fuzz()
  *
@@ -70,16 +96,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
 static int
 luaL_fuzz(lua_State *L)
 {
-/*
-	int argc = 0;
-	(char *)argv[5];
-    argv[0]="prog_name.exe";
-    argv[1]="-c";
-    argv[2]="4";
-    argv[3]="sTriNg";
-    argc=4;
-	return LLVMFuzzerRunDriver(NULL, NULL, &LLVMFuzzerTestOneInput);
-*/
+    //return LLVMFuzzerRunDriver(NULL, NULL, &TestOneInput);
 	return 0;
 }
 
