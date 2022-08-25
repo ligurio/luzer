@@ -46,6 +46,4 @@ static void hook(lua_State *L, lua_Debug *ar) {
 
     luaL_openlibs(L);
     lua_sethook(L, hook, LUA_MASKLINE, 0);
-
-
 */
