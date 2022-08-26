@@ -85,8 +85,9 @@ may want the fuzzer to consume the command-line arguments it handles before
 passing any remaining arguments to another setup function.
 
 Often, a `bytes` object is not convenient input to your code being fuzzed.
-Similar to libFuzzer, we provide a `FuzzedDataProvider` to translate these
-bytes into other input forms.
+Similar to libFuzzer, luzer provides a `FuzzedDataProvider` that can simplify the
+task of creating a fuzz target by translating the raw input bytes received from
+the fuzzer into useful primitive Lua types.
 
 You can construct the `FuzzedDataProvider` with:
 
@@ -195,6 +196,7 @@ Distributed under the ISC License.
   - https://github.com/uhub/awesome-lua
   - lobsters
   - группа в телеграме про фаззинг для ФСТЭК
+  - ZeroBrane Studio?
 
 [libfuzzer-url]: https://llvm.org/docs/LibFuzzer.html
 [libfuzzer-options-url]: https://llvm.org/docs/LibFuzzer.html#options
