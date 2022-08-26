@@ -113,7 +113,7 @@ The `FuzzedDataProvider` then supports the following functions:
 - `consume_probability()` - consume a floating-point value in the range `[0, 1]`.
 - `remaining_bytes()` - returns the number of unconsumed bytes in the fuzzer
   input.
-- `pick_value_in_table()` - given a list, pick a random value.
+- `pick_value_in_table()` - given a table, pick a random value.
 
 ## Using custom mutators
 
