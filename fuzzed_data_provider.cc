@@ -138,6 +138,7 @@ luaL_consume_integers(lua_State *L)
     return 1;
 }
 
+/*
 static int
 luaL_consume_remaining_as_string(lua_State *L)
 {
@@ -150,6 +151,7 @@ luaL_consume_remaining_as_string(lua_State *L)
     lua_pushstring(L, "remaining");
     return 1;
 }
+*/
 
 // 0 <= return value <= 1.
 static int
@@ -167,6 +169,7 @@ luaL_consume_probability(lua_State *L)
 // template <typename T> std::vector<T> ConsumeBytes(size_t num_bytes);
 
 /* Consumes the remaining fuzzer input as a byte array. */
+/*
 static int
 luaL_consume_remaining_bytes(lua_State *L)
 {
@@ -174,6 +177,7 @@ luaL_consume_remaining_bytes(lua_State *L)
     lua_pushnumber(L, 1);
     return 1;
 }
+*/
 
 /* Returns the number of unconsumed bytes in the fuzzer input. */
 static int
@@ -216,8 +220,8 @@ static const struct {
 	{ "consume_numbers", luaL_consume_numbers },
 	{ "consume_integer", luaL_consume_integer },
 	{ "consume_integers", luaL_consume_integers },
-	{ "consume_remaining_as_string", luaL_consume_remaining_as_string },
-	{ "consume_remaining_bytes", luaL_consume_remaining_bytes },
+	//{ "consume_remaining_as_string", luaL_consume_remaining_as_string },
+	//{ "consume_remaining_bytes", luaL_consume_remaining_bytes },
 	{ "consume_probability", luaL_consume_probability },
 	{ "remaining_bytes", luaL_remaining_bytes },
 	{ "pick_value_in_table", luaL_pick_value_in_table },

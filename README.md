@@ -96,22 +96,21 @@ local fdp = luzer.FuzzedDataProvider(input_bytes)
 
 The `FuzzedDataProvider` then supports the following functions:
 
-- `consume_string(min, max)` - consume a string of the specified size.
+- `consume_string(min, max)` - consume a string with length in the range `[min,
+  max]`.
 - `consume_strings(min, max, count)` - consume a list of `count` strings with
   length in the range `[min, max]`.
-- `consume_integer(min, max)` - consume a signed integer of the specified size.
+- `consume_integer(min, max)` - consume a signed integer with size in the range
+  `[min, max]`.
 - `consume_integers(min, max, count)` - consume a list of `count` integers in the
   range `[min, max]`.
-- `consume_probability()` - consume a floating-point value in the range `[0, 1]`.
 - `consume_number(min, float)` - consume a floating-point value in the range
   `[min, max]`.
 - `consume_numbers(min, max, count)` - consume a list of `count` floats in the
   range `[min, max]`.
 - `consume_boolean()` - consume either `true` or `false`.
 - `consume_booleans(count)` - consume a list of `count` booleans.
-- `consume_remaining_as_string()` - consumes the remaining fuzzer input as a string.
-- `consume_remaining_bytes()` - consumes the remaining fuzzer input as a byte
-  array.
+- `consume_probability()` - consume a floating-point value in the range `[0, 1]`.
 - `remaining_bytes()` - returns the number of unconsumed bytes in the fuzzer
   input.
 - `pick_value_in_table()` - given a list, pick a random value.
