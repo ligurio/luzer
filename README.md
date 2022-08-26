@@ -157,6 +157,16 @@ shown in the examples above.
   `LLVMFuzzerCustomMutator`. Mutates raw data in `[data, data+size)` inplace.
   Returns the new size, which is not greater than `max_size`.
 
+## Companion tools
+
+Testing could be more rigorous with using these tools:
+
+- `Lua` https://github.com/fab13n/checks
+- `Lua` https://github.com/tarantool/checks
+- `Lua` https://github.com/luc-tielen/lua-quickcheck
+- `C/C++` Address Sanitizer
+- `C/C++` Memory Sanitizer
+- `C/C++` Undefined Behavior Sanitizer
 
 ## Hacking
 
