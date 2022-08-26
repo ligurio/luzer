@@ -67,21 +67,22 @@ $ luajit test.lua
 
 The luzer module provides two key functions: `Setup()` and `Fuzz()`.
 
-- `Setup(args, test_one_input, internal_libfuzzer=None)`
-  - `args`: A list of strings: the process arguments to pass to the fuzzer,
-    typically `argv`. This argument list may be modified in-place, to remove
-    arguments consumed by the fuzzer. See the [libFuzzer docs][libfuzzer-options-url]
-    for a list of such options.
-  - `test_one_input`: Your fuzzer's entry point. Must take a single bytes
-    argument. This will be repeatedly invoked with a single bytes container.
-  - `internal_libfuzzer`: Indicates whether libfuzzer will be provided by
-    luzer or by an external library. If unspecified, luzer will determine
-    this automatically. If fuzzing pure Lua, leave this as `true`.
-- `Fuzz()` starts the fuzzer. You must have called `Setup()` before calling
-  this function. This function does not return. In many cases `Setup()` and
-  `Fuzz()` could be combined into a single function, but they are separated
-  because you may want the fuzzer to consume the command-line arguments it
-  handles before passing any remaining arguments to another setup function.
+`Setup(args, test_one_input, internal_libfuzzer=None)`
+- `args`: A list of strings: the process arguments to pass to the fuzzer,
+  typically `argv`. This argument list may be modified in-place, to remove
+  arguments consumed by the fuzzer. See the [libFuzzer docs][libfuzzer-options-url]
+  for a list of such options.
+- `test_one_input`: Your fuzzer's entry point. Must take a single bytes
+  argument. This will be repeatedly invoked with a single bytes container.
+- `internal_libfuzzer`: Indicates whether libfuzzer will be provided by
+  luzer or by an external library. If unspecified, luzer will determine
+  this automatically. If fuzzing pure Lua, leave this as `true`.
+
+`Fuzz()` starts the fuzzer. You must have called `Setup()` before calling this
+function. This function does not return. In many cases `Setup()` and `Fuzz()`
+could be combined into a single function, but they are separated because you
+may want the fuzzer to consume the command-line arguments it handles before
+passing any remaining arguments to another setup function.
 
 Often, a `bytes` object is not convenient input to your code being fuzzed.
 Similar to libFuzzer, we provide a `FuzzedDataProvider` to translate these
@@ -95,42 +96,25 @@ local fdp = luzer.FuzzedDataProvider(input_bytes)
 
 The `FuzzedDataProvider` then supports the following functions:
 
-- `ConsumeBytes(count: int)` - consume `count` bytes.
-- `ConsumeUnicode(count: int)` - consume unicode characters. Might contain
-  surrogate pair characters, which according to the specification are invalid
-  in this situation. However, many core software tools (e.g. Windows file paths)
-  support them, so other software often needs to too.
-- `ConsumeUnicodeNoSurrogates(count: int)` - consume unicode characters, but
-  never generate surrogate pair characters.
-- `ConsumeString(count: int)` - alias for `ConsumeBytes` in Python 2, or
-  `ConsumeUnicode` in Python 3.
-- `ConsumeInt(int: bytes)` - consume a signed integer of the specified size
-  (when written in two's complement notation).
-- `ConsumeUInt(int: bytes)` - consume an unsigned integer of the specified
-  size.
-- `ConsumeIntInRange(min: int, max: int)` - consume an integer in the range
+- `consume_string(min, max)` - consume a string of the specified size.
+- `consume_strings(min, max, count)` - consume a list of `count` strings with
+  length in the range `[min, max]`.
+- `consume_integer(min, max)` - consume a signed integer of the specified size.
+- `consume_integers(min, max, count)` - consume a list of `count` integers in the
+  range `[min, max]`.
+- `consume_probability()` - consume a floating-point value in the range `[0, 1]`.
+- `consume_number(min, float)` - consume a floating-point value in the range
   `[min, max]`.
-- `ConsumeIntList(count: int, bytes: int)` - consume a list of count integers
-  of size bytes.
-- `ConsumeIntListInRange(count: int, min: int, max: int)` - consume a list of
-  count integers in the range `[min, max]`.
-- `ConsumeFloat()` - consume an arbitrary floating-point value. Might produce
-  weird values like `NaN` and `Inf`.
-- `ConsumeRegularFloat()` - consume an arbitrary numeric floating-point value;
-  never produces a special type like `NaN` or `Inf`.
-- `ConsumeProbability()` - consume a floating-point value in the range `[0, 1]`.
-- `ConsumeFloatInRange(min: float, max: float)` - consume a floating-point
-  value in the range `[min, max]`.
-- `ConsumeFloatList(count: int)` - consume a list of count arbitrary
-  floating-point values. Might produce weird values like `NaN` and `Inf`.
-- `ConsumeRegularFloatList(count: int)` - consume a list of count arbitrary
-  numeric floating-point values; never produces special types like `NaN` or `Inf`.
-- `ConsumeProbabilityList(count: int)` - consume a list of count floats in the
-  range `[0, 1]`.
-- `ConsumeFloatListInRange(count: int, min: float, max: float)` - consume a
-  list of count floats in the range `[min, max]`.
-- `PickValueInList(l: list)` - given a list, pick a random value.
-- `ConsumeBool()` - consume either `true` or `false`.
+- `consume_numbers(min, max, count)` - consume a list of `count` floats in the
+  range `[min, max]`.
+- `consume_boolean()` - consume either `true` or `false`.
+- `consume_booleans(count)` - consume a list of `count` booleans.
+- `consume_remaining_as_string()` - consumes the remaining fuzzer input as a string.
+- `consume_remaining_bytes()` - consumes the remaining fuzzer input as a byte
+  array.
+- `remaining_bytes()` - returns the number of unconsumed bytes in the fuzzer
+  input.
+- `pick_value_in_table()` - given a list, pick a random value.
 
 ## Using custom mutators
 

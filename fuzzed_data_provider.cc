@@ -23,14 +23,15 @@ static FuzzedDataProvider *fdp = NULL;
 
 /*
  * TODO:
- * byte	consumeByte()	Consumes a byte from the fuzzer input.
- * byte	consumeByte(byte min, byte max)	Consumes a byte between min and max from the fuzzer input.
- * byte[]	consumeBytes(int maxLength)	Consumes a byte array from the fuzzer input.
- * char	consumeChar()	Consumes a char from the fuzzer input.
- * char	consumeChar(char min, char max)	Consumes a char between min and max from the fuzzer input.
+ * consumeByte()	Consumes a byte from the fuzzer input.
+ * consumeByte(byte min, byte max)	Consumes a byte between min and max from the fuzzer input.
+ * consumeBytes(int maxLength)	Consumes a byte array from the fuzzer input.
+ * consumeChar()	Consumes a char from the fuzzer input.
+ * consumeChar(char min, char max)	Consumes a char between min and max from the fuzzer input.
  *
  * TODO: Unicode, 6.5 – UTF-8 Support
  * https://www.lua.org/manual/5.4/manual.html
+ *
 */
 
 /* Consumes an ASCII-only String from the fuzzer input. */
