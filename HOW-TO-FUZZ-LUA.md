@@ -8,6 +8,9 @@
 требованиями к качеству и стабильности и интересуется рандомизированным
 тестированием.
 
+https://go-talks.appspot.com/github.com/dvyukov/go-fuzz/slides/go-fuzz.slide
+https://go-talks.appspot.com/github.com/dvyukov/go-fuzz/slides/fuzzing.slide
+
 ## Зачем?
 
 - тарантул состоит из нескольких компонентов: LuaJIT, сервера приложений, функциональность СУБД и др.
@@ -58,6 +61,16 @@ related vulnerabilities.
 - давайте сделаем интеграцию с Lua
 - рассказать как LibFuzzer интегрируется с Lua
 - рассказать FuzzedDataProvider
+
+## Call to action
+
+выберите любую функцию и напишите фаззинг тест для нее
+
+- Swift https://github.com/apple/swift/blob/main/docs/libFuzzerIntegration.md
+- Java https://github.com/CodeIntelligenceTesting/jazzer
+- Python https://github.com/google/atheris
+- Rust https://github.com/rust-fuzz/cargo-fuzz
+- Go https://github.com/dvyukov/go-fuzz
 
 ## Демо с лабиринтом
 

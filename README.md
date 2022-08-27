@@ -4,9 +4,21 @@
 
 # luzer: A Coverage-Guided, Native Lua Fuzzer
 
-luzer is a coverage-guided Lua fuzzing engine. It supports fuzzing of Lua code,
-but also native extensions written for Lua. Luzer is based off of
-[libFuzzer][libfuzzer-url]. When fuzzing native code, luzer can be used in
+## Overview
+
+Fuzzing is a type of automated testing which continuously manipulates inputs to
+a program to find bugs. `luzer` fuzzing uses coverage guidance to intelligently
+walk through the code being fuzzed to find and report failures to the user.
+Since it can reach edge cases which humans often miss, fuzz testing can be
+particularly valuable for finding security exploits and vulnerabilities.
+
+Below is an example of a fuzz test, highlighting its main components.
+
+**TODO**
+
+`luzer` is a coverage-guided Lua fuzzing engine. It supports fuzzing of Lua
+code, but also C extensions written for Lua. Luzer is based off of
+[libFuzzer][libfuzzer-url]. When fuzzing native code, `luzer` can be used in
 combination with Address Sanitizer or Undefined Behavior Sanitizer to catch
 extra bugs.
 
@@ -16,7 +28,15 @@ extra bugs.
 $ luarocks --local install luzer
 ```
 
-## Fuzzing Lua programs
+## Writing fuzz tests in Lua
+
+- There must be exactly one fuzz target per fuzz test.
+- Fuzz targets should be fast and deterministic so the fuzzing engine can work
+  efficiently, and new failures and code coverage can be easily reproduced.
+- Since the fuzz target is invoked in parallel across multiple workers and in
+  nondeterministic order, the state of a fuzz target should not persist past
+  the end of each call, and the behavior of a fuzz target should not depend on
+  global state.
 
 ```lua
 $ cat << EOF > sample.lua
@@ -116,9 +136,9 @@ The `FuzzedDataProvider` then supports the following functions:
   input.
 - `pick_value_in_table()` - given a table, pick a random value.
 
-## Using custom mutators
+## Using Lua custom mutators
 
-luzer allows [custom mutators][libfuzzer-mutators-url] to be written in Lua 5.1
+`luzer` allows [custom mutators][libfuzzer-mutators-url] to be written in Lua 5.1
 (including Lua-JIT), 5.2, 5.3 or 5.4.
 
 The environment variable `LIBFUZZER_CUSTOM_MUTATOR_LUA_SCRIPT` can be set to
