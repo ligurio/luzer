@@ -17,7 +17,6 @@ extern "C" {
 #endif
 int LLVMFuzzerRunDriver(int* argc, char*** argv,
                         int (*UserCb)(const uint8_t* Data, size_t Size));
-// size_t LLVMFuzzerMutate(uint8_t* Data, size_t Size, size_t MaxSize);
 void __sanitizer_cov_8bit_counters_init(uint8_t* start, uint8_t* stop);
 void __sanitizer_cov_pcs_init(uint8_t* pcs_beg, uint8_t* pcs_end);
 
@@ -35,9 +34,26 @@ void __sanitizer_cov_trace_cmp1(uint8_t Arg1, uint8_t Arg2);
 void __sanitizer_cov_trace_cmp2(uint16_t Arg1, uint16_t Arg2);
 void __sanitizer_cov_trace_cmp4(uint32_t Arg1, uint32_t Arg2);
 void __sanitizer_cov_trace_cmp8(uint64_t Arg1, uint64_t Arg2);
+
+// Sets the callback to be called right before death on error.
+// Passing 0 will unset the callback.
+// Called in libfuzzer_driver.cpp.
+void __sanitizer_set_death_callback(void (*callback)()) {}
+
+// Suppress libFuzzer warnings about missing sanitizer methods in non-sanitizer
+// builds.
+int __sanitizer_acquire_crash_state() { return 1; }
+
+// Print the stack trace leading to this call. Useful for debugging user code.
+// Jagger: Dump a Lua stack trace on timeouts.
+void __sanitizer_print_stack_trace() {
+  printf("Hello, everyone!\n");
+}
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
 
 NO_SANITIZE
 int TestOneInput(const uint8_t* data, size_t size) {
@@ -115,8 +131,9 @@ char **new_argv(int count, ...)
 static int
 luaL_fuzz(lua_State *L)
 {
-	int argc = 5;
-    char **argv = new_argv(4, "This", "is", "a", "test");
+	int argc = 1;
+    char **argv = new_argv(4, "is");
+
     return LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 }
 

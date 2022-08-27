@@ -39,7 +39,8 @@ related vulnerabilities.
 - есть форк интерпретатора Lua c патчами для фаззинга https://github.com/stevenjohnstone/afl-lua
 - писать свой фаззер с нуля неэффективно
 - самые популярные движки: AFL, LibFuzzer, hongfuzz. Принцип как и в статическом анализе: механизм работы тулов немного отличается и лучше использовать несколько разных, а не один из них.
-- Интеграция популярных движков с Lua!
+	- https://habr.com/ru/company/bizone/blog/570312/
+- Интеграция популярных движков с Lua! https://www.fuzzbench.com/reports/sample/index.html
 
 ## Интеграция с AFL
 
@@ -60,5 +61,6 @@ related vulnerabilities.
 
 ## Демо с лабиринтом
 
-- TODO
+- грамматики https://github.com/mozilla-services/lua_sandbox_extensions/tree/main/lpeg/modules/lpeg
+- https://github.com/stevenjohnstone/afl-lua/tree/v5.3/examples/maze
 - https://github.com/RUB-SysSec/ijon-data/tree/master/ijon-data

@@ -168,6 +168,7 @@ Testing could be more rigorous with using these tools:
 - `C/C++` Address Sanitizer
 - `C/C++` Memory Sanitizer
 - `C/C++` Undefined Behavior Sanitizer
+- `C/C++` Thread Sanitizer
 
 ## Hacking
 
