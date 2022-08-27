@@ -194,23 +194,9 @@ Testing could be more rigorous with using these tools:
 - `C/C++` Undefined Behavior Sanitizer
 - `C/C++` Thread Sanitizer
 
-## Hacking
-
-For developing `luzer` you need to install packages with libraries and headers
-and CMake. On Debian: `apt install -y liblua5.1-0-dev libclang-common-13-dev
-clang cmake`.
-
-```sh
-$ cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S . -B build
-$ cmake --build build --parallel
-$ cmake --build build --target test
-```
-
-You are ready to make patches!
-
 ## License
 
-Copyright © 2021-2022 [Sergey Bronnikov](https://bronevichok.ru/)
+Copyright © 2021-2022 [Sergey Bronnikov][bronevichok-url].
 
 Distributed under the ISC License.
 
@@ -226,3 +212,4 @@ Distributed under the ISC License.
 [libfuzzer-url]: https://llvm.org/docs/LibFuzzer.html
 [libfuzzer-options-url]: https://llvm.org/docs/LibFuzzer.html#options
 [libfuzzer-mutators-url]: https://github.com/google/fuzzing/blob/master/docs/structure-aware-fuzzing.md
+[bronevichok-url]: https://bronevichok.ru/
