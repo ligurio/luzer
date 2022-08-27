@@ -7,10 +7,10 @@
 ## Overview
 
 Fuzzing is a type of automated testing which continuously manipulates inputs to
-a program to find bugs. `luzer` fuzzing uses coverage guidance to intelligently
-walk through the code being fuzzed to find and report failures to the user.
-Since it can reach edge cases which humans often miss, fuzz testing can be
-particularly valuable for finding security exploits and vulnerabilities.
+a program to find bugs. `luzer` uses coverage guidance to intelligently walk
+through the code being fuzzed to find and report failures to the user. Since it
+can reach edge cases which humans often miss, fuzz testing can be particularly
+valuable for finding security exploits and vulnerabilities.
 
 Below is an example of a fuzz test, highlighting its main components.
 
@@ -64,8 +64,12 @@ EOF
 $
 ```
 
+## Running fuzz tests
+
+TODO: https://go.dev/doc/fuzz/
+
 ```sh
-$ luarocks install --tree modules --lua-version 5.1 lua-cmsgpack 0.4.0-0 CC="clang" CFLAGS="-ggdb -fPIC"
+$ luarocks install --tree modules --lua-version 5.1 lua-cmsgpack CC="clang" CFLAGS="-g -fsanitize=fuzzer-no-link,address"
 $ luarocks path
 $ export LUA_PATH="$LUA_PATH;modules/lib/lua/5.1/?.lua"
 $ export LUA_CPATH="$LUA_CPATH;modules/lib/lua/5.1/?.so"
@@ -83,7 +87,7 @@ luzer.Fuzz()
 $ luajit test.lua
 ```
 
-### API
+## Fuzzing API
 
 The luzer module provides two key functions: `Setup()` and `Fuzz()`.
 
@@ -167,7 +171,7 @@ might want to use the `libfuzzer_mutator.lua` script. The environment variable
 script. The default path is `./libfuzzer_mutator.lua`. Then just run your fuzzing as
 shown in the examples above.
 
-### API
+## Custom mutator API
 
 - `LLVMFuzzerCustomMutator(data, size, max_size, seed)` - function that called
   for each mutation. Optional user-provided custom mutator. Mutates raw data in
