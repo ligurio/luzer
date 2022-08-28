@@ -7,6 +7,7 @@
 
 #include "fuzzed_data_provider.h"
 #include "macros.h"
+#include "tracer.h"
 
 #define LUZER_VERSION "0.1.0"
 
@@ -22,7 +23,7 @@ void __sanitizer_cov_pcs_init(uint8_t* pcs_beg, uint8_t* pcs_end);
 
 // Called before a comparison instruction if exactly one of the arguments is constant.
 // Arg1 and Arg2 are arguments of the comparison, Arg1 is a compile-time constant.
-// These callbacks are emitted by -fsanitize-coverage=trace-cmp since 2017-08-11
+// These callbacks are emitted by -fsanitize-coverage=trace-cmp since 2017-08-11.
 void __sanitizer_cov_trace_const_cmp1(uint8_t Arg1, uint8_t Arg2);
 void __sanitizer_cov_trace_const_cmp2(uint16_t Arg1, uint16_t Arg2);
 void __sanitizer_cov_trace_const_cmp4(uint32_t Arg1, uint32_t Arg2);
@@ -47,19 +48,18 @@ int __sanitizer_acquire_crash_state() { return 1; }
 // Print the stack trace leading to this call. Useful for debugging user code.
 // Jagger: Dump a Lua stack trace on timeouts.
 void __sanitizer_print_stack_trace() {
-  printf("Hello, everyone!\n");
+	// TODO
+	printf("Hello, everyone!\n");
 }
-
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-
 NO_SANITIZE
 int TestOneInput(const uint8_t* data, size_t size) {
-  /* TODO: see trash/atheris/src/native/core.cc */
-
-  return 0;
+	/* TODO: see trash/atheris/src/native/core.cc */
+	/* TODO: execute Lua function TestOneInput() with proposed data and size */
+	return 0;
 }
 
 /*
@@ -81,12 +81,16 @@ static int
 luaL_setup(lua_State *L)
 {
 	/* argv */
+	/*
 	if (!lua_istable(L, 1)) {
 		assert(0);
 	}
 	if (lua_isfunction(L, 2) != 1) {
 		assert(0);
 	}
+	*/
+    luaL_openlibs(L);
+    lua_sethook(L, hook, LUA_MASKLINE, 0);
 	/*
 	 * TODO:
 	extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv) {
@@ -98,7 +102,6 @@ luaL_setup(lua_State *L)
 	}
     return 0;
 }
-
 
 char **new_argv(int count, ...)
 {

@@ -1,5 +1,10 @@
-#include <stddef.h>
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 #include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* https://clang.llvm.org/docs/SanitizerCoverage.html
  * https://chromium.googlesource.com/chromiumos/third_party/compiler-rt/+/google/stable/include/sanitizer/common_interface_defs.h
@@ -20,7 +25,7 @@ void __sanitizer_cov_pcs_init(uint8_t* pcs_beg, uint8_t* pcs_end);
  * From afl-python
  * https://github.com/jwilk/python-afl/blob/8df6bfefac5de78761254bf5d7724e0a52d254f5/afl.pyx#L74-L87
  */
-/*
+
 #define LHASH_INIT       0x811C9DC5
 #define LHASH_MAGIC_MULT 0x01000193
 #define LHASH_NEXT(x)    h = ((h ^ (unsigned char)(x)) * LHASH_MAGIC_MULT)
@@ -35,15 +40,14 @@ static inline unsigned int lhash(const char *key, size_t offset) {
 
 static unsigned int current_location;
 
-static void hook(lua_State *L, lua_Debug *ar) {
+void hook(lua_State *L, lua_Debug *ar) {
+	// SKIP? info.what == "C" then   -- is a C function?
     lua_getinfo(L, "Sl", ar);
     if (ar && ar->source && ar->currentline) {
-        const unsigned int new_location = lhash(ar->source, ar->currentline) % afl_shm_size;
-        afl_shm[current_location ^ new_location] += 1;
+        //const unsigned int new_location = lhash(ar->source, ar->currentline) % afl_shm_size;
+        const unsigned int new_location = lhash(ar->source, ar->currentline);
+        //afl_shm[current_location ^ new_location] += 1;
         current_location = new_location / 2;
     }
+	printf("%d0", ar->linedefined);
 }
-
-    luaL_openlibs(L);
-    lua_sethook(L, hook, LUA_MASKLINE, 0);
-*/

@@ -62,6 +62,31 @@ EOF
 $
 ```
 
+While fuzzing is in progress, the fuzzing engine generates new inputs and runs
+them against the provided fuzz target. By default, it continues to run until a
+failing input is found, or the user cancels the process (e.g. with Ctrl^C).
+
+The output will look something like this:
+
+```
+~ go test -fuzz FuzzFoo
+fuzz: elapsed: 0s, gathering baseline coverage: 0/192 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 192/192 completed, now fuzzing with 8 workers
+fuzz: elapsed: 3s, execs: 325017 (108336/sec), new interesting: 11 (total: 202)
+fuzz: elapsed: 6s, execs: 680218 (118402/sec), new interesting: 12 (total: 203)
+fuzz: elapsed: 9s, execs: 1039901 (119895/sec), new interesting: 19 (total: 210)
+fuzz: elapsed: 12s, execs: 1386684 (115594/sec), new interesting: 21 (total: 212)
+PASS
+ok      foo 12.692s
+```
+
+The first lines indicate that the "baseline coverage" is gathered before
+fuzzing begins.
+
+To gather baseline coverage, the fuzzing engine executes both the seed corpus
+and the generated corpus, to ensure that no errors occurred and to understand
+the code coverage the existing corpus already provides.
+
 <!--
 TODO: https://go.dev/doc/fuzz/
 
