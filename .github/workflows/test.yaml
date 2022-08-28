@@ -43,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - run: sudo apt install -y lua5.2 liblua5.2-dev clang
+      - run: sudo apt install -y luarocks lua5.2 liblua5.2-dev clang
 
       - run: luarocks --local build
 
