@@ -200,6 +200,7 @@ Copyright © 2021-2022 [Sergey Bronnikov][bronevichok-url].
 
 Distributed under the ISC License.
 
+<!--
 ## TODO
 
 - Promote:
@@ -208,6 +209,7 @@ Distributed under the ISC License.
   - lobsters
   - группа в телеграме про фаззинг для ФСТЭК
   - ZeroBrane Studio?
+-->
 
 [libfuzzer-url]: https://llvm.org/docs/LibFuzzer.html
 [libfuzzer-options-url]: https://llvm.org/docs/LibFuzzer.html#options
