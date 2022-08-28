@@ -43,12 +43,17 @@ void __sanitizer_set_death_callback(void (*callback)()) {}
 
 // Suppress libFuzzer warnings about missing sanitizer methods in non-sanitizer
 // builds.
-int __sanitizer_acquire_crash_state() { return 1; }
+int __sanitizer_acquire_crash_state() {
+	return 1;
+}
 
 // Print the stack trace leading to this call. Useful for debugging user code.
 // Jagger: Dump a Lua stack trace on timeouts.
 void __sanitizer_print_stack_trace() {
 	// TODO
+	// 5.2+ luaL_traceback(L, L, lua_tostring(L, 1), 1);
+	// http://www.lua.org/manual/5.3/manual.html#luaL_traceback
+	// https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
 	printf("Hello, everyone!\n");
 }
 #ifdef __cplusplus

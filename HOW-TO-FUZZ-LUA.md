@@ -73,9 +73,9 @@ related vulnerabilities.
 - Python https://github.com/google/atheris
 - Python https://pypi.org/project/atheris-libprotobuf-mutator/
 - Python https://pypi.org/project/pyfuzzer/
+- Javascript https://github.com/guidovranken/libfuzzer-js
 - Rust https://github.com/rust-fuzz/cargo-fuzz
 - Go https://github.com/dvyukov/go-fuzz
-- Javascript https://github.com/guidovranken/libfuzzer-js
 
 custom mutators:
 - https://github.com/MozillaSecurity/libfuzzer-python-bridge
