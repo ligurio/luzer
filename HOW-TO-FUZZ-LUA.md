@@ -47,6 +47,8 @@ related vulnerabilities.
 
 ## Интеграция с AFL
 
+- https://aflplus.plus/rC3_talk_2020.pdf
+- https://lcamtuf.blogspot.com/2014/10/fuzzing-binaries-without-execve.html
 - для AFL есть интеграция с Python, Ruby
 - давайте сделаем интеграцию с Lua
 - AFL++/AFL поддерживают интеграцию с помощью тн forkserver
@@ -69,8 +71,15 @@ related vulnerabilities.
 - Swift https://github.com/apple/swift/blob/main/docs/libFuzzerIntegration.md
 - Java https://github.com/CodeIntelligenceTesting/jazzer
 - Python https://github.com/google/atheris
+- Python https://pypi.org/project/atheris-libprotobuf-mutator/
+- Python https://pypi.org/project/pyfuzzer/
 - Rust https://github.com/rust-fuzz/cargo-fuzz
 - Go https://github.com/dvyukov/go-fuzz
+- Javascript https://github.com/guidovranken/libfuzzer-js
+
+custom mutators:
+- https://github.com/MozillaSecurity/libfuzzer-python-bridge
+- Lua
 
 ## Демо с лабиринтом
 
