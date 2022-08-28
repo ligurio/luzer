@@ -2,7 +2,9 @@
 [![Testing](https://github.com/ligurio/luzer/actions/workflows/test.yaml/badge.svg)](https://github.com/ligurio/luzer/actions/workflows/test.yaml)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
-# luzer: A Coverage-Guided, Native Lua Fuzzer
+# luzer
+
+a coverage-guided, native Lua fuzzer.
 
 ## Overview
 
@@ -11,10 +13,6 @@ a program to find bugs. `luzer` uses coverage guidance to intelligently walk
 through the code being fuzzed to find and report failures to the user. Since it
 can reach edge cases which humans often miss, fuzz testing can be particularly
 valuable for finding security exploits and vulnerabilities.
-
-Below is an example of a fuzz test, highlighting its main components.
-
-**TODO**
 
 `luzer` is a coverage-guided Lua fuzzing engine. It supports fuzzing of Lua
 code, but also C extensions written for Lua. Luzer is based off of
@@ -64,8 +62,7 @@ EOF
 $
 ```
 
-## Running fuzz tests
-
+<!--
 TODO: https://go.dev/doc/fuzz/
 
 ```sh
@@ -86,6 +83,7 @@ luzer.Setup({}, TestOneInput)
 luzer.Fuzz()
 $ luajit test.lua
 ```
+-->
 
 ## Fuzzing API
 
@@ -182,6 +180,7 @@ shown in the examples above.
   `LLVMFuzzerCustomMutator`. Mutates raw data in `[data, data+size)` inplace.
   Returns the new size, which is not greater than `max_size`.
 
+<!--
 ## Companion tools
 
 Testing could be more rigorous with using these tools:
@@ -193,6 +192,7 @@ Testing could be more rigorous with using these tools:
 - `C/C++` Memory Sanitizer
 - `C/C++` Undefined Behavior Sanitizer
 - `C/C++` Thread Sanitizer
+-->
 
 ## License
 
