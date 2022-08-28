@@ -31,3 +31,20 @@ jobs:
       - run: cmake --build build --parallel $(nproc)
 
       - run: cmake --build build --target test
+
+  build-rock:
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+    strategy:
+      fail-fast: false
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@master
+
+      - run: sudo apt install -y lua5.2 liblua5.2-dev clang
+
+      - run: luarocks --local build
+
+      - run: luarocks --local make
