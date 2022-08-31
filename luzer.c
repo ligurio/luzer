@@ -10,8 +10,11 @@
 #include "tracer.h"
 
 #define LUZER_VERSION "0.1.0"
+#define TEST_ONE_INPUT "test_one_input"
 
 typedef int (*UserCb)(const uint8_t* Data, size_t Size);
+
+lua_State *LL;
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,10 +63,40 @@ void __sanitizer_print_stack_trace() {
 } /* extern "C" */
 #endif
 
+NO_SANITIZE static int
+luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
+{
+	if (!L)
+		luaL_error(L, "not a Lua stack");
+
+    printf("Running TestOneInput()\n");
+    //printf("%s and %zu\n", data, size);
+	lua_pushstring(L, (const char *)data);
+	lua_pushnumber(L, size);
+	lua_getfield(L, LUA_GLOBALSINDEX, TEST_ONE_INPUT);
+	//printf("lua_gettop() %d\n", lua_gettop(L));
+	int rc = lua_isfunction(L, -1);
+	if (rc != 1)
+		luaL_error(L, "not a function");
+	//printf("lua_gettop() %d\n", lua_gettop(L));
+	lua_insert(L, -3);
+	rc = lua_isfunction(L, -3);
+	if (rc != 1)
+		luaL_error(L, "not a function");
+	lua_call(L, 2, 1);
+
+	const char *item = luaL_checkstring(L, -1);
+	lua_pop(L, -1);
+	printf("Retcode: %s\n", item);
+
+	/* handle return code and return it */
+	return 0;
+}
+
 NO_SANITIZE
 int TestOneInput(const uint8_t* data, size_t size) {
 	/* TODO: see trash/atheris/src/native/core.cc */
-	/* TODO: execute Lua function TestOneInput() with proposed data and size */
+	// FIXME: return luaL_test_one_input(LL, data, size);
 	return 0;
 }
 
@@ -82,29 +115,45 @@ int TestOneInput(const uint8_t* data, size_t size) {
  * by an external library. If unspecified, luzer will determine this
  * automatically. If fuzzing pure Lua, leave this as True.
  */
-static int
+NO_SANITIZE static int
 luaL_setup(lua_State *L)
 {
+	printf("Running Setup()\n");
 	/* argv */
-	/*
 	if (!lua_istable(L, 1)) {
-		assert(0);
+		luaL_error(L, "not a table");
 	}
-	if (lua_isfunction(L, 2) != 1) {
-		assert(0);
-	}
+    lua_pushnil(L);
+    while (lua_next(L, 1) != 0) {
+        const char *item = luaL_checkstring(L, -1);
+        lua_pop(L, 1);
+        printf("arg %s\n", item);
+    }
+	//printf("lua_gettop() %d\n", lua_gettop(L));
+	lua_remove(L, 1);
+
+	//printf("lua_gettop() %d\n", lua_gettop(L));
+	//printf("lua_type() %d\n", lua_type(L, 1));
+	/* test_one_input */
+	/*
+	if (lua_isfunction(L, 1) != 1)
+		luaL_error(L, "not a function");
 	*/
+
+	lua_setfield(L, LUA_GLOBALSINDEX, TEST_ONE_INPUT);  /* set global TEST_ONE_INPUT */
+
+	// FOR TESTING:
+	//const uint8_t data[] = "ABCDEFG";
+	//luaL_test_one_input(L, data, 4);
+
+	/* Setup Lua. */
     luaL_openlibs(L);
     lua_sethook(L, hook, LUA_MASKLINE, 0);
-	/*
-	 * TODO:
-	extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv) {
-	  return 0;
-	}
-	*/
-	/* Optional function */
-	if (lua_isfunction(L, 3) != 1) {
-	}
+
+	LL = L;
+
+	/* LLVMFuzzerInitialize(int *argc, char ***argv); */
+
     return 0;
 }
 
@@ -136,16 +185,17 @@ char **new_argv(int count, ...)
  * command-line arguments it handles before passing any remaining arguments to
  * another setup function.
  */
-static int
+NO_SANITIZE static int
 luaL_fuzz(lua_State *L)
 {
+	printf("Running Fuzz()\n");
 	int argc = 1;
     char **argv = new_argv(4, "is");
-
     return LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
+	//return 0;
 }
 
-static int
+NO_SANITIZE static int
 luaL_require_instrument(lua_State *L)
 {
     /* TODO: wraps "require()" and remember instrumented modules */
@@ -157,7 +207,7 @@ luaL_require_instrument(lua_State *L)
     return 1;
 }
 
-static int
+NO_SANITIZE static int
 luaL_custom_mutator(lua_State *L)
 {
     /* TODO: process data, max_size and a seed */
