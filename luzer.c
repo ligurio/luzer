@@ -5,6 +5,7 @@
  * - сделать возможность передавать словарь
  * - поставлять словари для стандартной библиотеки lua 5.1, lua 5.2, lua 5.3,
  *   lua 5.4, tarantool
+ * - добавить regfuzz https://github.com/ShikChen/regfuzz
  * - пример для фаззинга С библиотеки с помощью FFI
  *		 Basic library, which includes the coroutine sub-library
  *		 Modules library
@@ -104,14 +105,15 @@ luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
 	rc = lua_isfunction(L, -3);
 	if (rc != 1)
 		luaL_error(L, "not a function");
+
 	lua_call(L, 2, 1);
 
-	//const char *item = luaL_checkstring(L, -1);
-	//lua_pop(L, -1);
-	//printf("[DEBUG] Retcode: %s\n", item);
+	rc = 0;
+	if (lua_isnumber(L, 1) == 1)
+		rc = lua_tonumber(L, 1);
+	lua_pop(L, 1);
 
-	/* handle return code and return it */
-	return 0;
+	return rc;
 }
 
 NO_SANITIZE
