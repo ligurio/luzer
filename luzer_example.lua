@@ -1,12 +1,11 @@
 local luzer = require("luzer")
 local _ = luzer.require_instrument("math")
 
-local function custom_mutator(data, max_size, seed)
-    print(data, max_size, seed)
-    return data .. "xxx"
+local function custom_mutator(buf, _max_size, _seed)
+    return buf .. "xxx"
 end
 
-local function TestOneInput(data, _)
+local function TestOneInput(buf, _size)
     -- The entry point for our fuzzer.
     --
     -- This is a callback that will be repeatedly invoked with different
@@ -18,7 +17,7 @@ local function TestOneInput(data, _)
     -- Args:
     --    data: string coming from the fuzzing engine.
 
-    local _ = luzer.FuzzedDataProvider(data)
+    local _ = luzer.FuzzedDataProvider(buf)
     --fdp.consume_string()
     --fdp.consume_boolean()
 
