@@ -21,28 +21,57 @@
 /* TODO: it should be gc'ed, otherwise it is not thread-safe  */
 static FuzzedDataProvider *fdp = NULL;
 
+static int
+luaL_min_max(lua_State *L, size_t *min, size_t *max)
+{
+	/* input: nil or max/min */
+	if (!fdp)
+		unreachable();
+
+	if (!(lua_isnumber(L, -1) == 1))
+		luaL_error(L, "max is not a number");
+	*max = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	if (!(lua_isnumber(L, -1) == 1))
+		luaL_error(L, "min is not a number");
+	*min = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	printf("%zu %zu\n", *min, *max);
+
+    return 0;
+}
+
 /*
  * TODO:
  * consumeByte()	Consumes a byte from the fuzzer input.
  * consumeByte(byte min, byte max)	Consumes a byte between min and max from the fuzzer input.
  * consumeBytes(int maxLength)	Consumes a byte array from the fuzzer input.
- * consumeChar()	Consumes a char from the fuzzer input.
- * consumeChar(char min, char max)	Consumes a char between min and max from the fuzzer input.
  *
  * TODO: Unicode, 6.5 – UTF-8 Support
  * https://www.lua.org/manual/5.4/manual.html
  *
 */
 
-/* Consumes an ASCII-only String from the fuzzer input. */
+/* Consumes an ASCII-only string from the fuzzer input. */
 static int
 luaL_consume_string(lua_State *L)
 {
-	/* input: maxLength */
+	if (!fdp)
+		unreachable();
+	if (!(lua_isnumber(L, -1) == 1))
+		luaL_error(L, "max_length is not a number");
+	size_t max_length = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	std::string str = fdp->ConsumeRandomLengthString(max_length);
+	const char *cstr = str.c_str();
   	// std::string ConsumeBytesAsString(size_t num_bytes);
   	// std::string ConsumeRandomLengthString(size_t max_length);
 	// std::string ConsumeRandomLengthString();
-    lua_pushstring(L, "string");
+    lua_pushstring(L, cstr);
+
     return 1;
 }
 
@@ -59,8 +88,8 @@ luaL_consume_boolean(lua_State *L)
 {
 	if (!fdp)
 		unreachable();
-	bool v = fdp->ConsumeBool();
-    lua_pushboolean(L, (int)v);
+	bool b = fdp->ConsumeBool();
+    lua_pushboolean(L, (int)b);
     return 1;
 }
 
@@ -86,8 +115,20 @@ luaL_consume_booleans(lua_State *L)
 static int
 luaL_consume_number(lua_State *L)
 {
-	// template <typename T> T ConsumeFloatingPoint();
-  	// template <typename T> T ConsumeIntegral();
+	if (!fdp)
+		unreachable();
+
+	size_t min, max;
+	luaL_min_max(L, &min, &max);
+
+	/*
+	template <typename T> integer = fdp->ConsumeIntegralInRange(min, max);
+    lua_pushnumber(L, cstr);
+
+	template <typename T> T ConsumeFloatingPoint();
+	template <typename T> T ConsumeIntegral();
+	*/
+
     lua_pushnumber(L, 300);
     return 1;
 }
@@ -115,6 +156,12 @@ static int
 luaL_consume_integer(lua_State *L)
 {
 	/* input: nil or max/min */
+	if (!fdp)
+		unreachable();
+
+	size_t min, max;
+	luaL_min_max(L, &min, &max);
+
   	// template <typename T> T ConsumeIntegral();
     lua_pushinteger(L, 300);
     return 1;
@@ -190,21 +237,6 @@ luaL_remaining_bytes(lua_State *L)
     return 1;
 }
 
-// TODO: 
-// Writes data to the given destination and returns number of bytes written.
-//size_t ConsumeData(void *destination, size_t num_bytes);
-
-static int
-luaL_pick_value_in_table(lua_State *L)
-{
-	// template <typename T, size_t size> T PickValueInArray(const T (&array)[size]);
-	// template <typename T, size_t size> T PickValueInArray(const std::array<T, size> &array);
-	// template <typename T> T PickValueInArray(std::initializer_list<const T> list);
-    /* TODO: test me */
-    /* TODO: Given a list, pick a random value */
-    return 0;
-}
-
 /* A useful tool for generating various types of data from the arbitrary bytes
  * produced by the fuzzer.
  */
@@ -220,11 +252,8 @@ static const struct {
 	{ "consume_numbers", luaL_consume_numbers },
 	{ "consume_integer", luaL_consume_integer },
 	{ "consume_integers", luaL_consume_integers },
-	//{ "consume_remaining_as_string", luaL_consume_remaining_as_string },
-	//{ "consume_remaining_bytes", luaL_consume_remaining_bytes },
 	{ "consume_probability", luaL_consume_probability },
 	{ "remaining_bytes", luaL_remaining_bytes },
-	{ "pick_value_in_table", luaL_pick_value_in_table },
 };
 
 int

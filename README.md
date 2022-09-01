@@ -192,7 +192,7 @@ The `FuzzedDataProvider` then supports the following functions:
   `[min, max]`.
 - `consume_integers(min, max, count)` - consume a list of `count` integers in the
   range `[min, max]`.
-- `consume_number(min, float)` - consume a floating-point value in the range
+- `consume_number(min, max)` - consume a floating-point value in the range
   `[min, max]`.
 - `consume_numbers(min, max, count)` - consume a list of `count` floats in the
   range `[min, max]`.
@@ -201,7 +201,6 @@ The `FuzzedDataProvider` then supports the following functions:
 - `consume_probability()` - consume a floating-point value in the range `[0, 1]`.
 - `remaining_bytes()` - returns the number of unconsumed bytes in the fuzzer
   input.
-- `pick_value_in_table()` - given a table, pick a random value.
 
 ## Using Lua custom mutators
 
