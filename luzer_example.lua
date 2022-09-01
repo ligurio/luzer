@@ -18,9 +18,9 @@ local function TestOneInput(data)
     -- Args:
     --    data: string coming from the fuzzing engine.
 
-    local fdp = luzer.FuzzedDataProvider(data)
-    print(fdp.consume_string())
-    print(fdp.consume_boolean())
+    --local fdp = luzer.FuzzedDataProvider(data)
+    --fdp.consume_string()
+    --fdp.consume_boolean()
 
     return
 end
