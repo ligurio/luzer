@@ -27,23 +27,12 @@ local function uncompress(comp, n)
   return ffi.string(buf, buflen[0])
 end
 
--- Simple test code.
---[[
-local txt = string.rep("abcd", 1000)
-print("Uncompressed size: ", #txt)
-local c = compress(txt)
-print("Compressed size: ", #c)
-local txt2 = uncompress(c, #txt)
-assert(txt2 == txt)
-]]
-
 local function TestOneInput(buf, _size)
     local c = compress(buf)
     local txt2 = uncompress(c, #buf)
     assert(txt2 == buf)
 end
 
-local res = luzer.Setup(arg, TestOneInput)
-assert(res == true)
+luzer.Setup(arg, TestOneInput)
 
 luzer.Fuzz()
