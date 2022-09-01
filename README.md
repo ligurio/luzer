@@ -164,9 +164,9 @@ The luzer module provides two key functions: `Setup()` and `Fuzz()`.
   luzer or by an external library. If unspecified, luzer will determine
   this automatically.
 
-`require_instrument` is a function that imports Lua module in the same way as
-the standard function `require`, but adds module's functions to whitelist used
-for gathering code coverage.
+`require_instrument` imports Lua module in the same way as the standard
+function `require`, but adds module's functions to whitelist used for gathering
+code coverage.
 
 `Fuzz()` starts the fuzzer. You must have called `Setup()` before calling this
 function. This function does not return. In many cases `Setup()` and `Fuzz()`
