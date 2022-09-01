@@ -78,6 +78,7 @@ void __sanitizer_print_stack_trace() {
 	// 5.2+ luaL_traceback(L, L, lua_tostring(L, 1), 1);
 	// http://www.lua.org/manual/5.3/manual.html#luaL_traceback
 	// https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
+	// debug.traceback()
 	printf("[DEBUG] Hello, everyone!\n");
 }
 #ifdef __cplusplus
