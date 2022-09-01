@@ -37,7 +37,6 @@ $ luarocks --local install luzer
   global state.
 
 ```lua
-$ cat << EOF > sample.lua
 local luzer = require("luzer")
 
 local function TestOneInput(buf)
@@ -58,8 +57,6 @@ end
 
 luzer.Setup({}, TestOneInput)
 luzer.Fuzz()
-EOF
-$
 ```
 
 While fuzzing is in progress, the fuzzing engine generates new inputs and runs
