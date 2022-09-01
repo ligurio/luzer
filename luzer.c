@@ -1,3 +1,24 @@
+/*
+ * TODO:
+ *
+ * - сделать возможность передавать корпус в таблице-массиве
+ * - сделать возможность передавать словарь
+ * - поставлять словари для стандартной библиотеки lua 5.1, lua 5.2, lua 5.3,
+ *   lua 5.4, tarantool
+ * - пример для фаззинга С библиотеки с помощью FFI
+ *		 Basic library, which includes the coroutine sub-library
+ *		 Modules library
+ *		 String manipulation
+ *		 Table manipulation
+ *		 Math library
+ *		 File Input and output
+ *		 Operating system facilities
+ *		 Debug facilities
+ *
+ *   _VERSION
+ *   package.loaded
+ */
+
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
@@ -57,7 +78,7 @@ void __sanitizer_print_stack_trace() {
 	// 5.2+ luaL_traceback(L, L, lua_tostring(L, 1), 1);
 	// http://www.lua.org/manual/5.3/manual.html#luaL_traceback
 	// https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
-	printf("Hello, everyone!\n");
+	printf("[DEBUG] Hello, everyone!\n");
 }
 #ifdef __cplusplus
 } /* extern "C" */
@@ -69,25 +90,24 @@ luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
 	if (!L)
 		luaL_error(L, "not a Lua stack");
 
-    printf("Running TestOneInput()\n");
-    //printf("%s and %zu\n", data, size);
+    //printf("[DEBUG] Running TestOneInput()\n");
+    //printf("[DEBUG] data %s, size %zu\n", data, size);
 	lua_pushstring(L, (const char *)data);
 	lua_pushnumber(L, size);
 	lua_getfield(L, LUA_GLOBALSINDEX, TEST_ONE_INPUT);
-	//printf("lua_gettop() %d\n", lua_gettop(L));
 	int rc = lua_isfunction(L, -1);
 	if (rc != 1)
 		luaL_error(L, "not a function");
-	//printf("lua_gettop() %d\n", lua_gettop(L));
+	//printf("[DEBUG] lua_gettop() %d\n", lua_gettop(L));
 	lua_insert(L, -3);
 	rc = lua_isfunction(L, -3);
 	if (rc != 1)
 		luaL_error(L, "not a function");
 	lua_call(L, 2, 1);
 
-	const char *item = luaL_checkstring(L, -1);
-	lua_pop(L, -1);
-	printf("Retcode: %s\n", item);
+	//const char *item = luaL_checkstring(L, -1);
+	//lua_pop(L, -1);
+	//printf("[DEBUG] Retcode: %s\n", item);
 
 	/* handle return code and return it */
 	return 0;
@@ -96,8 +116,7 @@ luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
 NO_SANITIZE
 int TestOneInput(const uint8_t* data, size_t size) {
 	/* TODO: see trash/atheris/src/native/core.cc */
-	// FIXME: return luaL_test_one_input(LL, data, size);
-	return 0;
+	return luaL_test_one_input(LL, data, size);
 }
 
 /*
@@ -118,43 +137,36 @@ int TestOneInput(const uint8_t* data, size_t size) {
 NO_SANITIZE static int
 luaL_setup(lua_State *L)
 {
-	printf("Running Setup()\n");
-	/* argv */
+	printf("[DEBUG] Running Setup()\n");
+
+	/* Process arguments. */
 	if (!lua_istable(L, 1)) {
 		luaL_error(L, "not a table");
 	}
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
-        const char *item = luaL_checkstring(L, -1);
+        const char *arg = luaL_checkstring(L, -1);
         lua_pop(L, 1);
-        printf("arg %s\n", item);
+        printf("[DEBUG] arg: %s\n", arg);
     }
-	//printf("lua_gettop() %d\n", lua_gettop(L));
 	lua_remove(L, 1);
 
-	//printf("lua_gettop() %d\n", lua_gettop(L));
-	//printf("lua_type() %d\n", lua_type(L, 1));
-	/* test_one_input */
-	/*
+	/* Process 'test_one_input' function. */
 	if (lua_isfunction(L, 1) != 1)
-		luaL_error(L, "not a function");
-	*/
+		luaL_error(L, "'test_one_input' is not a function");
 
 	lua_setfield(L, LUA_GLOBALSINDEX, TEST_ONE_INPUT);  /* set global TEST_ONE_INPUT */
-
-	// FOR TESTING:
-	//const uint8_t data[] = "ABCDEFG";
-	//luaL_test_one_input(L, data, 4);
+	/* ???       lua_getglobal(L, "width"); */
 
 	/* Setup Lua. */
-    luaL_openlibs(L);
-    lua_sethook(L, hook, LUA_MASKLINE, 0);
+    //luaL_openlibs(L);
+    //lua_sethook(L, hook, LUA_MASKLINE, 0);
 
 	LL = L;
-
 	/* LLVMFuzzerInitialize(int *argc, char ***argv); */
+	lua_pushboolean(L, 1);
 
-    return 0;
+    return 1;
 }
 
 char **new_argv(int count, ...)
@@ -188,23 +200,22 @@ char **new_argv(int count, ...)
 NO_SANITIZE static int
 luaL_fuzz(lua_State *L)
 {
-	printf("Running Fuzz()\n");
+	printf("[DEBUG] Running Fuzz()\n");
 	int argc = 1;
     char **argv = new_argv(4, "is");
     return LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
-	//return 0;
 }
 
 NO_SANITIZE static int
 luaL_require_instrument(lua_State *L)
 {
-    /* TODO: wraps "require()" and remember instrumented modules */
-    const char *module_name = lua_tostring(L, 1);
-    lua_pushstring(L, module_name);
-    lua_call(L, 1, LUA_MULTRET);
-    /* TODO: check result of lua_call ^^^^ */
-    printf("module name is %s\n", module_name);
-    return 1;
+	const char *module_name = luaL_checkstring(L, -1);
+	printf("[DEBUG] require_instrument(): %s\n", module_name);
+	lua_getglobal(L, "require");
+	lua_insert(L, -2);
+	lua_call(L, 1, 1);
+
+	return 1;
 }
 
 NO_SANITIZE static int

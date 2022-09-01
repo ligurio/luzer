@@ -1,5 +1,5 @@
 local luzer = require("luzer")
-local _ = luzer.require_instrument("lib")
+local math = luzer.require_instrument("math")
 
 local function custom_mutator(data, max_size, seed)
     print(data, max_size, seed)
@@ -25,10 +25,12 @@ local function TestOneInput(data)
     return
 end
 
+local res
 if #arg > 1 and arg[1] == "--no_mutator" then
-    luzer.Setup(arg, TestOneInput, custom_mutator)
+    res = luzer.Setup(arg, TestOneInput, custom_mutator)
 else
-    luzer.Setup(arg, TestOneInput)
+    res = luzer.Setup(arg, TestOneInput)
 end
+assert(res == true)
 
 luzer.Fuzz()
