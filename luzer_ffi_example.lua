@@ -1,5 +1,10 @@
 local luzer = require("luzer")
-local ffi = require("ffi")
+local has_ffi, ffi = pcall(require, "ffi")
+
+if not has_ffi then
+    print("ffi is not found")
+    os.exit(1)
+end
 
 ffi.cdef[[
 unsigned long compressBound(unsigned long sourceLen);
