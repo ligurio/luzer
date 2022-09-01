@@ -123,7 +123,11 @@ The luzer module provides two key functions: `Setup()` and `Fuzz()`.
   argument. This will be repeatedly invoked with a single bytes container.
 - `internal_libfuzzer`: Indicates whether libfuzzer will be provided by
   luzer or by an external library. If unspecified, luzer will determine
-  this automatically. If fuzzing pure Lua, leave this as `true`.
+  this automatically.
+
+`require_instrument` is a function that imports Lua module in the same way as
+the standard function `require`, but adds module's functions to whitelist used
+for gathering code coverage.
 
 `Fuzz()` starts the fuzzer. You must have called `Setup()` before calling this
 function. This function does not return. In many cases `Setup()` and `Fuzz()`
