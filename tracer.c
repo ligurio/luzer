@@ -56,7 +56,7 @@ void hook(lua_State *L, lua_Debug *ar) {
 static int traceback (lua_State *L) {
   if (!lua_isstring(L, 1))  /* 'message' not a string? */
     return 1;  /* keep it intact */
-  lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+  lua_getglobal(L, "debug");
   if (!lua_istable(L, -1)) {
     lua_pop(L, 1);
     return 1;
@@ -74,7 +74,7 @@ static int traceback (lua_State *L) {
 
 // lua_pushcfunction(L, traceback1);
 static int traceback1(lua_State *L) {
-    lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+    lua_getglobal(L, "debug");
     lua_getfield(L, -1, "traceback");
     lua_pushvalue(L, 1);
     lua_pushinteger(L, 2);
@@ -84,7 +84,7 @@ static int traceback1(lua_State *L) {
 }
 
 static int traceback2(lua_State *L) {
-    lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+    lua_getglobal(L, "debug");
     lua_getfield(L, -1, "traceback");
     //---------------------------
     lua_pop(L, -2); // to popup the 'debug'
