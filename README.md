@@ -204,6 +204,8 @@ The `FuzzedDataProvider` then supports the following functions:
 - `remaining_bytes()` - returns the number of unconsumed bytes in the fuzzer
   input.
 
+Learn more about structure-aware fuzzing with [FuzzedDataProvider][split-inputs-url].
+
 ## Using Lua custom mutators
 
 `luzer` allows [custom mutators][libfuzzer-mutators-url] to be written in Lua 5.1
@@ -280,4 +282,5 @@ Distributed under the ISC License.
 [libfuzzer-url]: https://llvm.org/docs/LibFuzzer.html
 [libfuzzer-options-url]: https://llvm.org/docs/LibFuzzer.html#options
 [libfuzzer-mutators-url]: https://github.com/google/fuzzing/blob/master/docs/structure-aware-fuzzing.md
+[split-inputs-url]: https://github.com/google/fuzzing/blob/master/docs/split-inputs.md
 [bronevichok-url]: https://bronevichok.ru/

@@ -12,9 +12,6 @@
  * values depending deterministically on the fuzzer input for the current run.
  *
  * https://github.com/llvm/llvm-project/blob/main/compiler-rt/include/fuzzer/FuzzedDataProvider.h
- * https://github.com/google/atheris#fuzzeddataprovider
- * https://github.com/google/fuzzing/blob/master/docs/split-inputs.md
- * https://codeintelligencetesting.github.io/jazzer-api/com/code_intelligence/jazzer/api/FuzzedDataProvider.html
  */
 
 /* TODO: it should be gc'ed, otherwise it is not thread-safe  */
