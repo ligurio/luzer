@@ -53,7 +53,7 @@ void hook(lua_State *L, lua_Debug *ar) {
 }
 
 // https://stackoverflow.com/questions/12256455/print-stacktrace-from-c-code-with-embedded-lua
-static int traceback (lua_State *L) {
+static int traceback(lua_State *L) {
   if (!lua_isstring(L, 1))  /* 'message' not a string? */
     return 1;  /* keep it intact */
   lua_getglobal(L, "debug");
@@ -73,6 +73,7 @@ static int traceback (lua_State *L) {
 }
 
 // lua_pushcfunction(L, traceback1);
+/*
 static int traceback1(lua_State *L) {
     lua_getglobal(L, "debug");
     lua_getfield(L, -1, "traceback");
@@ -95,3 +96,4 @@ static int traceback2(lua_State *L) {
     fprintf(stderr, "%s\n", lua_tostring(L, -1));
     return 1;
 }
+*/
