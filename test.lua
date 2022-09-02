@@ -1,10 +1,6 @@
 package.cpath = "./?.so"
 
-local has_luzer, luzer = pcall(require, "luzer")
-if not has_luzer then
-    print("luzer is not found")
-    os.exit(1)
-end
+local luzer = require("luzer")
 
 local function trace(_, line)
     local s = debug.getinfo(2).short_src
