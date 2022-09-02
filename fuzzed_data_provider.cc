@@ -231,7 +231,6 @@ luaL_consume_probability(lua_State *L)
 
 	// template <typename T> T ConsumeProbability();
 	//T probability = fdp->ConsumeProbability();
-	double probability = fdp->ConsumeProbability();
     lua_pushnumber(L, 1);
 
     return 1;

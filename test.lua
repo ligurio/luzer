@@ -25,9 +25,7 @@ assert(string.match(version_llvm, semver_re) ~= nil, version_llvm)
 
 -- luzer.FuzzedDataProvider
 assert(type(luzer.FuzzedDataProvider) == "function")
-local fdp
--- TODO: fdp = luzer.FuzzedDataProvider()
-fdp = luzer.FuzzedDataProvider("xxxxx")
+local fdp = luzer.FuzzedDataProvider(string.rep('A', 1024))
 
 assert(type(fdp.consume_string) == "function")
 local res = fdp.consume_string()
