@@ -1,7 +1,6 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include <iostream> /* TODO: remove */
 #include <fuzzer/FuzzedDataProvider.h>
 
 #include "fuzzed_data_provider.h"
@@ -44,15 +43,9 @@ luaL_min_max(lua_State *L, size_t *min, size_t *max)
 }
 
 /*
- * TODO:
- * consumeByte()	Consumes a byte from the fuzzer input.
- * consumeByte(byte min, byte max)	Consumes a byte between min and max from the fuzzer input.
- * consumeBytes(int maxLength)	Consumes a byte array from the fuzzer input.
- *
  * TODO: Unicode, 6.5 – UTF-8 Support
  * https://www.lua.org/manual/5.4/manual.html
- *
-*/
+ */
 
 /* Consumes a string from the fuzzer input. */
 static int
@@ -181,8 +174,8 @@ luaL_consume_numbers(lua_State *L)
 		lua_pushnumber(L, 1);
 		lua_settable(L, -3);
 	}
-
-    /* TODO: test me */
+	// If there's no input data left, returns |min|. Note that
+	// |min| must be less than or equal to |max|.
   	// template <typename T> T ConsumeFloatingPointInRange(T min, T max);
 
     return 1;
@@ -237,7 +230,8 @@ luaL_consume_probability(lua_State *L)
 		unreachable();
 
 	// template <typename T> T ConsumeProbability();
-    /* TODO: test me */
+	//T probability = fdp->ConsumeProbability();
+	double probability = fdp->ConsumeProbability();
     lua_pushnumber(L, 1);
 
     return 1;

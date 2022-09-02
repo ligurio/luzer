@@ -184,10 +184,10 @@ local fdp = luzer.FuzzedDataProvider(input_bytes)
 
 The `FuzzedDataProvider` then supports the following functions:
 
-- `consume_string(min, max)` - consume a string with length in the range `[min,
-  max]`.
-- `consume_strings(min, max, count)` - consume a list of `count` strings with
-  length in the range `[min, max]`.
+- `consume_string(max_length)` - consume a string with length in the range `[0,
+  max_length]`. When it runs out of input data, returns what remains of the input.
+- `consume_strings(max_length, count)` - consume a list of `count` strings with
+  length in the range `[0, max_length]`.
 - `consume_integer(min, max)` - consume a signed integer with size in the range
   `[min, max]`.
 - `consume_integers(min, max, count)` - consume a list of `count` integers in the
@@ -196,9 +196,11 @@ The `FuzzedDataProvider` then supports the following functions:
   `[min, max]`.
 - `consume_numbers(min, max, count)` - consume a list of `count` floats in the
   range `[min, max]`.
-- `consume_boolean()` - consume either `true` or `false`.
+- `consume_boolean()` - consume either `true` or `false`, or `false` when no
+  data remains.
 - `consume_booleans(count)` - consume a list of `count` booleans.
 - `consume_probability()` - consume a floating-point value in the range `[0, 1]`.
+  If there's no input data left, always returns 0.
 - `remaining_bytes()` - returns the number of unconsumed bytes in the fuzzer
   input.
 

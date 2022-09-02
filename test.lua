@@ -68,4 +68,13 @@ assert(type(fdp.remaining_bytes) == "function")
 res = fdp.remaining_bytes()
 assert(type(res) == "number")
 
+assert(type(fdp.consume_probability) == "function")
+local p1 = fdp.consume_probability()
+local p2 = fdp.consume_probability()
+assert(type(p1) == "number")
+assert(type(p2) == "number")
+assert(p1 >= 0 and p2 >= 0)
+assert(p1 <= 1 and p2 <= 1)
+-- FIXME: assert(p1 ~= p2)
+
 print("Success!")
