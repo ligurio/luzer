@@ -54,7 +54,7 @@ luaL_min_max(lua_State *L, size_t *min, size_t *max)
  *
 */
 
-/* Consumes an ASCII-only string from the fuzzer input. */
+/* Consumes a string from the fuzzer input. */
 static int
 luaL_consume_string(lua_State *L)
 {
@@ -67,18 +67,42 @@ luaL_consume_string(lua_State *L)
 
 	std::string str = fdp->ConsumeRandomLengthString(max_length);
 	const char *cstr = str.c_str();
-  	// std::string ConsumeBytesAsString(size_t num_bytes);
-  	// std::string ConsumeRandomLengthString(size_t max_length);
-	// std::string ConsumeRandomLengthString();
     lua_pushstring(L, cstr);
 
     return 1;
 }
 
+/* Consumes a table with specified number of strings from the fuzzer input. */
 static int
 luaL_consume_strings(lua_State *L)
 {
-    lua_pushstring(L, "string");
+	if (!fdp)
+		unreachable();
+
+	if (!(lua_isnumber(L, -1) == 1))
+		luaL_error(L, "size is not a number");
+	size_t size = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	if (!(lua_isnumber(L, -1) == 1))
+		luaL_error(L, "max_length is not a number");
+	size_t max_length = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	std::string str;
+	const char *cstr;
+
+	lua_newtable(L);
+	for (int i = 1; i <= (int)size; i++) {
+		str = fdp->ConsumeRandomLengthString(max_length);
+		cstr = str.c_str();
+		if (strlen(cstr) == 0)
+			break;
+		lua_pushnumber(L, i);
+		lua_pushstring(L, cstr);
+		lua_settable(L, -3);
+	}
+
     return 1;
 }
 
@@ -90,28 +114,34 @@ luaL_consume_boolean(lua_State *L)
 		unreachable();
 	bool b = fdp->ConsumeBool();
     lua_pushboolean(L, (int)b);
+
     return 1;
 }
 
-/* Consumes a boolean array from the fuzzer input. */
+/* Consumes a table with specified number of booleans from the fuzzer input. */
 static int
 luaL_consume_booleans(lua_State *L)
 {
-	/* input: int maxLength */
 	if (!fdp)
 		unreachable();
-    /* TODO: accepts a number of elements */
-    lua_newtable(L);
-    lua_pushnumber(L, 1);
-    lua_pushboolean(L, 0);
-    lua_settable(L, -3);
-    lua_pushnumber(L, 2);
-    lua_pushboolean(L, 1);
-    lua_settable(L, -3);
+
+	if (!(lua_isnumber(L, -1) == 1))
+		luaL_error(L, "size is not a number");
+	size_t size = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	lua_newtable(L);
+	for (int i = 1; i <= (int)size; i++) {
+		bool b = fdp->ConsumeBool();
+		lua_pushnumber(L, i);
+		lua_pushboolean(L, (int)b);
+		lua_settable(L, -3);
+	}
+
     return 1;
 }
 
-/* Consumes an int from the fuzzer input. */
+/* Consumes a float from the fuzzer input. */
 static int
 luaL_consume_number(lua_State *L)
 {
@@ -130,23 +160,31 @@ luaL_consume_number(lua_State *L)
 	*/
 
     lua_pushnumber(L, 300);
+
     return 1;
 }
 
 static int
 luaL_consume_numbers(lua_State *L)
 {
-	// TODO: luaL_consume_numbers_in_range(lua_State *L)
+	if (!fdp)
+		unreachable();
+
+	if (!(lua_isnumber(L, -1) == 1))
+		luaL_error(L, "size is not a number");
+	size_t size = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	lua_newtable(L);
+	for (int i = 1; i <= (int)size; i++) {
+		lua_pushnumber(L, i);
+		lua_pushnumber(L, 1);
+		lua_settable(L, -3);
+	}
+
     /* TODO: test me */
   	// template <typename T> T ConsumeFloatingPointInRange(T min, T max);
-    /* input: accepts a number of elements */
-    lua_newtable(L);
-    lua_pushnumber(L, 1);
-    lua_pushnumber(L, 400);
-    lua_settable(L, -3);
-    lua_pushnumber(L, 2);
-    lua_pushnumber(L, 200);
-    lua_settable(L, -3);
+
     return 1;
 }
 
@@ -171,34 +209,25 @@ luaL_consume_integer(lua_State *L)
 static int
 luaL_consume_integers(lua_State *L)
 {
-	/* input: max, min, maxLength */
-	// TODO: luaL_consume_integers_in_range(lua_State *L)
-  	// template <typename T> T ConsumeIntegralInRange(T min, T max);
-    /* TODO: accepts a number of elements */
-    lua_newtable(L);
-    lua_pushnumber(L, 1);
-    lua_pushinteger(L, 230);
-    lua_settable(L, -3);
-    lua_pushnumber(L, 2);
-    lua_pushinteger(L, 430);
-    lua_settable(L, -3);
-    return 1;
-}
+	if (!fdp)
+		unreachable();
 
-/*
-static int
-luaL_consume_remaining_as_string(lua_State *L)
-{
-  	// std::string ConsumeRemainingBytesAsString();
-	std::vector<int> vi;
-	for(int i : vi) 
-		std::cout << "i = " << i << std::endl;
-	for (auto & element : vi) 
-		std::cout << element << " ";
-    lua_pushstring(L, "remaining");
-    return 1;
+	if (!(lua_isnumber(L, -1) == 1))
+		luaL_error(L, "size is not a number");
+	size_t size = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	lua_newtable(L);
+	for (int i = 1; i <= (int)size; i++) {
+		lua_pushnumber(L, i);
+		lua_pushinteger(L, 1);
+		lua_settable(L, -3);
+	}
+
+  	// template <typename T> T ConsumeIntegralInRange(T min, T max);
+
+	return 1;
 }
-*/
 
 // 0 <= return value <= 1.
 static int
@@ -206,25 +235,13 @@ luaL_consume_probability(lua_State *L)
 {
 	if (!fdp)
 		unreachable();
+
 	// template <typename T> T ConsumeProbability();
     /* TODO: test me */
     lua_pushnumber(L, 1);
+
     return 1;
 }
-
-// TODO:
-// template <typename T> std::vector<T> ConsumeBytes(size_t num_bytes);
-
-/* Consumes the remaining fuzzer input as a byte array. */
-/*
-static int
-luaL_consume_remaining_bytes(lua_State *L)
-{
-	// template <typename T> std::vector<T> ConsumeRemainingBytes();
-    lua_pushnumber(L, 1);
-    return 1;
-}
-*/
 
 /* Returns the number of unconsumed bytes in the fuzzer input. */
 static int
@@ -232,8 +249,10 @@ luaL_remaining_bytes(lua_State *L)
 {
 	if (!fdp)
 		unreachable();
+
 	size_t sz = fdp->remaining_bytes();
     lua_pushnumber(L, sz);
+
     return 1;
 }
 
@@ -262,12 +281,8 @@ luaL_fuzzed_data_provider(lua_State *L)
 	/* FIXME: FuzzedDataProvider accepts a buffer and a number of bytes. */
 	const char *data = NULL;
 	data = luaL_checkstring(L, 1);
-	if (!data) {
-		lua_pushstring(L, "Wrong FuzzedDataProvider() arguments.");
-		lua_error(L);
-		unreachable();
-		return 0;
-	}
+	if (!data)
+		luaL_error(L, "Wrong FuzzedDataProvider() arguments.");
 	size_t size = strlen(data);
 	fdp = new FuzzedDataProvider((const unsigned char *)data, size);
 	size_t n = sizeof(FuzzedDataProvider_functions)/

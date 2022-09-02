@@ -26,6 +26,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #include "fuzzed_data_provider.h"
 #include "macros.h"
@@ -33,6 +34,10 @@
 
 #define LUZER_VERSION "0.1.0"
 #define TEST_ONE_INPUT "test_one_input"
+
+void sig_handler(int sig) {
+    exit(0);
+}
 
 typedef int (*UserCb)(const uint8_t* Data, size_t Size);
 
@@ -140,6 +145,10 @@ int TestOneInput(const uint8_t* data, size_t size) {
 NO_SANITIZE static int
 luaL_setup(lua_State *L)
 {
+    struct sigaction act;
+    act.sa_handler = sig_handler;
+    sigaction(SIGINT, &act, NULL);
+
 	printf("[DEBUG] Running Setup()\n");
 
 	/* Process arguments. */
