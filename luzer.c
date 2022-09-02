@@ -101,7 +101,7 @@ luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
     //printf("[DEBUG] data %s, size %zu\n", data, size);
 	lua_pushstring(L, (const char *)data);
 	lua_pushnumber(L, size);
-	lua_getfield(L, LUA_GLOBALSINDEX, TEST_ONE_INPUT);
+	lua_getglobal(L, TEST_ONE_INPUT);
 	int rc = lua_isfunction(L, -1);
 	if (rc != 1)
 		luaL_error(L, "not a function");
@@ -167,8 +167,7 @@ luaL_setup(lua_State *L)
 	if (lua_isfunction(L, 1) != 1)
 		luaL_error(L, "'test_one_input' is not a function");
 
-	lua_setfield(L, LUA_GLOBALSINDEX, TEST_ONE_INPUT);  /* set global TEST_ONE_INPUT */
-	/* ???       lua_getglobal(L, "width"); */
+	lua_setglobal(L, TEST_ONE_INPUT);
 
 	/* Setup Lua. */
     //luaL_openlibs(L);
