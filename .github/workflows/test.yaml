@@ -45,6 +45,6 @@ jobs:
 
       - run: sudo apt install -y luarocks lua5.2 liblua5.2-dev clang
 
-      - run: luarocks --local build
+      - run: luarocks --local build luzer-scm-1.rockspec
 
       - run: luarocks --local make
