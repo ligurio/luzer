@@ -109,7 +109,13 @@ $ luajit test.lua
 
 <!-- https://luajit.org/ext_ffi_tutorial.html -->
 ```lua
-local ffi = require("ffi")
+local luzer = require("luzer")
+local has_ffi, ffi = pcall(require, "ffi")
+
+if not has_ffi then
+    print("ffi is not found")
+    os.exit(1)
+end
 
 ffi.cdef[[
 unsigned long compressBound(unsigned long sourceLen);
@@ -137,13 +143,15 @@ local function uncompress(comp, n)
   return ffi.string(buf, buflen[0])
 end
 
--- Simple test code.
-local txt = string.rep("abcd", 1000)
-print("Uncompressed size: ", #txt)
-local c = compress(txt)
-print("Compressed size: ", #c)
-local txt2 = uncompress(c, #txt)
-assert(txt2 == txt)
+local function TestOneInput(buf, _size)
+    local c = compress(buf)
+    local txt2 = uncompress(c, #buf)
+    assert(txt2 == buf)
+end
+
+luzer.Setup(arg, TestOneInput)
+
+luzer.Fuzz()
 ```
 
 ## Fuzzing API
