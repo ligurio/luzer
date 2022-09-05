@@ -42,3 +42,21 @@ jobs:
         run: |
             luarocks upload --api-key=${{ secrets.LUAROCKS_API_KEY }} luzer-${{ env.TAG }}-1.rockspec
             luarocks upload --api-key=${{ secrets.LUAROCKS_API_KEY }} luzer-${{ env.TAG }}-1.src.rock
+
+  build-rock:
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+    strategy:
+      fail-fast: false
+    runs-on: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@master
+
+      - run: sudo apt install -y luarocks lua5.2 liblua5.2-dev libclang-common-14-dev clang-14
+
+      - run: luarocks --local build luzer-scm-1.rockspec
+
+      - run: luarocks --local make
