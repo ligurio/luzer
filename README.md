@@ -179,6 +179,13 @@ could be combined into a single function, but they are separated because you
 may want the fuzzer to consume the command-line arguments it handles before
 passing any remaining arguments to another setup function.
 
+It may be desirable to reject some inputs, i.e. to not add them to the corpus.
+For example, when fuzzing an API consisting of parsing and other logic, one may
+want to allow only those inputs into the corpus that parse successfully.
+
+If the fuzz target returns `-1` on a given input, `luzer` will not add that
+input top the corpus, regardless of what coverage it triggers.
+
 Often, a `bytes` object is not convenient input to your code being fuzzed.
 Similar to libFuzzer, luzer provides a `FuzzedDataProvider` that can simplify the
 task of creating a fuzz target by translating the raw input bytes received from

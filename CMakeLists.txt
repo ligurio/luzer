@@ -36,6 +36,7 @@ endif()
 # for example LLVM_LIBRARY_DIRS/clang/4.0.0/lib/darwin/.
 #
 
+# https://llvm.org/docs/LibFuzzer.html#using-libfuzzer-as-a-library
 set(LLVM_BASE ${LLVM_LIBRARY_DIRS}/clang/${LLVM_PACKAGE_VERSION})
 string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} OS_NAME)
 set(LIBCLANG_RT ${LLVM_BASE}/lib/${OS_NAME}/libclang_rt.fuzzer_no_main-x86_64.a)

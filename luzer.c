@@ -124,6 +124,21 @@ luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
 NO_SANITIZE
 int TestOneInput(const uint8_t* data, size_t size) {
 	/* TODO: see trash/atheris/src/native/core.cc */
+
+	/* see trash/atheris/src/native/core.cc */
+	/* TODO
+	 *
+  struct CounterAndPcTableRange alloc = AllocateCountersAndPcs();
+  if (alloc.counters_start && alloc.counters_end) {
+    __sanitizer_cov_8bit_counters_init(alloc.counters_start,
+                                       alloc.counters_end);
+  }
+  if (alloc.pctable_start && alloc.pctable_end) {
+    __sanitizer_cov_pcs_init(alloc.pctable_start, alloc.pctable_end);
+  }
+  */
+  /* TODO: set exception handlers */
+
 	return luaL_test_one_input(LL, data, size);
 }
 
@@ -170,8 +185,8 @@ luaL_setup(lua_State *L)
 	lua_setglobal(L, TEST_ONE_INPUT);
 
 	/* Setup Lua. */
-    //luaL_openlibs(L);
-    //lua_sethook(L, hook, LUA_MASKLINE, 0);
+    luaL_openlibs(L);
+    lua_sethook(L, hook, LUA_MASKLINE, 0);
 
 	LL = L;
 	/* LLVMFuzzerInitialize(int *argc, char ***argv); */
@@ -207,6 +222,9 @@ char **new_argv(int count, ...)
  * but they are separated because you may want the fuzzer to consume the
  * command-line arguments it handles before passing any remaining arguments to
  * another setup function.
+ *
+ * If the fuzz target returns -1 on a given input, Fuzz() will not add that
+ * input top the corpus, regardless of what coverage it triggers.
  */
 NO_SANITIZE static int
 luaL_fuzz(lua_State *L)

@@ -22,7 +22,7 @@ luaL_min_max(lua_State *L, size_t *min, size_t *max)
 {
 	/* input: nil or max/min */
 	if (!fdp)
-		unreachable();
+		luaL_error(L, "FuzzedDataProvider is not initialized");
 
 	if (!(lua_isnumber(L, -1) == 1))
 		luaL_error(L, "max is not a number");
@@ -48,8 +48,11 @@ luaL_min_max(lua_State *L, size_t *min, size_t *max)
 static int
 luaL_consume_string(lua_State *L)
 {
+	if (lua_gettop(L) != 1)
+		luaL_error(L, "manual FuzzedDataProvider is not initialized");
+
 	if (!fdp)
-		unreachable();
+		luaL_error(L, "FuzzedDataProvider is not initialized");
 	if (!(lua_isnumber(L, -1) == 1))
 		luaL_error(L, "max_length is not a number");
 	size_t max_length = lua_tonumber(L, -1);
@@ -67,7 +70,7 @@ static int
 luaL_consume_strings(lua_State *L)
 {
 	if (!fdp)
-		unreachable();
+		luaL_error(L, "FuzzedDataProvider is not initialized");
 
 	if (!(lua_isnumber(L, -1) == 1))
 		luaL_error(L, "size is not a number");
@@ -101,7 +104,7 @@ static int
 luaL_consume_boolean(lua_State *L)
 {
 	if (!fdp)
-		unreachable();
+		luaL_error(L, "FuzzedDataProvider is not initialized");
 	bool b = fdp->ConsumeBool();
     lua_pushboolean(L, (int)b);
 
@@ -113,7 +116,7 @@ static int
 luaL_consume_booleans(lua_State *L)
 {
 	if (!fdp)
-		unreachable();
+		luaL_error(L, "FuzzedDataProvider is not initialized");
 
 	if (!(lua_isnumber(L, -1) == 1))
 		luaL_error(L, "size is not a number");
@@ -136,7 +139,7 @@ static int
 luaL_consume_number(lua_State *L)
 {
 	if (!fdp)
-		unreachable();
+		luaL_error(L, "FuzzedDataProvider is not initialized");
 
 	size_t min, max;
 	luaL_min_max(L, &min, &max);
@@ -158,7 +161,7 @@ static int
 luaL_consume_numbers(lua_State *L)
 {
 	if (!fdp)
-		unreachable();
+		luaL_error(L, "FuzzedDataProvider is not initialized");
 
 	if (!(lua_isnumber(L, -1) == 1))
 		luaL_error(L, "size is not a number");
@@ -185,7 +188,7 @@ luaL_consume_integer(lua_State *L)
 {
 	/* input: nil or max/min */
 	if (!fdp)
-		unreachable();
+		luaL_error(L, "FuzzedDataProvider is not initialized");
 
 	size_t min, max;
 	luaL_min_max(L, &min, &max);
@@ -200,7 +203,7 @@ static int
 luaL_consume_integers(lua_State *L)
 {
 	if (!fdp)
-		unreachable();
+		luaL_error(L, "FuzzedDataProvider is not initialized");
 
 	if (!(lua_isnumber(L, -1) == 1))
 		luaL_error(L, "size is not a number");
@@ -224,7 +227,7 @@ static int
 luaL_consume_probability(lua_State *L)
 {
 	if (!fdp)
-		unreachable();
+		luaL_error(L, "FuzzedDataProvider is not initialized");
 
 	// template <typename T> T ConsumeProbability();
 	//T probability = fdp->ConsumeProbability();
@@ -238,7 +241,7 @@ static int
 luaL_remaining_bytes(lua_State *L)
 {
 	if (!fdp)
-		unreachable();
+		luaL_error(L, "FuzzedDataProvider is not initialized");
 
 	size_t sz = fdp->remaining_bytes();
     lua_pushnumber(L, sz);

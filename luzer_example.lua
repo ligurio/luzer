@@ -25,6 +25,7 @@ local function TestOneInput(buf, _size)
     buf:gsub(".", function(c) table.insert(b, c) end)
     if b[1] == 'c' then
         if b[2] == 'r' then
+	    assert(nil)
             if b[3] == 'a' then
                 if b[4] == 's' then
                     if b[5] == 'h' then
