@@ -17,10 +17,11 @@
 /* TODO: it should be gc'ed, otherwise it is not thread-safe  */
 static FuzzedDataProvider *fdp = NULL;
 
+/*
 static int
 luaL_min_max(lua_State *L, size_t *min, size_t *max)
 {
-	/* input: nil or max/min */
+	// nil or max/min
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
@@ -38,6 +39,7 @@ luaL_min_max(lua_State *L, size_t *min, size_t *max)
 
     return 0;
 }
+*/
 
 /*
  * TODO: Unicode, 6.5 – UTF-8 Support
@@ -139,8 +141,8 @@ luaL_consume_number(lua_State *L)
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
-	size_t min, max;
-	luaL_min_max(L, &min, &max);
+	//size_t min, max;
+	//luaL_min_max(L, &min, &max);
 
 	/*
 	template <typename T> integer = fdp->ConsumeIntegralInRange(min, max);
@@ -188,8 +190,8 @@ luaL_consume_integer(lua_State *L)
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
-	size_t min, max;
-	luaL_min_max(L, &min, &max);
+	//size_t min, max;
+	//luaL_min_max(L, &min, &max);
 
   	// template <typename T> T ConsumeIntegral();
     lua_pushinteger(L, 300);
