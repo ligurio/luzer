@@ -67,7 +67,7 @@ luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
 	int rc = lua_isfunction(L, -1);
 	if (rc != 1)
 		luaL_error(L, "not a function");
-	//printf("[DEBUG] lua_gettop() %d\n", lua_gettop(L));
+
 	lua_insert(L, -3);
 	rc = lua_isfunction(L, -3);
 	if (rc != 1)
