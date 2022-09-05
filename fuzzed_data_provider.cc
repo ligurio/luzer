@@ -48,11 +48,9 @@ luaL_min_max(lua_State *L, size_t *min, size_t *max)
 static int
 luaL_consume_string(lua_State *L)
 {
-	if (lua_gettop(L) != 1)
-		luaL_error(L, "manual FuzzedDataProvider is not initialized");
-
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
+
 	if (!(lua_isnumber(L, -1) == 1))
 		luaL_error(L, "max_length is not a number");
 	size_t max_length = lua_tonumber(L, -1);
