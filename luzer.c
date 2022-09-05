@@ -1,23 +1,9 @@
 /*
  * TODO:
- *
  * - сделать возможность передавать корпус в таблице-массиве
  * - сделать возможность передавать словарь
- * - поставлять словари для стандартной библиотеки lua 5.1, lua 5.2, lua 5.3,
- *   lua 5.4, tarantool
- * - добавить regfuzz https://github.com/ShikChen/regfuzz
- * - пример для фаззинга С библиотеки с помощью FFI
- *		 Basic library, which includes the coroutine sub-library
- *		 Modules library
- *		 String manipulation
- *		 Table manipulation
- *		 Math library
- *		 File Input and output
- *		 Operating system facilities
- *		 Debug facilities
- *
- *   _VERSION
- *   package.loaded
+ * - переданные аргументы передавать в LLVMFuzzerRunDriver()
+ * - трейсинг
  */
 
 #include <lua.h>
@@ -33,7 +19,7 @@
 #include "tracer.h"
 
 #define LUZER_VERSION "0.1.0"
-#define TEST_ONE_INPUT "test_one_input"
+#define TEST_ONE_INPUT_FUNC "test_one_input"
 
 void sig_handler(int sig) {
     exit(0);
@@ -48,24 +34,6 @@ extern "C" {
 #endif
 int LLVMFuzzerRunDriver(int* argc, char*** argv,
                         int (*UserCb)(const uint8_t* Data, size_t Size));
-void __sanitizer_cov_8bit_counters_init(uint8_t* start, uint8_t* stop);
-void __sanitizer_cov_pcs_init(uint8_t* pcs_beg, uint8_t* pcs_end);
-
-// Called before a comparison instruction if exactly one of the arguments is constant.
-// Arg1 and Arg2 are arguments of the comparison, Arg1 is a compile-time constant.
-// These callbacks are emitted by -fsanitize-coverage=trace-cmp since 2017-08-11.
-void __sanitizer_cov_trace_const_cmp1(uint8_t Arg1, uint8_t Arg2);
-void __sanitizer_cov_trace_const_cmp2(uint16_t Arg1, uint16_t Arg2);
-void __sanitizer_cov_trace_const_cmp4(uint32_t Arg1, uint32_t Arg2);
-void __sanitizer_cov_trace_const_cmp8(uint64_t Arg1, uint64_t Arg2);
-
-// Called before a comparison instruction.
-// Arg1 and Arg2 are arguments of the comparison.
-void __sanitizer_cov_trace_cmp1(uint8_t Arg1, uint8_t Arg2);
-void __sanitizer_cov_trace_cmp2(uint16_t Arg1, uint16_t Arg2);
-void __sanitizer_cov_trace_cmp4(uint32_t Arg1, uint32_t Arg2);
-void __sanitizer_cov_trace_cmp8(uint64_t Arg1, uint64_t Arg2);
-
 // Sets the callback to be called right before death on error.
 // Passing 0 will unset the callback.
 // Called in libfuzzer_driver.cpp.
@@ -78,14 +46,10 @@ int __sanitizer_acquire_crash_state() {
 }
 
 // Print the stack trace leading to this call. Useful for debugging user code.
-// Jagger: Dump a Lua stack trace on timeouts.
+// TODO
+// https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
+// http://www.lua.org/manual/5.2/manual.html#luaL_traceback
 void __sanitizer_print_stack_trace() {
-	// TODO
-	// 5.2+ luaL_traceback(L, L, lua_tostring(L, 1), 1);
-	// http://www.lua.org/manual/5.3/manual.html#luaL_traceback
-	// https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
-	// debug.traceback()
-	printf("[DEBUG] Hello, everyone!\n");
 }
 #ifdef __cplusplus
 } /* extern "C" */
@@ -95,13 +59,11 @@ NO_SANITIZE static int
 luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
 {
 	if (!L)
-		luaL_error(L, "not a Lua stack");
+		luaL_error(L, "Lua stack is not initialized.");
 
-    //printf("[DEBUG] Running TestOneInput()\n");
-    //printf("[DEBUG] data %s, size %zu\n", data, size);
 	lua_pushstring(L, (const char *)data);
 	lua_pushnumber(L, size);
-	lua_getglobal(L, TEST_ONE_INPUT);
+	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
 	int rc = lua_isfunction(L, -1);
 	if (rc != 1)
 		luaL_error(L, "not a function");
@@ -123,22 +85,6 @@ luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
 
 NO_SANITIZE
 int TestOneInput(const uint8_t* data, size_t size) {
-	/* TODO: see trash/atheris/src/native/core.cc */
-
-	/* see trash/atheris/src/native/core.cc */
-	/* TODO
-	 *
-  struct CounterAndPcTableRange alloc = AllocateCountersAndPcs();
-  if (alloc.counters_start && alloc.counters_end) {
-    __sanitizer_cov_8bit_counters_init(alloc.counters_start,
-                                       alloc.counters_end);
-  }
-  if (alloc.pctable_start && alloc.pctable_end) {
-    __sanitizer_cov_pcs_init(alloc.pctable_start, alloc.pctable_end);
-  }
-  */
-  /* TODO: set exception handlers */
-
 	return luaL_test_one_input(LL, data, size);
 }
 
@@ -160,11 +106,13 @@ int TestOneInput(const uint8_t* data, size_t size) {
 NO_SANITIZE static int
 luaL_setup(lua_State *L)
 {
+	if (!(lua_gettop(L) <= 3))
+		luaL_error(L, "Wrong number of arguments in the Setup() function.");
+
+	/* Set signal handler. */
     struct sigaction act;
     act.sa_handler = sig_handler;
     sigaction(SIGINT, &act, NULL);
-
-	printf("[DEBUG] Running Setup()\n");
 
 	/* Process arguments. */
 	if (!lua_istable(L, 1)) {
@@ -174,7 +122,7 @@ luaL_setup(lua_State *L)
     while (lua_next(L, 1) != 0) {
         const char *arg = luaL_checkstring(L, -1);
         lua_pop(L, 1);
-        printf("[DEBUG] arg: %s\n", arg);
+        printf("Arg: %s\n", arg);
     }
 	lua_remove(L, 1);
 
@@ -182,7 +130,7 @@ luaL_setup(lua_State *L)
 	if (lua_isfunction(L, 1) != 1)
 		luaL_error(L, "'test_one_input' is not a function");
 
-	lua_setglobal(L, TEST_ONE_INPUT);
+	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
 
 	/* Setup Lua. */
     luaL_openlibs(L);
@@ -229,7 +177,6 @@ char **new_argv(int count, ...)
 NO_SANITIZE static int
 luaL_fuzz(lua_State *L)
 {
-	printf("[DEBUG] Running Fuzz()\n");
 	int argc = 1;
     char **argv = new_argv(4, "is");
     return LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
@@ -239,7 +186,7 @@ NO_SANITIZE static int
 luaL_require_instrument(lua_State *L)
 {
 	const char *module_name = luaL_checkstring(L, -1);
-	printf("[DEBUG] require_instrument(): %s\n", module_name);
+	printf("Instrumented Lua module: %s\n", module_name);
 	lua_getglobal(L, "require");
 	lua_insert(L, -2);
 	lua_call(L, 1, 1);
