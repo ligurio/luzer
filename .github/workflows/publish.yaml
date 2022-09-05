@@ -15,6 +15,9 @@ jobs:
       - name: Setup luarocks
         run: sudo apt install -y luarocks
 
+      - name: Setup cjson (required for upload)
+        run: luarocks install --local lua-cjson
+
       - name: Upload rockspec scm-1
         run: luarocks upload --force --api-key=${{ secrets.LUAROCKS_API_KEY }} luzer-scm-1.rockspec
 
