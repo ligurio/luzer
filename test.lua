@@ -28,7 +28,7 @@ assert(type(luzer.FuzzedDataProvider) == "function")
 local fdp = luzer.FuzzedDataProvider(string.rep('A', 1024))
 
 assert(type(fdp.consume_string) == "function")
-local res = fdp.consume_string()
+local res = fdp.consume_string(2)
 assert(type(res) == "string")
 
 assert(type(fdp.consume_boolean) == "function")
