@@ -271,11 +271,10 @@ static const struct {
 int
 luaL_fuzzed_data_provider(lua_State *L)
 {
-	/* FIXME: FuzzedDataProvider accepts a buffer and a number of bytes. */
-	const char *data = NULL;
-	data = luaL_checkstring(L, 1);
-	if (!data)
-		luaL_error(L, "Wrong FuzzedDataProvider() arguments.");
+	if (lua_gettop(L) != 1)
+		luaL_error(L, "FuzzedDataProvider accepts a buffer.");
+
+	const char *data = luaL_checkstring(L, 1);
 	size_t size = strlen(data);
 	fdp = new FuzzedDataProvider((const unsigned char *)data, size);
 	size_t n = sizeof(FuzzedDataProvider_functions)/
