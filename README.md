@@ -66,15 +66,16 @@ failing input is found, or the user cancels the process (e.g. with Ctrl^C).
 The output will look something like this:
 
 ```
-~ go test -fuzz FuzzFoo
-fuzz: elapsed: 0s, gathering baseline coverage: 0/192 completed
-fuzz: elapsed: 0s, gathering baseline coverage: 192/192 completed, now fuzzing with 8 workers
-fuzz: elapsed: 3s, execs: 325017 (108336/sec), new interesting: 11 (total: 202)
-fuzz: elapsed: 6s, execs: 680218 (118402/sec), new interesting: 12 (total: 203)
-fuzz: elapsed: 9s, execs: 1039901 (119895/sec), new interesting: 19 (total: 210)
-fuzz: elapsed: 12s, execs: 1386684 (115594/sec), new interesting: 21 (total: 212)
-PASS
-ok      foo 12.692s
+$ luajit luzer_example.lua
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1557779137
+INFO: Loaded 1 modules   (151 inline 8-bit counters): 151 [0x7f0640e706e3, 0x7f0640e7077a),
+INFO: Loaded 1 PC tables (151 PCs): 151 [0x7f0640e70780,0x7f0640e710f0),
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 17 ft: 18 corp: 1/1b exec/s: 0 rss: 26Mb
+#32	NEW    cov: 17 ft: 24 corp: 2/4b lim: 4 exec/s: 0 rss: 26Mb L: 3/3 MS: 5 ShuffleBytes-ShuffleBytes-CopyPart-ChangeByte-CMP- DE: "\x00\x00"-
+...
 ```
 
 The first lines indicate that the "baseline coverage" is gathered before
@@ -276,6 +277,14 @@ Testing could be more rigorous with using these tools:
 - `C/C++` Memory Sanitizer
 - `C/C++` Undefined Behavior Sanitizer
 - `C/C++` Thread Sanitizer
+
+## Promote:
+
+- https://groups.google.com/g/libfuzzer
+- https://github.com/uhub/awesome-lua
+- lobsters
+- группа в телеграме про фаззинг для ФСТЭК
+- ZeroBrane Studio?
 -->
 
 ## License
@@ -283,17 +292,6 @@ Testing could be more rigorous with using these tools:
 Copyright © 2021-2022 [Sergey Bronnikov][bronevichok-url].
 
 Distributed under the ISC License.
-
-<!--
-## TODO
-
-- Promote:
-  - https://groups.google.com/g/libfuzzer
-  - https://github.com/uhub/awesome-lua
-  - lobsters
-  - группа в телеграме про фаззинг для ФСТЭК
-  - ZeroBrane Studio?
--->
 
 [libfuzzer-url]: https://llvm.org/docs/LibFuzzer.html
 [libfuzzer-options-url]: https://llvm.org/docs/LibFuzzer.html#options
