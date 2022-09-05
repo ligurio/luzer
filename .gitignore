@@ -2,3 +2,5 @@ build
 build.luarocks
 tags
 crash-*
+cmake
+trash
