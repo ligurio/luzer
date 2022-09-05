@@ -15,9 +15,6 @@ jobs:
       - name: Setup luarocks
         run: sudo apt install -y luarocks
 
-      - name: Setup cjson
-        run: luarocks install --local lua-cjson
-
       - name: Upload rockspec scm-1
         run: luarocks upload --force --api-key=${{ secrets.LUAROCKS_API_KEY }} luzer-scm-1.rockspec
 
@@ -50,7 +47,7 @@ jobs:
       github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       fail-fast: false
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@master
