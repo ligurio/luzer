@@ -10,7 +10,7 @@ end
 debug.sethook(trace, "l")
 
 -- luzer.version
-local version = luzer.VERSION
+local version = luzer._VERSION
 assert(type(version) == "table")
 local version_lua = version.LUA
 local version_luzer = version.LUZER

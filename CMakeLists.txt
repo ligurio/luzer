@@ -66,6 +66,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	${LUA_LIBRARIES}
 	${LIBRT}
 	${LIBCLANG_RT}
+	-fsanitize=fuzzer-no-link
 )
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
 	-Wall
@@ -73,6 +74,7 @@ target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
 	-Wpedantic
 	-Wno-unused-parameter
 	-g
+	-fsanitize=fuzzer-no-link
 )
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
 

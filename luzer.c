@@ -1,16 +1,18 @@
 /*
  * TODO:
- * - сделать возможность передавать корпус в таблице-массиве
- * - сделать возможность передавать словарь
  * - переданные аргументы передавать в LLVMFuzzerRunDriver()
  * - трейсинг
+ * - починить FDP для некоторых типов данных
+ * - доделать require_instrument()
+ *
+ * - сделать возможность передавать корпус в таблице-массиве
+ * - сделать возможность передавать словарь
  */
 
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
 #include <stdint.h>
-#include <stddef.h>
 #include <stdlib.h>
 #include <signal.h>
 
@@ -218,7 +220,7 @@ int luaopen_luzer(lua_State *L)
 #else
 	luaL_newlib(L, Module);
 #endif
-    lua_pushliteral(L, "VERSION");
+    lua_pushliteral(L, "_VERSION");
     lua_createtable(L, 0, 3);
     lua_pushstring(L, "LUZER");
     lua_pushstring(L, LUZER_VERSION);
