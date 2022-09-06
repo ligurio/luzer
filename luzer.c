@@ -43,7 +43,7 @@ int LLVMFuzzerRunDriver(int* argc, char*** argv,
 // Sets the callback to be called right before death on error.
 // Passing 0 will unset the callback.
 // Called in libfuzzer_driver.cpp.
-static oid __sanitizer_set_death_callback(void (*callback)())
+static void __sanitizer_set_death_callback(void (*callback)())
 {
 }
 
