@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10.2)
 
-project(luzer)
+project(luzer
+  LANGUAGES C CXX
+)
 
 find_package(Lua 5.1 REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
@@ -34,8 +36,8 @@ endif()
 # Location is LLVM_LIBRARY_DIRS/clang/<version>/lib/<OS>/,
 # for example LLVM_LIBRARY_DIRS/clang/4.0.0/lib/darwin/.
 #
+# See https://llvm.org/docs/LibFuzzer.html#using-libfuzzer-as-a-library
 
-# https://llvm.org/docs/LibFuzzer.html#using-libfuzzer-as-a-library
 set(LLVM_BASE ${LLVM_LIBRARY_DIRS}/clang/${LLVM_PACKAGE_VERSION})
 string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} OS_NAME)
 set(LIBCLANG_RT ${LLVM_BASE}/lib/${OS_NAME}/libclang_rt.fuzzer_no_main-x86_64.a)
@@ -64,7 +66,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	${LUA_LIBRARIES}
 	${LIBRT}
 	${LIBCLANG_RT}
-	-fsanitize=fuzzer-no-link
 )
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
 	-Wall
@@ -72,7 +73,6 @@ target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
 	-Wpedantic
 	-Wno-unused-parameter
 	-g
-	-fsanitize=fuzzer-no-link
 )
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
 
