@@ -9,7 +9,7 @@ static const char *script_env = "LIBFUZZER_MUTATOR_LUA_SCRIPT";
 static const char *script_default = "./libfuzzer_mutator.lua";
 static const char *script_func = "LLVMFuzzerCustomMutator";
 
-static size_t mutate(uint8_t *Data, size_t Size,
+static size_t custom_mutator(uint8_t *Data, size_t Size,
 				     size_t MaxSize, unsigned int Seed) {
 	const char *script_path = getenv(script_env) ? : script_default;
 	if (!script_path) {
@@ -51,7 +51,7 @@ static size_t mutate(uint8_t *Data, size_t Size,
 
 size_t LLVMFuzzerCustomMutator(uint8_t *Data, size_t Size,
                                size_t MaxSize, unsigned int Seed) {
-	return mutate(Data, Size, MaxSize, Seed);
+	return custom_mutator(Data, Size, MaxSize, Seed);
 }
 
 #ifndef CUSTOM_MUTATOR
@@ -61,7 +61,7 @@ int main() {
 	size_t Size = 9;
 	size_t MaxSize = 10;
 	size_t Seed = 98;
-	size_t res = mutate(Data, Size, MaxSize, Seed);
+	size_t res = custom_mutator(Data, Size, MaxSize, Seed);
 	fprintf(stdout, "DEBUG: result %zu\n", res);
 
 	return 0;
