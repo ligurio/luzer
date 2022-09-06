@@ -2,7 +2,7 @@
  * TODO:
  * - переданные аргументы передавать в LLVMFuzzerRunDriver()
  * - трейсинг
- * - доделать require_instrument()
+ * - ??? доделать require_instrument()
  * - исправить передачу аргументов в FuzzedDataProvider
  *
  * - сделать возможность передавать корпус в таблице-массиве
@@ -24,8 +24,6 @@
 #define LUZER_VERSION "0.1.0"
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
 #define CUSTOM_MUTATOR_FUNC "luzer_custom_mutator"
-
-int test_one_input_is_set = 0;
 
 lua_State *LL;
 
@@ -157,7 +155,6 @@ luaL_setup(lua_State *L)
 	if (lua_isfunction(L, 1) != 1)
 		luaL_error(L, "test_one_input is not a Lua function.");
 	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
-	test_one_input_is_set = 1;
 
 	if (lua_gettop(L) != 0) {
 		if (lua_isfunction(L, -1) != 1)
@@ -176,14 +173,12 @@ luaL_setup(lua_State *L)
 	// interpreter is about to start the execution of a new line of code, or
 	// when it jumps back in the code (even to the same line).
     lua_sethook(L, hook, LUA_MASKCALL | LUA_MASKLINE, 0);
-
-	LL = L;
 	lua_pushboolean(L, 1);
 
     return 1;
 }
 
-char **new_argv(int count, ...)
+static char **new_argv(int count, ...)
 {
     va_list args;
     int i;
@@ -217,11 +212,16 @@ char **new_argv(int count, ...)
 NO_SANITIZE static int
 luaL_fuzz(lua_State *L)
 {
-	int argc = 2;
-    char **argv = new_argv(argc, "-only_ascii=1", "-max_len=1000");
-
-	if (!test_one_input_is_set)
+	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
+	if (lua_isfunction(L, -1) != 1) {
 		luaL_error(L, "test_one_input is not defined");
+	}
+	lua_pop(L, -1);
+
+	LL = L;
+
+	int argc = 2;
+	char **argv = new_argv(argc, "-only_ascii=1", "-max_len=1000");
 
     return LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 }
