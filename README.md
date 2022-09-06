@@ -220,6 +220,17 @@ The `FuzzedDataProvider` then supports the following functions:
 - `remaining_bytes()` - returns the number of unconsumed bytes in the fuzzer
   input.
 
+Examples:
+
+```lua
+> luzer = require("luzer")
+> fdp = luzer.FuzzedDataProvider(string.rep("A", 10^9))
+> fdp.consume_boolean()
+true
+> fdp.consume_string(2, 10)
+AAAAAAAAA
+```
+
 Learn more about fuzzing with libFuzzer and structure-aware fuzzing using
 `FuzzedDataProvider`:
 
