@@ -2,6 +2,7 @@
 #include <lauxlib.h>
 #include <lualib.h>
 #include <fuzzer/FuzzedDataProvider.h>
+#include <float.h>
 
 #include "fuzzed_data_provider.h"
 #include "macros.h"
@@ -141,18 +142,9 @@ luaL_consume_number(lua_State *L)
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
-	//size_t min, max;
-	//luaL_min_max(L, &min, &max);
-
-	/*
-	template <typename T> integer = fdp->ConsumeIntegralInRange(min, max);
-    lua_pushnumber(L, cstr);
-
-	template <typename T> T ConsumeFloatingPoint();
-	template <typename T> T ConsumeIntegral();
-	*/
-
-    lua_pushnumber(L, 300);
+	double min = -DBL_MAX, max = DBL_MAX;
+	auto number = fdp->ConsumeFloatingPointInRange(min, max);
+    lua_pushnumber(L, number);
 
     return 1;
 }
@@ -168,10 +160,12 @@ luaL_consume_numbers(lua_State *L)
 	size_t size = lua_tonumber(L, -1);
 	lua_pop(L, -1);
 
+	double min = -DBL_MAX, max = DBL_MAX;
 	lua_newtable(L);
 	for (int i = 1; i <= (int)size; i++) {
+	    auto number = fdp->ConsumeFloatingPointInRange(min, max);
 		lua_pushnumber(L, i);
-		lua_pushnumber(L, 1);
+		lua_pushnumber(L, number);
 		lua_settable(L, -3);
 	}
 	// If there's no input data left, returns |min|. Note that
@@ -186,15 +180,13 @@ luaL_consume_numbers(lua_State *L)
 static int
 luaL_consume_integer(lua_State *L)
 {
-	/* input: nil or max/min */
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
-	//size_t min, max;
-	//luaL_min_max(L, &min, &max);
+	int min = -INT_MAX, max = INT_MAX;
+	auto number = fdp->ConsumeIntegralInRange(min, max);
+    lua_pushnumber(L, number);
 
-  	// template <typename T> T ConsumeIntegral();
-    lua_pushinteger(L, 300);
     return 1;
 }
 
@@ -210,28 +202,27 @@ luaL_consume_integers(lua_State *L)
 	size_t size = lua_tonumber(L, -1);
 	lua_pop(L, -1);
 
+	int min = -INT_MAX, max = INT_MAX;
 	lua_newtable(L);
 	for (int i = 1; i <= (int)size; i++) {
+	    auto number = fdp->ConsumeIntegralInRange(min, max);
 		lua_pushnumber(L, i);
-		lua_pushinteger(L, 1);
+		lua_pushinteger(L, number);
 		lua_settable(L, -3);
 	}
-
-  	// template <typename T> T ConsumeIntegralInRange(T min, T max);
 
 	return 1;
 }
 
-// 0 <= return value <= 1.
 static int
 luaL_consume_probability(lua_State *L)
 {
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
-	// template <typename T> T ConsumeProbability();
-	//T probability = fdp->ConsumeProbability();
-    lua_pushnumber(L, 1);
+	// FIXME: template <typename T> T ConsumeProbability();
+	auto probability = fdp->ConsumeFloatingPointInRange(0.0, 1.0);
+    lua_pushnumber(L, probability);
 
     return 1;
 }
