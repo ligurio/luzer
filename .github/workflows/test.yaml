@@ -13,7 +13,6 @@ jobs:
     strategy:
       matrix:
         LIBLUA:
-          - "luajit-5.1"
           - "5.4"
           - "5.3"
           - "5.2"
@@ -38,10 +37,6 @@ jobs:
       - name: Setup packages (${{ matrix.LIBLUA }}
         run: sudo apt install -y lua5.4 liblua5.4-dev clang-14 libclang-common-14-dev
         if: ${{ matrix.LIBLUA == '5.4' }}
-
-      - name: Setup packages (${{ matrix.LIBLUA }}
-        run: sudo apt install -y luajit libluajit-5.1-dev clang-14 libclang-common-14-dev
-        if: ${{ matrix.LIBLUA == 'luajit-5.1' }}
 
       - name: Running CMake
         run: cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DENABLE_TESTING=ON -S . -B build
