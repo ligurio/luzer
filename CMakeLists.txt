@@ -13,7 +13,7 @@ endif()
 
 message(STATUS "Found Lua ${LUA_VERSION_STRING}")
 message(STATUS "Found Lua interpreter ${LUA_EXECUTABLE}")
-message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Found LLVM ${LLVM_VERSION}")
 
 if(${LLVM_PACKAGE_VERSION} VERSION_LESS 5.0.0)
   message(FATAL_ERROR "LLVM 5.0.0 or newer is required")
@@ -30,7 +30,6 @@ if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
       "\n")
 endif()
 
-
 # Locate compiler-rt libraries.
 # Location is LLVM_LIBRARY_DIRS/clang/<version>/lib/<OS>/,
 # for example LLVM_LIBRARY_DIRS/clang/4.0.0/lib/darwin/.
@@ -46,9 +45,16 @@ else()
   message(FATAL_ERROR "libclang_rt is not found")
 endif()
 
+configure_file(
+  ${CMAKE_SOURCE_DIR}/version.c
+  ${CMAKE_CURRENT_BINARY_DIR}/version.c
+  @ONLY
+)
+
 set(LUZER_SOURCES luzer.c
                   fuzzed_data_provider.cc
-                  tracer.c)
+                  tracer.c
+                  ${CMAKE_BINARY_DIR}/version.c)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${LUZER_SOURCES})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE

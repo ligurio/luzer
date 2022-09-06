@@ -17,6 +17,7 @@
 #include "fuzzed_data_provider.h"
 #include "macros.h"
 #include "tracer.h"
+#include "version.h"
 
 #define LUZER_VERSION "0.1.0"
 #define TEST_ONE_INPUT_FUNC "test_one_input"
@@ -226,7 +227,7 @@ int luaopen_luzer(lua_State *L)
     lua_pushstring(L, LUA_RELEASE);
     lua_rawset(L, -3);
     lua_pushstring(L, "LLVM");
-    lua_pushstring(L, "13.0.1"); /* FIXME: set a real LLVM version */
+    lua_pushstring(L, llvm_version_string());
     lua_rawset(L, -3);
     lua_rawset(L, -3);
 
