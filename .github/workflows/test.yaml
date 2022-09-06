@@ -15,9 +15,9 @@ jobs:
         LIBLUA:
           # TODO
           #- "libluajit-5.1-dev"
-          #- "liblua5.3-dev"
+          #- "liblua5.3-dev" -- segfault
           - "liblua5.2-dev"
-          #- "liblua5.1-0-dev"
+          #- "liblua5.1-0-dev" -- segfault
       fail-fast: false
     runs-on: ubuntu-22.04
     steps:
@@ -26,8 +26,11 @@ jobs:
       - name: Setup packages
         run: sudo apt install -y lua5.2 clang-14 libclang-common-14-dev ${{ matrix.LIBLUA }}
 
-      - run: cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DENABLE_TESTING=ON -S . -B build
+      - name: Running CMake
+        run: cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DENABLE_TESTING=ON -S . -B build
 
-      - run: cmake --build build --parallel $(nproc)
+      - name: Building
+        run: cmake --build build --parallel $(nproc)
 
-      - run: cmake --build build --target test
+      - name: Testing
+        run: cmake --build build --target test
