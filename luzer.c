@@ -25,11 +25,12 @@
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
 #define CUSTOM_MUTATOR_FUNC "luzer_custom_mutator"
 
-lua_State *LL;
+static lua_State *LL;
 
 // See GracefulExit() in trash/atheris/src/native/util.cc
-void sig_handler(int sig) {
-    exit(0);
+static void sig_handler(int sig)
+{
+	exit(0);
 }
 
 #ifdef __cplusplus
@@ -42,11 +43,14 @@ int LLVMFuzzerRunDriver(int* argc, char*** argv,
 // Sets the callback to be called right before death on error.
 // Passing 0 will unset the callback.
 // Called in libfuzzer_driver.cpp.
-void __sanitizer_set_death_callback(void (*callback)()) {}
+static oid __sanitizer_set_death_callback(void (*callback)())
+{
+}
 
 // Suppress libFuzzer warnings about missing sanitizer methods in non-sanitizer
 // builds.
-int __sanitizer_acquire_crash_state() {
+int __sanitizer_acquire_crash_state()
+{
 	return 1;
 }
 
@@ -54,7 +58,8 @@ int __sanitizer_acquire_crash_state() {
 // TODO
 // https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
 // http://www.lua.org/manual/5.2/manual.html#luaL_traceback
-void __sanitizer_print_stack_trace() {
+void __sanitizer_print_stack_trace()
+{
 }
 #ifdef __cplusplus
 } /* extern "C" */
