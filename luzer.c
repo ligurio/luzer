@@ -129,7 +129,11 @@ luaL_setup(lua_State *L)
 	if (!lua_istable(L, 1))
 		luaL_error(L, "arg is not a table");
 
+#if LUA_VERSION_NUM == 501
 	argc = lua_objlen(L, 1);
+#else
+	argc = lua_rawlen(L, 1);
+#endif
     argv = malloc((argc + 1) * sizeof(char*));
     lua_pushnil(L);
     int i = 0;
