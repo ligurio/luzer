@@ -27,6 +27,9 @@
 
 static lua_State *LL;
 
+static int argc;
+static char **argv;
+
 // See GracefulExit() in trash/atheris/src/native/util.cc
 static void sig_handler(int sig)
 {
@@ -43,7 +46,7 @@ int LLVMFuzzerRunDriver(int* argc, char*** argv,
 // Sets the callback to be called right before death on error.
 // Passing 0 will unset the callback.
 // Called in libfuzzer_driver.cpp.
-static void __sanitizer_set_death_callback(void (*callback)())
+void __sanitizer_set_death_callback(void (*callback)())
 {
 }
 
@@ -65,32 +68,22 @@ void __sanitizer_print_stack_trace()
 } /* extern "C" */
 #endif
 
-NO_SANITIZE static int
-luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
+NO_SANITIZE static char
+**new_argv(int count, ...)
 {
-	if (!L)
-		luaL_error(L, "Lua stack is not initialized.");
-
-	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
-	if (lua_isfunction(L, -1) != 1) {
-		luaL_error(L, "no luzer_test_one_input is defined");
-		lua_settop(L, 0);
-	}
-	lua_pushstring(L, (const char *)data);
-	lua_pushnumber(L, size);
-	lua_call(L, 2, 1);
-
-	int rc = 0;
-	if (lua_isnumber(L, 1) == 1)
-		rc = lua_tonumber(L, 1);
-	lua_settop(L, 0);
-
-	return rc;
-}
-
-NO_SANITIZE
-int TestOneInput(const uint8_t* data, size_t size) {
-	return luaL_test_one_input(LL, data, size);
+    va_list args;
+    int i;
+    char **argv = malloc((count+1) * sizeof(char*));
+    char *temp;
+    va_start(args, count);
+    for (i = 0; i < count; i++) {
+        temp = va_arg(args, char*);
+        argv[i] = malloc(sizeof(temp));
+        argv[i] = temp;
+    }
+    argv[i] = NULL;
+    va_end(args);
+    return argv;
 }
 
 NO_SANITIZE static size_t
@@ -120,26 +113,56 @@ custom_mutator(uint8_t *Data, size_t Size, size_t MaxSize, unsigned int Seed)
 }
 
 NO_SANITIZE static int
+luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
+{
+	if (!L)
+		luaL_error(L, "Lua stack is not initialized.");
+
+	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
+	if (lua_isfunction(L, -1) != 1) {
+		luaL_error(L, "no luzer_test_one_input is defined");
+		lua_settop(L, 0);
+	}
+	lua_pushstring(L, (const char *)data);
+	lua_pushnumber(L, size);
+	lua_call(L, 2, 1);
+
+	int rc = 0;
+	if (lua_isnumber(L, 1) == 1)
+		rc = lua_tonumber(L, 1);
+	lua_settop(L, 0);
+
+	return rc;
+}
+
+NO_SANITIZE int
+TestOneInput(const uint8_t* data, size_t size) {
+	return luaL_test_one_input(LL, data, size);
+}
+
+NO_SANITIZE static int
 luaL_setup(lua_State *L)
 {
-	if (!(lua_gettop(L) <= 3))
-		luaL_error(L, "Wrong number of arguments in the Setup() function.");
+	if (!lua_istable(L, 1))
+		luaL_error(L, "arg is not a table");
+	printf("lua_objlen %zu\n", lua_objlen(L, 1));
+	argc = lua_objlen(L, 1);
 
-	/* Set signal handler. */
-    struct sigaction act;
-    act.sa_handler = sig_handler;
-    sigaction(SIGINT, &act, NULL);
+	argc = 2;
+	argv = new_argv(argc, "-only_ascii=1", "-max_len=1000");
 
-	/* Process arguments. */
-	if (!lua_istable(L, 1)) {
-		luaL_error(L, "not a table");
-	}
+    int i = 0;
+    char **argv = malloc((argc + 1) * sizeof(char*));
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
         const char *arg = luaL_checkstring(L, -1);
-        printf("Arg: %s\n", arg);
+        printf("Arg: %s, i %d\n", arg, i);
+        argv[i] = malloc(sizeof(arg));
+        argv[i] = (char*)arg;
         lua_pop(L, 1);
+        i++;
     }
+    //argv[argc++] = NULL;
 	lua_remove(L, 1);
 
 	if (lua_isfunction(L, 1) != 1)
@@ -165,24 +188,12 @@ luaL_setup(lua_State *L)
     lua_sethook(L, hook, LUA_MASKCALL | LUA_MASKLINE, 0);
 	lua_pushboolean(L, 1);
 
-    return 1;
-}
+	// Set signal handler.
+    struct sigaction act;
+    act.sa_handler = sig_handler;
+    sigaction(SIGINT, &act, NULL);
 
-static char **new_argv(int count, ...)
-{
-    va_list args;
-    int i;
-    char **argv = malloc((count+1) * sizeof(char*));
-    char *temp;
-    va_start(args, count);
-    for (i = 0; i < count; i++) {
-        temp = va_arg(args, char*);
-        argv[i] = malloc(sizeof(temp));
-        argv[i] = temp;
-    }
-    argv[i] = NULL;
-    va_end(args);
-    return argv;
+    return 1;
 }
 
 NO_SANITIZE static int
@@ -196,8 +207,8 @@ luaL_fuzz(lua_State *L)
 
 	LL = L;
 
-	int argc = 2;
-	char **argv = new_argv(argc, "-only_ascii=1", "-max_len=1000");
+	//int argc = 2;
+	//char **argv = new_argv(argc, "-only_ascii=1", "-max_len=1000");
 
     return LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 }
