@@ -161,7 +161,7 @@ The luzer module provides two key functions: `Setup()` and `Fuzz()`.
 
 `Setup(args, test_one_input, custom_mutator)`
 - `args`: A list of strings: the process arguments to pass to the fuzzer,
-  typically `argv`. This argument list may be modified in-place, to remove
+  typically `arg`. This argument list may be modified in-place, to remove
   arguments consumed by the fuzzer. See the [libFuzzer docs][libfuzzer-options-url]
   for a list of such options.
 - `test_one_input`: Your fuzzer's entry point. Must take a single bytes

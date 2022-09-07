@@ -119,21 +119,6 @@ custom_mutator(uint8_t *Data, size_t Size, size_t MaxSize, unsigned int Seed)
 	return rc;
 }
 
-/*
- * Setup(args, test_one_input, internal_libfuzzer=None)
- *
- * args: A table of strings: the process arguments to pass to the fuzzer,
- * typically `argv`. This argument list may be modified in-place, to remove
- * arguments consumed by the fuzzer. See the LibFuzzer docs for a list of such
- * options.
- *
- * test_one_input: your fuzzer's entry point. Must take a single bytes
- * argument. This will be repeatedly invoked with a single bytes container.
- *
- * internal_libfuzzer: Indicates whether libfuzzer will be provided by luzer or
- * by an external library. If unspecified, luzer will determine this
- * automatically. If fuzzing pure Lua, leave this as True.
- */
 NO_SANITIZE static int
 luaL_setup(lua_State *L)
 {
@@ -200,20 +185,6 @@ static char **new_argv(int count, ...)
     return argv;
 }
 
-/*
- * Fuzz()
- *
- * This starts the fuzzer. You must have called Setup() before calling this
- * function. This function does not return.
- *
- * In many cases Setup() and Fuzz() could be combined into a single function,
- * but they are separated because you may want the fuzzer to consume the
- * command-line arguments it handles before passing any remaining arguments to
- * another setup function.
- *
- * If the fuzz target returns -1 on a given input, Fuzz() will not add that
- * input top the corpus, regardless of what coverage it triggers.
- */
 NO_SANITIZE static int
 luaL_fuzz(lua_State *L)
 {
