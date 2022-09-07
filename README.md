@@ -298,6 +298,8 @@ Testing could be more rigorous with using these tools:
 - lobsters
 - группа в телеграме про фаззинг для ФСТЭК
 - ZeroBrane Studio?
+- opennet https://www.opennet.ru/opennews/art.shtml?num=54204
+- https://www.reddit.com/r/fuzzing/
 -->
 
 ## License

@@ -1,8 +1,8 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include <fuzzer/FuzzedDataProvider.h>
 #include <float.h>
+#include <fuzzer/FuzzedDataProvider.h>
 
 #include "fuzzed_data_provider.h"
 #include "macros.h"

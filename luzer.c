@@ -5,6 +5,9 @@
  * - починить custom_mutator()
  * - ??? доделать require_instrument()
  *
+ * - Unicode, 6.5 – UTF-8 Support
+ * https://www.lua.org/manual/5.4/manual.html
+ *
  * - сделать возможность передавать корпус в таблице-массиве
  * - сделать возможность передавать словарь
  */
