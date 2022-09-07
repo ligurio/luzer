@@ -4,6 +4,7 @@
  * - исправить передачу аргументов в FuzzedDataProvider
  * - починить custom_mutator()
  * - ??? доделать require_instrument()
+ * - реорганизовать файлы в репозитории: подпроекты luzer и custom_mutator
  *
  * - Unicode, 6.5 – UTF-8 Support
  * https://www.lua.org/manual/5.4/manual.html
