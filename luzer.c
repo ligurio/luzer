@@ -68,24 +68,6 @@ void __sanitizer_print_stack_trace()
 } /* extern "C" */
 #endif
 
-NO_SANITIZE static char
-**new_argv(int count, ...)
-{
-    va_list args;
-    int i;
-    char **argv = malloc((count+1) * sizeof(char*));
-    char *temp;
-    va_start(args, count);
-    for (i = 0; i < count; i++) {
-        temp = va_arg(args, char*);
-        argv[i] = malloc(sizeof(temp));
-        argv[i] = temp;
-    }
-    argv[i] = NULL;
-    va_end(args);
-    return argv;
-}
-
 NO_SANITIZE static size_t
 custom_mutator(uint8_t *Data, size_t Size, size_t MaxSize, unsigned int Seed)
 {
@@ -143,32 +125,32 @@ TestOneInput(const uint8_t* data, size_t size) {
 NO_SANITIZE static int
 luaL_setup(lua_State *L)
 {
+	// Argument: libfuzzer arguments.
 	if (!lua_istable(L, 1))
 		luaL_error(L, "arg is not a table");
-	printf("lua_objlen %zu\n", lua_objlen(L, 1));
+
 	argc = lua_objlen(L, 1);
-
-	argc = 2;
-	argv = new_argv(argc, "-only_ascii=1", "-max_len=1000");
-
-    int i = 0;
-    char **argv = malloc((argc + 1) * sizeof(char*));
+    argv = malloc((argc + 1) * sizeof(char*));
     lua_pushnil(L);
+    int i = 0;
+	// FIXME: first argument is ignored.
     while (lua_next(L, 1) != 0) {
         const char *arg = luaL_checkstring(L, -1);
-        printf("Arg: %s, i %d\n", arg, i);
+        lua_pop(L, 1);
         argv[i] = malloc(sizeof(arg));
         argv[i] = (char*)arg;
-        lua_pop(L, 1);
         i++;
     }
-    //argv[argc++] = NULL;
+    argv[i] = NULL;
 	lua_remove(L, 1);
 
+	// Argument: test_one_input.
 	if (lua_isfunction(L, 1) != 1)
 		luaL_error(L, "test_one_input is not a Lua function.");
+
 	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
 
+	// Argument: custom_mutator.
 	if (lua_gettop(L) != 0) {
 		if (lua_isfunction(L, -1) != 1)
 			luaL_error(L, "custom_mutator is not a Lua function.");
@@ -206,9 +188,6 @@ luaL_fuzz(lua_State *L)
 	lua_pop(L, -1);
 
 	LL = L;
-
-	//int argc = 2;
-	//char **argv = new_argv(argc, "-only_ascii=1", "-max_len=1000");
 
     return LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 }
