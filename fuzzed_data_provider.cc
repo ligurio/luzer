@@ -25,14 +25,6 @@ luaL_consume_string(lua_State *L)
 	if (lua_type(L, -1) != LUA_TNUMBER)
 		luaL_error(L, "bad argument max_length");
 
-	/*
-	if (lua_gettop(L) != 1)
-		luaL_error(L, "max_length is not a number");
-
-	if (!(lua_isnumber(L, -1) == 1))
-		luaL_error(L, "max_length is not a number");
-	*/
-
 	size_t max_length = lua_tonumber(L, -1);
 	lua_pop(L, -1);
 
