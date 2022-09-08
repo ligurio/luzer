@@ -1,14 +1,14 @@
 /*
  * TODO:
- * - трейсинг
- * - исправить передачу аргументов в FuzzedDataProvider
  * - починить custom_mutator()
- * - ??? доделать require_instrument()
+ * - трейсинг
+ * - удалить require_instrument()
  * - реорганизовать файлы в репозитории: подпроекты luzer и custom_mutator
  *
- * - Unicode, 6.5 – UTF-8 Support
- * https://www.lua.org/manual/5.4/manual.html
- *
+ * - Unicode, 6.5 – UTF-8 Support, https://www.lua.org/manual/5.4/manual.html
+ * - поддержка luacov
+ *   - https://github.com/lunarmodules/luacov/blob/master/src/luacov/runner.lua#L102-L117
+ *   - https://lunarmodules.github.io/luacov/doc/modules/luacov.runner.html#debug_hook
  * - сделать возможность передавать корпус в таблице-массиве
  * - сделать возможность передавать словарь
  */
