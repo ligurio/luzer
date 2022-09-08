@@ -66,11 +66,12 @@ ok = pcall(fdp.consume_string)
 -- FIXME: assert(ok == false)
 
 -- luzer.FuzzedDataProvider.consume_strings()
-fdp = luzer.FuzzedDataProvider("AB")
+fdp = luzer.FuzzedDataProvider("ABCDEF")
 assert(type(fdp.consume_strings) == "function")
 
-res = fdp.consume_strings(2)
+res = fdp.consume_strings(2, 3)
 assert(type(res) == "table")
+assert(#res == 3, #res)
 assert(fdp.remaining_bytes() == 0)
 
 ok = pcall(fdp.consume_strings)

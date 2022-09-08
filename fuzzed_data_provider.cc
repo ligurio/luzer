@@ -49,10 +49,9 @@ luaL_consume_strings(lua_State *L)
 		luaL_error(L, "bad argument max_length");
 
 	size_t count = lua_tonumber(L, -1);
-	lua_pop(L, -1);
+	size_t max_length = lua_tonumber(L, -2);
 
-	size_t max_length = lua_tonumber(L, -1);
-	lua_pop(L, -1);
+	lua_settop(L, 0);
 
 	std::string str;
 	const char *cstr;
