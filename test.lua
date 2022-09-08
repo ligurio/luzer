@@ -62,7 +62,7 @@ assert(fdp.remaining_bytes() == 0)
 assert(type(res) == "string")
 assert(res == "")
 
-ok = pcall(fdp.consume_string)
+-- ok = pcall(fdp.consume_string)
 -- FIXME: assert(ok == false)
 
 -- luzer.FuzzedDataProvider.consume_strings()
@@ -74,7 +74,7 @@ assert(type(res) == "table")
 assert(#res == 3, #res)
 assert(fdp.remaining_bytes() == 0)
 
-ok = pcall(fdp.consume_strings)
+-- ok = pcall(fdp.consume_strings)
 -- FIXME: assert(ok == false)
 
 -- luzer.FuzzedDataProvider.consume_boolean()
@@ -110,7 +110,7 @@ assert(type(res) == "table")
 assert(res[1] == false)
 assert(res[2] == false)
 
-ok = pcall(fdp.consume_booleans)
+-- ok = pcall(fdp.consume_booleans)
 -- FIXME: assert(ok == false)
 
 -- luzer.FuzzedDataProvider.consume_number()
