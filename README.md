@@ -210,7 +210,8 @@ The `FuzzedDataProvider` then supports the following functions:
 - `consume_number(min, max)` - consume a floating-point value in the range
   `[min, max]`.
 - `consume_numbers(min, max, count)` - consume a list of `count` floats in the
-  range `[min, max]`.
+  range `[min, max]`. If there's no input data left, returns `min`. Note that
+  `min` must be less than or equal to `max`.
 - `consume_boolean()` - consume either `true` or `false`, or `false` when no
   data remains.
 - `consume_booleans(count)` - consume a list of `count` booleans.

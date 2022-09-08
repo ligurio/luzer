@@ -11,41 +11,9 @@
  * A convenience wrapper turning the raw fuzzer input bytes into Lua primitive
  * types. The methods behave similarly to math.random(), with all returned
  * values depending deterministically on the fuzzer input for the current run.
- *
- * https://github.com/llvm/llvm-project/blob/main/compiler-rt/include/fuzzer/FuzzedDataProvider.h
  */
 
-/* TODO: it should be gc'ed, otherwise it is not thread-safe  */
 static FuzzedDataProvider *fdp = NULL;
-
-/*
-static int
-luaL_min_max(lua_State *L, size_t *min, size_t *max)
-{
-	// nil or max/min
-	if (!fdp)
-		luaL_error(L, "FuzzedDataProvider is not initialized");
-
-	if (!(lua_isnumber(L, -1) == 1))
-		luaL_error(L, "max is not a number");
-	*max = lua_tonumber(L, -1);
-	lua_pop(L, -1);
-
-	if (!(lua_isnumber(L, -1) == 1))
-		luaL_error(L, "min is not a number");
-	*min = lua_tonumber(L, -1);
-	lua_pop(L, -1);
-
-	printf("%zu %zu\n", *min, *max);
-
-    return 0;
-}
-*/
-
-/*
- * TODO: Unicode, 6.5 – UTF-8 Support
- * https://www.lua.org/manual/5.4/manual.html
- */
 
 /* Consumes a string from the fuzzer input. */
 static int
@@ -54,8 +22,17 @@ luaL_consume_string(lua_State *L)
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
+	if (lua_type(L, -1) != LUA_TNUMBER)
+		luaL_error(L, "bad argument max_length");
+
+	/*
+	if (lua_gettop(L) != 1)
+		luaL_error(L, "max_length is not a number");
+
 	if (!(lua_isnumber(L, -1) == 1))
 		luaL_error(L, "max_length is not a number");
+	*/
+
 	size_t max_length = lua_tonumber(L, -1);
 	lua_pop(L, -1);
 
@@ -73,13 +50,15 @@ luaL_consume_strings(lua_State *L)
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
-	if (!(lua_isnumber(L, -1) == 1))
-		luaL_error(L, "size is not a number");
-	size_t size = lua_tonumber(L, -1);
+	if (lua_type(L, -1) != LUA_TNUMBER)
+		luaL_error(L, "bad argument count");
+
+	if (lua_type(L, -2) != LUA_TNUMBER)
+		luaL_error(L, "bad argument max_length");
+
+	size_t count = lua_tonumber(L, -1);
 	lua_pop(L, -1);
 
-	if (!(lua_isnumber(L, -1) == 1))
-		luaL_error(L, "max_length is not a number");
 	size_t max_length = lua_tonumber(L, -1);
 	lua_pop(L, -1);
 
@@ -87,7 +66,7 @@ luaL_consume_strings(lua_State *L)
 	const char *cstr;
 
 	lua_newtable(L);
-	for (int i = 1; i <= (int)size; i++) {
+	for (int i = 1; i <= (int)count; i++) {
 		str = fdp->ConsumeRandomLengthString(max_length);
 		cstr = str.c_str();
 		if (strlen(cstr) == 0)
@@ -106,6 +85,7 @@ luaL_consume_boolean(lua_State *L)
 {
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
+
 	bool b = fdp->ConsumeBool();
     lua_pushboolean(L, (int)b);
 
@@ -119,13 +99,14 @@ luaL_consume_booleans(lua_State *L)
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
-	if (!(lua_isnumber(L, -1) == 1))
-		luaL_error(L, "size is not a number");
-	size_t size = lua_tonumber(L, -1);
+	if (lua_type(L, -1) != LUA_TNUMBER)
+		luaL_error(L, "bad argument count");
+
+	size_t count = lua_tonumber(L, -1);
 	lua_pop(L, -1);
 
 	lua_newtable(L);
-	for (int i = 1; i <= (int)size; i++) {
+	for (int i = 1; i <= (int)count; i++) {
 		bool b = fdp->ConsumeBool();
 		lua_pushnumber(L, i);
 		lua_pushboolean(L, (int)b);
@@ -142,7 +123,20 @@ luaL_consume_number(lua_State *L)
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
-	double min = -DBL_MAX, max = DBL_MAX;
+	if (lua_type(L, -1) != LUA_TNUMBER)
+		luaL_error(L, "bad argument min");
+
+	if (lua_type(L, -2) != LUA_TNUMBER)
+		luaL_error(L, "bad argument max");
+
+	double max = lua_tonumber(L, -1);
+	double min = lua_tonumber(L, -2);
+
+	lua_settop(L, 0);
+
+	if (min > max)
+		luaL_error(L, "min must be less than or equal to max");
+
 	auto number = fdp->ConsumeFloatingPointInRange(min, max);
     lua_pushnumber(L, number);
 
@@ -155,22 +149,34 @@ luaL_consume_numbers(lua_State *L)
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
-	if (!(lua_isnumber(L, -1) == 1))
-		luaL_error(L, "size is not a number");
-	size_t size = lua_tonumber(L, -1);
+	if (lua_type(L, -1) != LUA_TNUMBER)
+		luaL_error(L, "bad argument min");
+
+	if (lua_type(L, -2) != LUA_TNUMBER)
+		luaL_error(L, "bad argument max");
+
+	if (lua_type(L, -3) != LUA_TNUMBER)
+		luaL_error(L, "bad argument count");
+
+	double min = lua_tonumber(L, -1);
 	lua_pop(L, -1);
 
-	double min = -DBL_MAX, max = DBL_MAX;
+	double max = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	size_t count = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	if (min > max)
+		luaL_error(L, "min must be less than or equal to max");
+
 	lua_newtable(L);
-	for (int i = 1; i <= (int)size; i++) {
+	for (int i = 1; i <= (int)count; i++) {
 	    auto number = fdp->ConsumeFloatingPointInRange(min, max);
 		lua_pushnumber(L, i);
 		lua_pushnumber(L, number);
 		lua_settable(L, -3);
 	}
-	// If there's no input data left, returns |min|. Note that
-	// |min| must be less than or equal to |max|.
-  	// template <typename T> T ConsumeFloatingPointInRange(T min, T max);
 
     return 1;
 }
@@ -183,7 +189,20 @@ luaL_consume_integer(lua_State *L)
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
-	int min = -INT_MAX, max = INT_MAX;
+	if (lua_type(L, -1) != LUA_TNUMBER)
+		luaL_error(L, "bad argument min");
+
+	if (lua_type(L, -2) != LUA_TNUMBER)
+		luaL_error(L, "bad argument max");
+
+	int max = lua_tonumber(L, -1);
+	int min = lua_tonumber(L, -2);
+
+	lua_settop(L, 0);
+
+	if (min > max)
+		luaL_error(L, "min must be less than or equal to max");
+
 	auto number = fdp->ConsumeIntegralInRange(min, max);
     lua_pushnumber(L, number);
 
@@ -197,14 +216,29 @@ luaL_consume_integers(lua_State *L)
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
-	if (!(lua_isnumber(L, -1) == 1))
-		luaL_error(L, "size is not a number");
-	size_t size = lua_tonumber(L, -1);
+	if (lua_type(L, -1) != LUA_TNUMBER)
+		luaL_error(L, "bad argument min");
+
+	if (lua_type(L, -2) != LUA_TNUMBER)
+		luaL_error(L, "bad argument max");
+
+	if (lua_type(L, -3) != LUA_TNUMBER)
+		luaL_error(L, "bad argument count");
+
+	size_t count = lua_tonumber(L, -1);
 	lua_pop(L, -1);
 
-	int min = -INT_MAX, max = INT_MAX;
+	int max = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	int min = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	if (min > max)
+		luaL_error(L, "min must be less than or equal to max");
+
 	lua_newtable(L);
-	for (int i = 1; i <= (int)size; i++) {
+	for (int i = 1; i <= (int)count; i++) {
 	    auto number = fdp->ConsumeIntegralInRange(min, max);
 		lua_pushnumber(L, i);
 		lua_pushinteger(L, number);
@@ -220,7 +254,6 @@ luaL_consume_probability(lua_State *L)
 	if (!fdp)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
-	// FIXME: template <typename T> T ConsumeProbability();
 	auto probability = fdp->ConsumeFloatingPointInRange(0.0, 1.0);
     lua_pushnumber(L, probability);
 
