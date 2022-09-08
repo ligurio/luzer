@@ -17,12 +17,11 @@ local function TestOneInput(buf, _size)
     -- Args:
     --    data: string coming from the fuzzing engine.
 
-    local _ = luzer.FuzzedDataProvider(buf)
-    --fdp.consume_string()
-    --fdp.consume_boolean()
+    local fdp = luzer.FuzzedDataProvider(buf)
+    local str = fdp.consume_string(5)
 
     local b = {}
-    buf:gsub(".", function(c) table.insert(b, c) end)
+    str:gsub(".", function(c) table.insert(b, c) end)
     if b[1] == 'c' then
         if b[2] == 'r' then
             if b[3] == 'a' then
