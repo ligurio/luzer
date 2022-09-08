@@ -75,7 +75,7 @@ assert(#res == 3, #res)
 assert(fdp.remaining_bytes() == 0)
 
 ok = pcall(fdp.consume_strings)
-assert(ok == true)
+assert(ok == false)
 
 -- luzer.FuzzedDataProvider.consume_boolean()
 fdp = luzer.FuzzedDataProvider("AB")
@@ -95,9 +95,6 @@ assert(fdp.remaining_bytes() == 0)
 res = fdp.consume_boolean()
 assert(type(res) == "boolean")
 assert(res == false)
-
--- ok = pcall(fdp.consume_booleans)
--- FIXME: assert(ok == true)
 
 -- luzer.FuzzedDataProvider.consume_booleans()
 fdp = luzer.FuzzedDataProvider("AB")
