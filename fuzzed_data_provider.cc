@@ -141,22 +141,19 @@ luaL_consume_numbers(lua_State *L)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
 	if (lua_type(L, -1) != LUA_TNUMBER)
-		luaL_error(L, "bad argument min");
+		luaL_error(L, "bad argument count");
 
 	if (lua_type(L, -2) != LUA_TNUMBER)
 		luaL_error(L, "bad argument max");
 
 	if (lua_type(L, -3) != LUA_TNUMBER)
-		luaL_error(L, "bad argument count");
-
-	double min = lua_tonumber(L, -1);
-	lua_pop(L, -1);
-
-	double max = lua_tonumber(L, -1);
-	lua_pop(L, -1);
+		luaL_error(L, "bad argument min");
 
 	size_t count = lua_tonumber(L, -1);
-	lua_pop(L, -1);
+	double max = lua_tonumber(L, -2);
+	double min = lua_tonumber(L, -3);
+
+	lua_settop(L, 0);
 
 	if (min > max)
 		luaL_error(L, "min must be less than or equal to max");
@@ -208,22 +205,19 @@ luaL_consume_integers(lua_State *L)
 		luaL_error(L, "FuzzedDataProvider is not initialized");
 
 	if (lua_type(L, -1) != LUA_TNUMBER)
-		luaL_error(L, "bad argument min");
+		luaL_error(L, "bad argument count");
 
 	if (lua_type(L, -2) != LUA_TNUMBER)
 		luaL_error(L, "bad argument max");
 
 	if (lua_type(L, -3) != LUA_TNUMBER)
-		luaL_error(L, "bad argument count");
+		luaL_error(L, "bad argument min");
 
 	size_t count = lua_tonumber(L, -1);
-	lua_pop(L, -1);
+	int max = lua_tonumber(L, -2);
+	int min = lua_tonumber(L, -3);
 
-	int max = lua_tonumber(L, -1);
-	lua_pop(L, -1);
-
-	int min = lua_tonumber(L, -1);
-	lua_pop(L, -1);
+	lua_settop(L, 0);
 
 	if (min > max)
 		luaL_error(L, "min must be less than or equal to max");
