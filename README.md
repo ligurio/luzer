@@ -1,6 +1,7 @@
 [![Static analysis](https://github.com/ligurio/luzer/actions/workflows/check.yaml/badge.svg)](https://github.com/ligurio/luzer/actions/workflows/check.yaml)
 [![Testing](https://github.com/ligurio/luzer/actions/workflows/test.yaml/badge.svg)](https://github.com/ligurio/luzer/actions/workflows/test.yaml)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+[![Luarocks](https://img.shields.io/luarocks/v/ligurio/luzer/scm-1)](https://luarocks.org/modules/ligurio/luzer)
 
 # luzer
 
