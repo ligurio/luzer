@@ -88,6 +88,8 @@ endif()
 if(ENABLE_TESTING)
   enable_testing()
 
+  set(CMAKE_CTEST_ARGUMENTS "--verbose")
+
   add_executable(libfuzzer_mutator_test libfuzzer_mutator.cpp)
   target_include_directories(libfuzzer_mutator_test PRIVATE ${LUA_INCLUDE_DIR})
   target_link_libraries(libfuzzer_mutator_test PRIVATE ${LUA_LIBRARIES})
@@ -100,7 +102,8 @@ if(ENABLE_TESTING)
   )
   set_tests_properties(mutator_test PROPERTIES
     ENVIRONMENT "LIBFUZZER_MUTATOR_LUA_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_mutator.lua"
-    PASS_REGULAR_EXPRESSION "data Hi,Sergey, size 9, max_size 10, seed 98")
+    PASS_REGULAR_EXPRESSION "data Hi,Libfuzzer, size 12, max_size 13, seed 98"
+  )
 
   add_test(
     NAME luzer_test
@@ -108,8 +111,17 @@ if(ENABLE_TESTING)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
   set_tests_properties(luzer_test PROPERTIES
-    ENVIRONMENT "LUA_CPATH='./${CMAKE_CURRENT_BINARY_DIR}/?.so;'")
-  set(CMAKE_CTEST_ARGUMENTS "--verbose")
+    ENVIRONMENT "LUA_CPATH='./${CMAKE_CURRENT_BINARY_DIR}/?.so;'"
+  )
+
+  #add_test(
+  #  NAME luzer_example
+  #  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/luzer_example.lua
+  #  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  #)
+  #set_tests_properties(luzer_example PROPERTIES
+  #  ENVIRONMENT "LUA_CPATH='./${CMAKE_CURRENT_BINARY_DIR}/?.so;'"
+  #)
 endif()
 
 ## Install ####################################################################

@@ -57,9 +57,9 @@ size_t LLVMFuzzerCustomMutator(uint8_t *Data, size_t Size,
 #ifndef CUSTOM_MUTATOR
 
 int main() {
-    uint8_t Data[] = {'H', 'i', ',', 'S', 'e', 'r', 'g', 'e', 'y'};
-	size_t Size = 9;
-	size_t MaxSize = 10;
+    uint8_t Data[] = { 'H', 'i', ',', 'L', 'i', 'b', 'f', 'u', 'z', 'z', 'e', 'r' };
+	size_t Size = 12;
+	size_t MaxSize = 13;
 	size_t Seed = 98;
 	size_t res = custom_mutator(Data, Size, MaxSize, Seed);
 	fprintf(stdout, "DEBUG: result %zu\n", res);

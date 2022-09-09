@@ -1,3 +1,5 @@
+package.cpath = "./?.so"
+
 local luzer = require("luzer")
 local _ = luzer.require_instrument("math")
 
