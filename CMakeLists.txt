@@ -79,6 +79,13 @@ target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
 )
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
 
+set(custom_mutator_lib_source "custom_mutator_lib.c")
+add_library(custom_mutator SHARED ${custom_mutator_lib_source})
+target_include_directories(custom_mutator PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(custom_mutator PRIVATE ${LUA_LIBRARIES})
+set_target_properties(custom_mutator PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(custom_mutator PROPERTIES SOVERSION 1)
+
 ## Testing ####################################################################
 ###############################################################################
 
@@ -148,4 +155,9 @@ install(
     ${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_mutator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_mutator.lua
   DESTINATION ${CMAKE_LIBRARY_PATH}/${PROJECT_NAME}/
+)
+
+install(TARGETS custom_mutator
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )

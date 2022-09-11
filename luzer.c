@@ -20,6 +20,8 @@
 #include <stdlib.h>
 #include <signal.h>
 
+#include <dlfcn.h>
+
 #include "fuzzed_data_provider.h"
 #include "macros.h"
 #include "tracer.h"
@@ -71,11 +73,19 @@ void __sanitizer_print_stack_trace()
 } /* extern "C" */
 #endif
 
-NO_SANITIZE static size_t
-custom_mutator(uint8_t *Data, size_t Size, size_t MaxSize, unsigned int Seed)
+NO_SANITIZE static int
+luaL_custom_mutator(lua_State *L)
 {
+	/* TODO: read Data, Size, MaxSize and Seed */
+	uint8_t* Data = NULL;
+	size_t Size = 1;
+	size_t MaxSize = 2;
+	unsigned int Seed = 10;
+
+	/*
 	if (!LL)
 		luaL_error(LL, "Lua stack is not initialized.");
+	*/
 
 	lua_getglobal(LL, CUSTOM_MUTATOR_FUNC);
 	if (lua_isfunction(LL, -1) != 1) {
@@ -162,6 +172,15 @@ luaL_setup(lua_State *L)
 		if (lua_isfunction(L, -1) != 1)
 			luaL_error(L, "custom_mutator is not a Lua function.");
 		lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
+
+		// TODO: move to a separate function
+		void* custom_mutator_lib = dlopen("libcustom_mutator.so", RTLD_LAZY);
+		if (!custom_mutator_lib)
+			unreachable();
+		void* sym = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
+		if (!sym)
+			unreachable();
+		dlclose(custom_mutator_lib);
 	}
 
 	// TODO: trash/atheris/src/native/core.cc
@@ -215,13 +234,6 @@ luaL_require_instrument(lua_State *L)
 	printf("instrumented: %s\n", module_name);
 
 	return 1;
-}
-
-NO_SANITIZE static int
-luaL_custom_mutator(lua_State *L)
-{
-    /* TODO: process data, max_size and a seed */
-    return 0;
 }
 
 static const struct luaL_Reg Module[] = {
