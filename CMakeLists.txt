@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10.2)
 
 project(luzer
   LANGUAGES C CXX
+  VERSION "0.1.0"
 )
 
 find_package(Lua 5.1 REQUIRED)

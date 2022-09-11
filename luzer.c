@@ -25,7 +25,6 @@
 #include "tracer.h"
 #include "version.h"
 
-#define LUZER_VERSION "0.1.0"
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
 #define CUSTOM_MUTATOR_FUNC "luzer_custom_mutator"
 
@@ -244,7 +243,7 @@ int luaopen_luzer(lua_State *L)
     lua_pushliteral(L, "_VERSION");
     lua_createtable(L, 0, 3);
     lua_pushstring(L, "LUZER");
-    lua_pushstring(L, LUZER_VERSION);
+    lua_pushstring(L, luzer_version_string());
     lua_rawset(L, -3);
     lua_pushstring(L, "LUA");
     lua_pushstring(L, LUA_RELEASE);
