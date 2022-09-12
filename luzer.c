@@ -1,6 +1,7 @@
 /*
  * TODO:
  * - починить custom_mutator()
+ * - сделать LLVMFuzzerCustomCrossover()
  * - трейсинг
  * - удалить require_instrument()
  * - реорганизовать файлы в репозитории: подпроекты luzer и custom_mutator
