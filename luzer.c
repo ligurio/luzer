@@ -42,6 +42,9 @@ set_global_lua_stack(lua_State *L)
 lua_State *
 get_global_lua_stack()
 {
+	if (!LL)
+		luaL_error(LL, "Lua stack is not initialized.");
+
 	return LL;
 }
 
@@ -95,11 +98,6 @@ luaL_custom_mutator(lua_State *L)
 	size_t MaxSize = 2;
 	unsigned int Seed = 10;
 
-	/*
-	if (!LL)
-		luaL_error(LL, "Lua stack is not initialized.");
-	*/
-
 	lua_getglobal(L, CUSTOM_MUTATOR_FUNC);
 	if (lua_isfunction(L, -1) != 1) {
 		lua_settop(L, 0);
@@ -123,9 +121,6 @@ luaL_custom_mutator(lua_State *L)
 NO_SANITIZE static int
 luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
 {
-	if (!L)
-		luaL_error(L, "Lua stack is not initialized.");
-
 	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
 	if (lua_isfunction(L, -1) != 1) {
 		luaL_error(L, "no luzer_test_one_input is defined");
