@@ -96,7 +96,7 @@ endif()
 if(ENABLE_TESTING)
   enable_testing()
 
-  set(CMAKE_CTEST_ARGUMENTS "--verbose")
+  set(CMAKE_CTEST_ARGUMENTS "--verbose --progress --output-on-failure")
 
   add_executable(libfuzzer_mutator_test libfuzzer_mutator.cpp)
   target_include_directories(libfuzzer_mutator_test PRIVATE ${LUA_INCLUDE_DIR})
