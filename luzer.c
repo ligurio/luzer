@@ -92,21 +92,36 @@ void __sanitizer_print_stack_trace()
 NO_SANITIZE static int
 luaL_custom_mutator(lua_State *L)
 {
-	/* TODO: read Data, Size, MaxSize and Seed */
-	uint8_t* Data = NULL;
-	size_t Size = 1;
-	size_t MaxSize = 2;
-	unsigned int Seed = 10;
+	if (lua_gettop(L) != 4)
+		luaL_error(L, "required arguments: data, size, max_size, seed");
+
+	/*
+	uint8_t *data = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	size_t *size = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	size_t *max_size = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+
+	unsigned int *seed = lua_tonumber(L, -1);
+	lua_pop(L, -1);
+	*/
+
+	// FIXME: chck types of arguments.
 
 	lua_getglobal(L, CUSTOM_MUTATOR_FUNC);
 	if (lua_isfunction(L, -1) != 1) {
 		lua_settop(L, 0);
 		luaL_error(L, "no luzer_custom_mutator is defined");
 	}
-	lua_pushstring(L, (const char *)Data);
-	lua_pushnumber(L, Size);
-	lua_pushnumber(L, MaxSize);
-	lua_pushnumber(L, Seed);
+	/*
+	lua_pushstring(L, (const char *)data);
+	lua_pushnumber(L, size);
+	lua_pushnumber(L, max_size);
+	lua_pushnumber(L, seed);
+	*/
 	lua_call(L, 4, 1);
 
 	// TODO: "The mutated data cannot be larger than max_size."
@@ -116,6 +131,17 @@ luaL_custom_mutator(lua_State *L)
 	lua_pop(L, -1);
 
 	return rc;
+}
+
+NO_SANITIZE static int
+luaL_set_custom_mutator(lua_State *L)
+{
+	if (lua_isfunction(L, -1) != 1)
+		luaL_error(L, "custom_mutator is not a Lua function.");
+
+	lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
+
+	return 0;
 }
 
 NO_SANITIZE static int
@@ -178,12 +204,7 @@ luaL_setup(lua_State *L)
 
 	// Argument: custom_mutator.
 	if (lua_gettop(L) != 0) {
-		if (lua_isfunction(L, -1) != 1)
-			luaL_error(L, "custom_mutator is not a Lua function.");
-		lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
-
-		// TODO: move to a separate function
-		// TODO: set LD_LIBRARY_PATH=$(pwd)
+		luaL_set_custom_mutator(L);
 		void* custom_mutator_lib = dlopen(LIB_CUSTOM_MUTATOR, RTLD_LAZY);
 		if (!custom_mutator_lib)
 			unreachable();
@@ -250,7 +271,8 @@ static const struct luaL_Reg Module[] = {
 	{ "Setup", luaL_setup },
 	{ "Fuzz", luaL_fuzz },
 	{ "FuzzedDataProvider", luaL_fuzzed_data_provider },
-	{ "Mutate", luaL_custom_mutator },
+	{ "_mutate", luaL_custom_mutator },
+	{ "_set_custom_mutator", luaL_set_custom_mutator },
 	{ "require_instrument", luaL_require_instrument },
 	{ NULL, NULL }
 };

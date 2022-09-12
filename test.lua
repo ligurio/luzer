@@ -185,4 +185,19 @@ luzer = require("luzer")
 ok = pcall(luzer.Setup)
 assert(ok == false)
 
+-- luzer._set_custom_mutator()
+local magic_number = 51
+local fn = function() return magic_number end
+assert(luzer_custom_mutator == nil)
+luzer._set_custom_mutator(fn)
+assert(luzer_custom_mutator ~= nil)
+assert(type(luzer_custom_mutator) == "function")
+assert(luzer_custom_mutator() == magic_number)
+luzer_custom_mutator = nil -- Clean up.
+
+-- luzer._mutate()
+ok, err = pcall(luzer._mutate)
+assert(ok == false)
+assert(err ~= nil)
+
 print("Success!")
