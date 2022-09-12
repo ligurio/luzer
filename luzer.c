@@ -29,8 +29,21 @@
 
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
 #define CUSTOM_MUTATOR_FUNC "luzer_custom_mutator"
+#define LIB_CUSTOM_MUTATOR "./libcustom_mutator.so.1"
 
 static lua_State *LL;
+
+void
+set_global_lua_stack(lua_State *L)
+{
+	LL = L;
+}
+
+lua_State *
+get_global_lua_stack()
+{
+	return LL;
+}
 
 static int argc;
 static char **argv;
@@ -87,22 +100,22 @@ luaL_custom_mutator(lua_State *L)
 		luaL_error(LL, "Lua stack is not initialized.");
 	*/
 
-	lua_getglobal(LL, CUSTOM_MUTATOR_FUNC);
-	if (lua_isfunction(LL, -1) != 1) {
-		lua_settop(LL, 0);
-		luaL_error(LL, "no luzer_custom_mutator is defined");
+	lua_getglobal(L, CUSTOM_MUTATOR_FUNC);
+	if (lua_isfunction(L, -1) != 1) {
+		lua_settop(L, 0);
+		luaL_error(L, "no luzer_custom_mutator is defined");
 	}
-	lua_pushstring(LL, (const char *)Data);
-	lua_pushnumber(LL, Size);
-	lua_pushnumber(LL, MaxSize);
-	lua_pushnumber(LL, Seed);
-	lua_call(LL, 4, 1);
+	lua_pushstring(L, (const char *)Data);
+	lua_pushnumber(L, Size);
+	lua_pushnumber(L, MaxSize);
+	lua_pushnumber(L, Seed);
+	lua_call(L, 4, 1);
 
 	// TODO: "The mutated data cannot be larger than max_size."
 	int rc = 0;
-	if (lua_isnumber(LL, -1) == 1)
-		rc = lua_tonumber(LL, -1);
-	lua_pop(LL, -1);
+	if (lua_isnumber(L, -1) == 1)
+		rc = lua_tonumber(L, -1);
+	lua_pop(L, -1);
 
 	return rc;
 }
@@ -132,7 +145,8 @@ luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
 
 NO_SANITIZE int
 TestOneInput(const uint8_t* data, size_t size) {
-	return luaL_test_one_input(LL, data, size);
+	lua_State *L = get_global_lua_stack();
+	return luaL_test_one_input(L, data, size);
 }
 
 NO_SANITIZE static int
@@ -174,7 +188,8 @@ luaL_setup(lua_State *L)
 		lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
 
 		// TODO: move to a separate function
-		void* custom_mutator_lib = dlopen("libcustom_mutator.so", RTLD_LAZY);
+		// TODO: set LD_LIBRARY_PATH=$(pwd)
+		void* custom_mutator_lib = dlopen(LIB_CUSTOM_MUTATOR, RTLD_LAZY);
 		if (!custom_mutator_lib)
 			unreachable();
 		void* sym = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
@@ -213,7 +228,7 @@ luaL_fuzz(lua_State *L)
 	}
 	lua_pop(L, -1);
 
-	LL = L;
+	set_global_lua_stack(L);
 
     return LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 }
