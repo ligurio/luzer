@@ -8,17 +8,6 @@ local function custom_mutator(buf, _max_size, _seed)
 end
 
 local function TestOneInput(buf, _size)
-    -- The entry point for our fuzzer.
-    --
-    -- This is a callback that will be repeatedly invoked with different
-    -- arguments after Fuzz() is called.
-    --
-    -- We translate the arbitrary byte string into a format our function being
-    -- fuzzed can understand, then call it.
-    --
-    -- Args:
-    --    data: string coming from the fuzzing engine.
-
     local fdp = luzer.FuzzedDataProvider(buf)
     local str = fdp.consume_string(5)
 
