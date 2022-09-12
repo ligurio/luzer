@@ -24,13 +24,15 @@ assert(type(version_llvm) == "string")
 assert(string.match(version_llvm, semver_re) ~= nil, version_llvm)
 
 local ok
+local err
 local fdp
 local res
 
 -- luzer.FuzzedDataProvider()
 assert(type(luzer.FuzzedDataProvider) == "function")
-ok = pcall(luzer.FuzzedDataProvider)
+ok, err = pcall(luzer.FuzzedDataProvider)
 assert(ok == false)
+assert(err ~= nil)
 fdp = luzer.FuzzedDataProvider(string.rep('A', 1024))
 assert(type(fdp) == "table")
 
@@ -64,6 +66,7 @@ assert(res == "")
 
 -- ok = pcall(fdp.consume_string)
 -- FIXME: assert(ok == false)
+-- assert(err ~= nil)
 
 -- luzer.FuzzedDataProvider.consume_strings()
 fdp = luzer.FuzzedDataProvider("ABCDEF")
@@ -76,6 +79,7 @@ assert(fdp.remaining_bytes() == 0)
 
 -- ok = pcall(fdp.consume_strings)
 -- FIXME: assert(ok == false)
+-- assert(err ~= nil)
 
 -- luzer.FuzzedDataProvider.consume_boolean()
 fdp = luzer.FuzzedDataProvider("AB")
@@ -122,8 +126,9 @@ assert(type(res) == "number")
 assert(res >= 1)
 assert(res <= 10, res)
 
-ok = pcall(fdp.consume_number)
+ok, err = pcall(fdp.consume_number)
 assert(ok == false)
+assert(err ~= nil)
 
 -- luzer.FuzzedDataProvider.consume_numbers()
 fdp = luzer.FuzzedDataProvider("ABCDEF")
@@ -134,8 +139,9 @@ assert(type(res) == "table")
 assert(type(res[1]) == "number")
 assert(res[2] == nil)
 
-ok = pcall(fdp.consume_numbers)
+ok, err = pcall(fdp.consume_numbers)
 assert(ok == false)
+assert(err ~= nil)
 
 -- luzer.FuzzedDataProvider.consume_integer()
 fdp = luzer.FuzzedDataProvider("AB")
@@ -146,8 +152,9 @@ assert(type(res) == "number")
 assert(res >= 10)
 assert(res <= 20)
 
-ok = pcall(fdp.consume_integer)
+ok, err = pcall(fdp.consume_integer)
 assert(ok == false)
+assert(err ~= nil)
 
 -- luzer.FuzzedDataProvider.consume_integers()
 fdp = luzer.FuzzedDataProvider("AB")
@@ -160,8 +167,9 @@ assert(res[1] <= 6, res[1])
 assert(res[1] > 2, res[1])
 assert(res[2] == nil)
 
-ok = pcall(fdp.consume_integers)
+ok, err = pcall(fdp.consume_integers)
 assert(ok == false)
+assert(err ~= nil)
 
 -- luzer.FuzzedDataProvider.consume_probability()
 fdp = luzer.FuzzedDataProvider("AB")
@@ -177,13 +185,15 @@ assert(p1 ~= p2)
 
 -- luzer.Fuzz()
 luzer = require("luzer")
-ok = pcall(luzer.Fuzz)
+ok, err = pcall(luzer.Fuzz)
 assert(ok == false)
+assert(err ~= nil)
 
 -- luzer.Setup()
 luzer = require("luzer")
-ok = pcall(luzer.Setup)
+ok, err = pcall(luzer.Setup)
 assert(ok == false)
+assert(err ~= nil)
 
 -- luzer._set_custom_mutator()
 local magic_number = 51

@@ -5,6 +5,13 @@ files["libfuzzer_mutator.lua"] = {
     },
 }
 
+files["test.lua"] = {
+    globals = {
+        "luzer_test_one_input",
+        "luzer_custom_mutator",
+    },
+}
+
 include_files = {
     '.luacheckrc',
     '*.rockspec',
