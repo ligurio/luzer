@@ -3,6 +3,7 @@
 #include <lua.h>
 
 #include "macros.h"
+#include "luzer.h"
 
 size_t
 LLVMFuzzerCustomMutator(uint8_t* data, size_t size,
@@ -10,6 +11,6 @@ LLVMFuzzerCustomMutator(uint8_t* data, size_t size,
 {
 	//lua_State *L = get_global_lua_stack();
 	printf("LLVMFuzzerCustomMutator\n");
-	//return luaL_custom_mutator(L, data, size, max_size, seed);
+	//return luaL_mutate(L, data, size, max_size, seed);
 	return 0;
 }

@@ -27,8 +27,16 @@ static inline unsigned int lhash(const char *key, size_t offset) {
 
 static unsigned int current_location;
 
-void hook(lua_State *L, lua_Debug *ar) {
-	// TODO: skip when 'info.what == "C"'
+// https://github.com/lunarmodules/luacov/blob/master/src/luacov/runner.lua#L102-L117
+// https://github.com/lunarmodules/luacov/blob/78f3d5058c65f9712e6c50a0072ad8160db4d00e/src/luacov/runner.lua#L439-L450
+//
+// luzer gathers coverage using a debug hook, and patches coroutine
+// library to set it on created threads when under standard Lua, where each
+// coroutine has its own hook. If a coroutine is created using Lua C API
+// or before the monkey-patching, this wrapper should be applied to the
+// main function of the coroutine. Under LuaJIT this function is redundant,
+// as there is only one, global debug hook.
+void debug_hook(lua_State *L, lua_Debug *ar) {
     lua_getinfo(L, "Sln", ar);
     if (ar && ar->source && ar->currentline) {
         //const unsigned int new_location = lhash(ar->source, ar->currentline) % afl_shm_size;
@@ -36,6 +44,11 @@ void hook(lua_State *L, lua_Debug *ar) {
         //afl_shm[current_location ^ new_location] += 1;
         current_location = new_location / 2;
     }
+
+	// TODO: skip when 'info.what == "C"'
+	// FIXME: call debug "call" hook
+	// FIXME: call debug "line" hook
+
 	//printf("=====================================================\n");
 	//printf("ar->linedefined %d\n", ar->linedefined);
 	//printf("ar->currentline %d\n", ar->currentline);

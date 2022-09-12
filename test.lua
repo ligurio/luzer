@@ -205,9 +205,10 @@ assert(type(luzer_custom_mutator) == "function")
 assert(luzer_custom_mutator() == magic_number)
 luzer_custom_mutator = nil -- Clean up.
 
--- luzer._mutate()
-ok, err = pcall(luzer._mutate)
-assert(ok == false)
-assert(err ~= nil)
+-- luzer._call_custom_mutator()
+local mutator = function() return data, size end
+luzer._set_custom_mutator(mutator)
+-- local data = luzer._call_custom_mutator("xxx", 3, 4, 15)
+-- assert(data ~= nil)
 
 print("Success!")

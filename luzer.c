@@ -27,9 +27,11 @@
 #include "macros.h"
 #include "tracer.h"
 #include "version.h"
+#include "luzer.h"
 
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
 #define CUSTOM_MUTATOR_FUNC "luzer_custom_mutator"
+#define DEBUG_HOOK_FUNC "luzer_custom_hook"
 #define LIB_CUSTOM_MUTATOR "./libcustom_mutator.so.1"
 
 static lua_State *LL;
@@ -48,6 +50,7 @@ get_global_lua_stack()
 
 	return LL;
 }
+
 
 static int argc;
 static char **argv;
@@ -91,47 +94,30 @@ void __sanitizer_print_stack_trace()
 #endif
 
 NO_SANITIZE static int
-luaL_custom_mutator(lua_State *L)
+luaL_mutate(lua_State *L)
 {
-	if (lua_gettop(L) != 4)
+	int index = lua_gettop(L);
+	if (index != 4)
 		luaL_error(L, "required arguments: data, size, max_size, seed");
-
-	/*
-	uint8_t *data = lua_tonumber(L, -1);
-	lua_pop(L, -1);
-
-	size_t *size = lua_tonumber(L, -1);
-	lua_pop(L, -1);
-
-	size_t *max_size = lua_tonumber(L, -1);
-	lua_pop(L, -1);
-
-	unsigned int *seed = lua_tonumber(L, -1);
-	lua_pop(L, -1);
-	*/
-
-	// FIXME: chck types of arguments.
 
 	lua_getglobal(L, CUSTOM_MUTATOR_FUNC);
 	if (lua_isfunction(L, -1) != 1) {
 		lua_settop(L, 0);
 		luaL_error(L, "no luzer_custom_mutator is defined");
 	}
-	/*
-	lua_pushstring(L, (const char *)data);
-	lua_pushnumber(L, size);
-	lua_pushnumber(L, max_size);
-	lua_pushnumber(L, seed);
-	*/
 	lua_call(L, 4, 1);
 
-	// TODO: "The mutated data cannot be larger than max_size."
-	int rc = 0;
-	if (lua_isnumber(L, -1) == 1)
-		rc = lua_tonumber(L, -1);
-	lua_pop(L, -1);
+	/*
+	if (sizeof(data) > max_size)
+		luaL_error(L, "The mutated data cannot be larger than max_size.");
+	*/
 
-	return rc;
+	if (lua_isstring(L, -1) != 1) {
+		lua_pop(L, -1);
+		luaL_error(L, "_mutate() must return a string");
+	}
+
+	return 1;
 }
 
 NO_SANITIZE static int
@@ -141,6 +127,17 @@ luaL_set_custom_mutator(lua_State *L)
 		luaL_error(L, "custom_mutator is not a Lua function.");
 
 	lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
+
+	return 0;
+}
+
+NO_SANITIZE static int
+luaL_set_debug_hook(lua_State *L)
+{
+	if (lua_isfunction(L, -1) != 1)
+		luaL_error(L, "custom_hook is not a Lua function.");
+
+	lua_setglobal(L, DEBUG_HOOK_FUNC);
 
 	return 0;
 }
@@ -225,7 +222,8 @@ luaL_setup(lua_State *L)
 	// Hook is called when the interpreter calls a function and when the
 	// interpreter is about to start the execution of a new line of code, or
 	// when it jumps back in the code (even to the same line).
-    lua_sethook(L, hook, LUA_MASKCALL | LUA_MASKLINE, 0);
+	// https://www.lua.org/pil/23.2.html
+    lua_sethook(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
 	lua_pushboolean(L, 1);
 
 	// Set signal handler.
@@ -234,6 +232,20 @@ luaL_setup(lua_State *L)
     sigaction(SIGINT, &act, NULL);
 
     return 1;
+}
+
+NO_SANITIZE static int
+luaL_cleanup(lua_State *L)
+{
+	lua_sethook(L, debug_hook, 0, 0);
+	lua_pushnil(L);
+	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
+	lua_pushnil(L);
+	lua_setglobal(L, DEBUG_HOOK_FUNC);
+	lua_pushnil(L);
+	lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
+
+	return 0;
 }
 
 NO_SANITIZE static int
@@ -246,8 +258,11 @@ luaL_fuzz(lua_State *L)
 	lua_pop(L, -1);
 
 	set_global_lua_stack(L);
+	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
+	luaL_cleanup(L);
+	lua_pushnumber(L, rc);
 
-    return LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
+	return 1;
 }
 
 NO_SANITIZE static int
@@ -272,8 +287,10 @@ static const struct luaL_Reg Module[] = {
 	{ "Setup", luaL_setup },
 	{ "Fuzz", luaL_fuzz },
 	{ "FuzzedDataProvider", luaL_fuzzed_data_provider },
-	{ "_mutate", luaL_custom_mutator },
+	{ "_set_debug_call_hook", luaL_set_debug_hook }, // FIXME: ???
+	{ "_set_debug_line_hook", luaL_set_debug_hook }, // FIXME: ???
 	{ "_set_custom_mutator", luaL_set_custom_mutator },
+	{ "_mutate", luaL_mutate },
 	{ "require_instrument", luaL_require_instrument },
 	{ NULL, NULL }
 };
