@@ -23,7 +23,7 @@ local function TestOneInput(buf, _size)
     return
 end
 
-arg1 = {"-max_len=4096", "-only_ascii=1", "-dict=/home/sergeyb/sources/luzer/dict_example"}
+local arg1 = {"-max_len=4096", "-only_ascii=1", "-dict=/home/sergeyb/sources/luzer/dict_example"}
 
 luzer.Setup(arg1, TestOneInput)
 luzer.Fuzz()
