@@ -1,3 +1,5 @@
+-- https://luajit.org/ext_ffi_tutorial.html
+
 local luzer = require("luzer")
 local has_ffi, ffi = pcall(require, "ffi")
 
