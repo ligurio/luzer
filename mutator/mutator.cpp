@@ -6,7 +6,7 @@
 #include <string.h>
 
 static const char *script_env = "LIBFUZZER_MUTATOR_LUA_SCRIPT";
-static const char *script_default = "./libfuzzer_mutator.lua";
+static const char *script_default = "./mutator.lua";
 static const char *script_func = "LLVMFuzzerCustomMutator";
 
 static size_t custom_mutator(uint8_t *Data, size_t Size,

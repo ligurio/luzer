@@ -67,7 +67,7 @@ failing input is found, or the user cancels the process (e.g. with Ctrl^C).
 The output will look something like this:
 
 ```
-$ luajit luzer_example.lua
+$ luajit examples/luzer_example.lua
 INFO: Running with entropic power schedule (0xFF, 100).
 INFO: Seed: 1557779137
 INFO: Loaded 1 modules   (151 inline 8-bit counters): 151 [0x7f0640e706e3, 0x7f0640e7077a),
@@ -175,18 +175,18 @@ Learn more about fuzzing with libFuzzer and structure-aware fuzzing using
 
 The environment variable `LIBFUZZER_CUSTOM_MUTATOR_LUA_SCRIPT` can be set to
 the path to the Lua mutator script. The default path is
-`./libfuzzer_mutator.lua`.
+`./mutator.lua`.
 
 To run the Lua example, use
 
 ```sh
-LIBFUZZER_CUSTOM_MUTATOR_LUA_SCRIPT=./libfuzzer_mutator.lua example_compressed
+LIBFUZZER_CUSTOM_MUTATOR_LUA_SCRIPT=./mutator.lua example_compressed
 ```
 
 All you need to do on the C/C++ side is
 
 ```
-#include "libfuzzer_mutator.cpp"
+#include "mutator.cpp"
 ```
 
 in the target file where you have `LLVMFuzzerTestOneInput` (or any other
@@ -194,9 +194,9 @@ compilation unit that is linked to the target) and then build with the Lua
 include and linker flags added to your build configuration.
 
 Then write a Lua script that does what you would like the fuzzer to do, you
-might want to use the `libfuzzer_mutator.lua` script. The environment variable
+might want to use the `mutator.lua` script. The environment variable
 `LIBFUZZER_CUSTOM_MUTATOR_LUA_SCRIPT` can be set to the path to the Lua mutator
-script. The default path is `./libfuzzer_mutator.lua`. Then just run your fuzzing as
+script. The default path is `./mutator.lua`. Then just run your fuzzing as
 shown in the examples above.
 
 ## Custom mutator API
