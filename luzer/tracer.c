@@ -45,6 +45,9 @@ void debug_hook(lua_State *L, lua_Debug *ar) {
         current_location = new_location / 2;
     }
 
+	// distinquish event type
+	// printf("event %d\n", ar->event);
+
 	// TODO: skip when 'info.what == "C"'
 	// FIXME: call debug "call" hook
 	// FIXME: call debug "line" hook

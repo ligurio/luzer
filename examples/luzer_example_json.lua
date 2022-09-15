@@ -19,6 +19,9 @@ $ echo -n "{}" > corpus/sample
 $ luajit luzer_example_json.lua
 ]]
 
+-- https://github.com/tarantool/tarantool/issues/4366
+-- See json.dict.
+
 local json = require("json")
 local cjson = require("cjson")
 local luzer = require("luzer")

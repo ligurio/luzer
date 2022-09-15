@@ -62,7 +62,7 @@ luzer.Fuzz()
 
 While fuzzing is in progress, the fuzzing engine generates new inputs and runs
 them against the provided fuzz target. By default, it continues to run until a
-failing input is found, or the user cancels the process (e.g. with Ctrl^C).
+failing input is found, or the user cancels the process (e.g. with `Ctrl^C`).
 
 The output will look something like this:
 
