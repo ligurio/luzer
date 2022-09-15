@@ -27,7 +27,7 @@ extra bugs.
 $ luarocks --local install luzer
 ```
 
-## Writing fuzz tests in Lua
+## Writing Fuzz Tests In Lua
 
 - There must be exactly one fuzz target per fuzz test.
 - Fuzz targets should be fast and deterministic so the fuzzing engine can work
@@ -117,6 +117,8 @@ want to allow only those inputs into the corpus that parse successfully.
 If the fuzz target returns `-1` on a given input, `luzer` will not add that
 input top the corpus, regardless of what coverage it triggers.
 
+**Structure-Aware Fuzzing**
+
 Often, a `bytes` object is not convenient input to your code being fuzzed.
 Similar to libFuzzer, luzer provides a `FuzzedDataProvider` that can simplify the
 task of creating a fuzz target by translating the raw input bytes received from
@@ -168,7 +170,7 @@ Learn more about fuzzing with libFuzzer and structure-aware fuzzing using
 - [libFuzzer Tutorial][libfuzzer-tutorial-url]
 - [How To Split A Fuzzer-Generated Input Into Several ][split-inputs-url]
 
-## Using custom mutators written in Lua
+## Using Custom Mutators Written In Lua
 
 `luzer` allows [custom mutators][libfuzzer-mutators-url] to be written in Lua 5.1
 (including Lua-JIT), 5.2, 5.3 or 5.4.
