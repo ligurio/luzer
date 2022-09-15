@@ -1,5 +1,5 @@
 add_executable(mutator_test
-               ${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_lua_mutator.cpp)
+               ${CMAKE_CURRENT_SOURCE_DIR}/mutator.cpp)
 target_include_directories(mutator_test PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(mutator_test PRIVATE ${LUA_LIBRARIES})
 target_compile_options(mutator_test PUBLIC -Wall -Wextra -Wno-unused-parameter)
@@ -16,7 +16,7 @@ set_tests_properties(mutator_test PROPERTIES
 
 install(
   FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/libfuzzer_lua_mutator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/mutator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/mutator_example.lua
   DESTINATION ${CMAKE_LIBRARY_PATH}/${PROJECT_NAME}/
 )

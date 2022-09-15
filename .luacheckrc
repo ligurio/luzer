@@ -1,11 +1,11 @@
-files["libfuzzer_mutator.lua"] = {
+files["mutator/mutator_example.lua"] = {
     globals = {
         "LLVMFuzzerCustomMutator",
         "LLVMFuzzerMutate",
     },
 }
 
-files["test.lua"] = {
+files["luzer/test.lua"] = {
     globals = {
         "luzer_test_one_input",
         "luzer_custom_mutator",
