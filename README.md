@@ -86,7 +86,7 @@ To gather baseline coverage, the fuzzing engine executes both the seed corpus
 and the generated corpus, to ensure that no errors occurred and to understand
 the code coverage the existing corpus already provides.
 
-## Fuzzing API
+**Fuzzing API**
 
 The luzer module provides two key functions: `Setup()` and `Fuzz()`.
 
@@ -199,7 +199,7 @@ might want to use the `mutator.lua` script. The environment variable
 script. The default path is `./mutator.lua`. Then just run your fuzzing as
 shown in the examples above.
 
-## Custom mutator API
+**Custom mutator API**
 
 - `LLVMFuzzerCustomMutator(data, size, max_size, seed)` - function that called
   for each mutation. Optional user-provided custom mutator. Mutates raw data in
