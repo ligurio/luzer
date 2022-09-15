@@ -39,7 +39,7 @@ endif()
 
 enable_testing()
 set(CMAKE_CTEST_ARGUMENTS "--verbose --progress --output-on-failure")
-add_subdirectory(custom_mutator)
+add_subdirectory(mutator)
 add_subdirectory(luzer)
 
 ## Install ####################################################################
