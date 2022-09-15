@@ -168,7 +168,7 @@ Learn more about fuzzing with libFuzzer and structure-aware fuzzing using
 - [libFuzzer Tutorial][libfuzzer-tutorial-url]
 - [How To Split A Fuzzer-Generated Input Into Several ][split-inputs-url]
 
-## Using Lua custom mutators
+## Using custom mutators written in Lua
 
 `luzer` allows [custom mutators][libfuzzer-mutators-url] to be written in Lua 5.1
 (including Lua-JIT), 5.2, 5.3 or 5.4.
