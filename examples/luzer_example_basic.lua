@@ -4,7 +4,7 @@ local luzer = require("luzer")
 
 local function TestOneInput(buf, _size)
     local fdp = luzer.FuzzedDataProvider(buf)
-    local str = fdp.consume_string(5)
+    local str = fdp:consume_string(5)
 
     local b = {}
     str:gsub(".", function(c) table.insert(b, c) end)

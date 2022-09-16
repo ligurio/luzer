@@ -119,6 +119,7 @@ luaL_consume_number(lua_State *L)
     return 1;
 }
 
+/* Consumes a table with specified number of numbers from the fuzzer input. */
 static int
 luaL_consume_numbers(lua_State *L)
 {
