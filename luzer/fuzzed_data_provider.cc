@@ -260,7 +260,7 @@ luaL_fuzzed_data_provider(lua_State *L)
 	const char *data = luaL_checkstring(L, 1);
 	size_t size = strlen(data);
 
-	luaL_newmetatable(L, "sshmeta");
+	luaL_newmetatable(L, FDP_META);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
 	luaL_register(L, NULL, methods);
@@ -270,7 +270,7 @@ luaL_fuzzed_data_provider(lua_State *L)
 	FuzzedDataProvider *fdp = new FuzzedDataProvider((const unsigned char *)data, size);
 	lfdp->fdp = fdp;
 
-	luaL_getmetatable(L, "sshmeta");
+	luaL_getmetatable(L, FDP_META);
 	lua_setmetatable(L, -2);
 
 	return 1;
