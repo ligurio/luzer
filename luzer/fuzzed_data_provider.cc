@@ -263,7 +263,11 @@ luaL_fuzzed_data_provider(lua_State *L)
 	luaL_newmetatable(L, FDP_META);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
+#if LUA_VERSION_NUM == 501
 	luaL_register(L, NULL, methods);
+#else
+	luaL_newlib(L, methods);
+#endif
 
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t*)lua_newuserdata(L, sizeof(*lfdp));
