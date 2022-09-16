@@ -22,3 +22,4 @@ mulua
 - Unit test code generator for lua programming language,
   Conference: 2015 International Conference on Data and Software Engineering (ICoDSE)
 - Hypothesys, https://timothycrosley.github.io/hypothesis-auto/
+- https://github.com/HexHive/FuzzGen
