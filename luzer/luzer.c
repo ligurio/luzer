@@ -4,14 +4,14 @@
  * - сделать LLVMFuzzerCustomCrossover()
  * - трейсинг
  * - удалить require_instrument()
- * - реорганизовать файлы в репозитории: подпроекты luzer и custom_mutator
+ * - передавать опции libfuzzer в таблице
  *
  * - Unicode, 6.5 – UTF-8 Support, https://www.lua.org/manual/5.4/manual.html
  * - поддержка luacov
  *   - https://github.com/lunarmodules/luacov/blob/master/src/luacov/runner.lua#L102-L117
  *   - https://lunarmodules.github.io/luacov/doc/modules/luacov.runner.html#debug_hook
- * - сделать возможность передавать корпус в таблице-массиве
- * - сделать возможность передавать словарь
+ * - передавать корпус в таблице
+ * - передавать словарь в таблице
  */
 
 #include <lua.h>
@@ -31,8 +31,8 @@
 
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
 #define CUSTOM_MUTATOR_FUNC "luzer_custom_mutator"
+#define CUSTOM_MUTATOR_LIB "./libcustom_mutator.so.1"
 #define DEBUG_HOOK_FUNC "luzer_custom_hook"
-#define LIB_CUSTOM_MUTATOR "./libcustom_mutator.so.1"
 
 static lua_State *LL;
 
@@ -203,7 +203,7 @@ luaL_setup(lua_State *L)
 	// Argument: custom_mutator.
 	if (lua_gettop(L) != 0) {
 		luaL_set_custom_mutator(L);
-		void* custom_mutator_lib = dlopen(LIB_CUSTOM_MUTATOR, RTLD_LAZY);
+		void* custom_mutator_lib = dlopen(CUSTOM_MUTATOR_LIB, RTLD_LAZY);
 		if (!custom_mutator_lib)
 			unreachable();
 		void* sym = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
@@ -302,17 +302,14 @@ int luaopen_luzer(lua_State *L)
 #else
 	luaL_newlib(L, Module);
 #endif
+    lua_pushliteral(L, "_COPYRIGHT");
+    lua_pushliteral(L, "Copyright (C) 2020-2022 Sergey Bronnikov");
+    lua_settable(L, -3);
+    lua_pushliteral(L, "_DESCRIPTION");
+    lua_pushliteral(L, "A coverage-guided, native Lua fuzzer");
+    lua_settable(L, -3);
     lua_pushliteral(L, "_VERSION");
-    lua_createtable(L, 0, 3);
-    lua_pushstring(L, "LUZER");
-    lua_pushstring(L, luzer_version_string());
-    lua_rawset(L, -3);
-    lua_pushstring(L, "LUA");
-    lua_pushstring(L, LUA_RELEASE);
-    lua_rawset(L, -3);
-    lua_pushstring(L, "LLVM");
-    lua_pushstring(L, llvm_version_string());
-    lua_rawset(L, -3);
+    lua_pushstring(L, luzer_version_string()); // TODO: LUA_RELEASE, llvm_version_string()
     lua_rawset(L, -3);
 
     return 1;

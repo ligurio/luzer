@@ -7,28 +7,29 @@
 #include "fuzzed_data_provider.h"
 #include "macros.h"
 
+#define FDP_META "fdp_meta"
+
 /*
  * A convenience wrapper turning the raw fuzzer input bytes into Lua primitive
  * types. The methods behave similarly to math.random(), with all returned
  * values depending deterministically on the fuzzer input for the current run.
  */
 
-static FuzzedDataProvider *fdp = NULL;
+typedef struct {
+	FuzzedDataProvider *fdp;
+} lua_userdata_t;
 
 /* Consumes a string from the fuzzer input. */
 static int
 luaL_consume_string(lua_State *L)
 {
-	if (!fdp)
-		luaL_error(L, "FuzzedDataProvider is not initialized");
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	size_t max_length = luaL_checkinteger(L, 2);
+	if (!lfdp)
+		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_string(max_length)");
 
-	if (lua_type(L, -1) != LUA_TNUMBER)
-		luaL_error(L, "bad argument max_length");
-
-	size_t max_length = lua_tonumber(L, -1);
-	lua_pop(L, -1);
-
-	std::string str = fdp->ConsumeRandomLengthString(max_length);
+	std::string str = lfdp->fdp->ConsumeRandomLengthString(max_length);
 	const char *cstr = str.c_str();
     lua_pushstring(L, cstr);
 
@@ -39,26 +40,19 @@ luaL_consume_string(lua_State *L)
 static int
 luaL_consume_strings(lua_State *L)
 {
-	if (!fdp)
-		luaL_error(L, "FuzzedDataProvider is not initialized");
-
-	if (lua_type(L, -1) != LUA_TNUMBER)
-		luaL_error(L, "bad argument count");
-
-	if (lua_type(L, -2) != LUA_TNUMBER)
-		luaL_error(L, "bad argument max_length");
-
-	size_t count = lua_tonumber(L, -1);
-	size_t max_length = lua_tonumber(L, -2);
-
-	lua_settop(L, 0);
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	if (!lfdp)
+		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_strings(count, max_length)");
+	size_t count = luaL_checkinteger(L, 2);
+	size_t max_length = luaL_checkinteger(L, 3);
 
 	std::string str;
 	const char *cstr;
 
 	lua_newtable(L);
 	for (int i = 1; i <= (int)count; i++) {
-		str = fdp->ConsumeRandomLengthString(max_length);
+		str = lfdp->fdp->ConsumeRandomLengthString(max_length);
 		cstr = str.c_str();
 		if (strlen(cstr) == 0)
 			break;
@@ -74,10 +68,12 @@ luaL_consume_strings(lua_State *L)
 static int
 luaL_consume_boolean(lua_State *L)
 {
-	if (!fdp)
-		luaL_error(L, "FuzzedDataProvider is not initialized");
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	if (!lfdp)
+		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_boolean()");
 
-	bool b = fdp->ConsumeBool();
+	bool b = lfdp->fdp->ConsumeBool();
     lua_pushboolean(L, (int)b);
 
     return 1;
@@ -87,18 +83,15 @@ luaL_consume_boolean(lua_State *L)
 static int
 luaL_consume_booleans(lua_State *L)
 {
-	if (!fdp)
-		luaL_error(L, "FuzzedDataProvider is not initialized");
-
-	if (lua_type(L, -1) != LUA_TNUMBER)
-		luaL_error(L, "bad argument count");
-
-	size_t count = lua_tonumber(L, -1);
-	lua_pop(L, -1);
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	if (!lfdp)
+		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_booleans(count)");
+	int count = luaL_checkinteger(L, 2);
 
 	lua_newtable(L);
 	for (int i = 1; i <= (int)count; i++) {
-		bool b = fdp->ConsumeBool();
+		bool b = lfdp->fdp->ConsumeBool();
 		lua_pushnumber(L, i);
 		lua_pushboolean(L, (int)b);
 		lua_settable(L, -3);
@@ -111,24 +104,16 @@ luaL_consume_booleans(lua_State *L)
 static int
 luaL_consume_number(lua_State *L)
 {
-	if (!fdp)
-		luaL_error(L, "FuzzedDataProvider is not initialized");
-
-	if (lua_type(L, -1) != LUA_TNUMBER)
-		luaL_error(L, "bad argument min");
-
-	if (lua_type(L, -2) != LUA_TNUMBER)
-		luaL_error(L, "bad argument max");
-
-	double max = lua_tonumber(L, -1);
-	double min = lua_tonumber(L, -2);
-
-	lua_settop(L, 0);
-
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	if (!lfdp)
+		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_number(min, max)");
+	double min = luaL_checknumber(L, 2);
+	double max = luaL_checknumber(L, 3);
 	if (min > max)
 		luaL_error(L, "min must be less than or equal to max");
 
-	auto number = fdp->ConsumeFloatingPointInRange(min, max);
+	auto number = lfdp->fdp->ConsumeFloatingPointInRange(min, max);
     lua_pushnumber(L, number);
 
     return 1;
@@ -137,30 +122,19 @@ luaL_consume_number(lua_State *L)
 static int
 luaL_consume_numbers(lua_State *L)
 {
-	if (!fdp)
-		luaL_error(L, "FuzzedDataProvider is not initialized");
-
-	if (lua_type(L, -1) != LUA_TNUMBER)
-		luaL_error(L, "bad argument count");
-
-	if (lua_type(L, -2) != LUA_TNUMBER)
-		luaL_error(L, "bad argument max");
-
-	if (lua_type(L, -3) != LUA_TNUMBER)
-		luaL_error(L, "bad argument min");
-
-	size_t count = lua_tonumber(L, -1);
-	double max = lua_tonumber(L, -2);
-	double min = lua_tonumber(L, -3);
-
-	lua_settop(L, 0);
-
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	if (!lfdp)
+		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_numbers(count, min, max)");
+	int count = luaL_checkinteger(L, 2);
+	double min = luaL_checkinteger(L, 3);
+	double max = luaL_checkinteger(L, 4);
 	if (min > max)
 		luaL_error(L, "min must be less than or equal to max");
 
 	lua_newtable(L);
-	for (int i = 1; i <= (int)count; i++) {
-	    auto number = fdp->ConsumeFloatingPointInRange(min, max);
+	for (int i = 1; i <= count; i++) {
+	    auto number = lfdp->fdp->ConsumeFloatingPointInRange(min, max);
 		lua_pushnumber(L, i);
 		lua_pushnumber(L, number);
 		lua_settable(L, -3);
@@ -174,24 +148,16 @@ luaL_consume_numbers(lua_State *L)
 static int
 luaL_consume_integer(lua_State *L)
 {
-	if (!fdp)
-		luaL_error(L, "FuzzedDataProvider is not initialized");
-
-	if (lua_type(L, -1) != LUA_TNUMBER)
-		luaL_error(L, "bad argument min");
-
-	if (lua_type(L, -2) != LUA_TNUMBER)
-		luaL_error(L, "bad argument max");
-
-	int max = lua_tonumber(L, -1);
-	int min = lua_tonumber(L, -2);
-
-	lua_settop(L, 0);
-
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	if (!lfdp)
+		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_integer(min, max)");
+	int min = luaL_checkinteger(L, 2);
+	int max = luaL_checkinteger(L, 3);
 	if (min > max)
 		luaL_error(L, "min must be less than or equal to max");
 
-	auto number = fdp->ConsumeIntegralInRange(min, max);
+	auto number = lfdp->fdp->ConsumeIntegralInRange(min, max);
     lua_pushnumber(L, number);
 
     return 1;
@@ -201,30 +167,19 @@ luaL_consume_integer(lua_State *L)
 static int
 luaL_consume_integers(lua_State *L)
 {
-	if (!fdp)
-		luaL_error(L, "FuzzedDataProvider is not initialized");
-
-	if (lua_type(L, -1) != LUA_TNUMBER)
-		luaL_error(L, "bad argument count");
-
-	if (lua_type(L, -2) != LUA_TNUMBER)
-		luaL_error(L, "bad argument max");
-
-	if (lua_type(L, -3) != LUA_TNUMBER)
-		luaL_error(L, "bad argument min");
-
-	size_t count = lua_tonumber(L, -1);
-	int max = lua_tonumber(L, -2);
-	int min = lua_tonumber(L, -3);
-
-	lua_settop(L, 0);
-
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	if (!lfdp)
+		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_integers(count, min, max)");
+	int count = luaL_checkinteger(L, 2);
+	int min = luaL_checkinteger(L, 3);
+	int max = luaL_checkinteger(L, 4);
 	if (min > max)
 		luaL_error(L, "min must be less than or equal to max");
 
 	lua_newtable(L);
 	for (int i = 1; i <= (int)count; i++) {
-	    auto number = fdp->ConsumeIntegralInRange(min, max);
+	    auto number = lfdp->fdp->ConsumeIntegralInRange(min, max);
 		lua_pushnumber(L, i);
 		lua_pushinteger(L, number);
 		lua_settable(L, -3);
@@ -236,10 +191,12 @@ luaL_consume_integers(lua_State *L)
 static int
 luaL_consume_probability(lua_State *L)
 {
-	if (!fdp)
-		luaL_error(L, "FuzzedDataProvider is not initialized");
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	if (!lfdp)
+		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_probability()");
 
-	auto probability = fdp->ConsumeFloatingPointInRange(0.0, 1.0);
+	auto probability = lfdp->fdp->ConsumeFloatingPointInRange(0.0, 1.0);
     lua_pushnumber(L, probability);
 
     return 1;
@@ -249,22 +206,34 @@ luaL_consume_probability(lua_State *L)
 static int
 luaL_remaining_bytes(lua_State *L)
 {
-	if (!fdp)
-		luaL_error(L, "FuzzedDataProvider is not initialized");
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	if (!lfdp)
+		luaL_error(L, "Usage: <FuzzedDataProvider>:remaining_bytes()");
 
-	size_t sz = fdp->remaining_bytes();
+	size_t sz = lfdp->fdp->remaining_bytes();
     lua_pushnumber(L, sz);
 
     return 1;
 }
 
-/* A useful tool for generating various types of data from the arbitrary bytes
- * produced by the fuzzer.
- */
-static const struct {
-    char name[30];
-    lua_CFunction func;
-} FuzzedDataProvider_functions[] = {
+static int close(lua_State *L) {
+/*
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	FuzzedDataProvider fdp = lfdp->fdp;
+	delete fdp;
+*/
+	return 0;
+}
+
+static int tostring(lua_State *L) {
+	lua_pushstring(L, "FuzzedDataProvider");
+	return 1;
+}
+
+const luaL_Reg methods[] =
+{
 	{ "consume_string", luaL_consume_string },
 	{ "consume_strings", luaL_consume_strings },
 	{ "consume_boolean", luaL_consume_boolean },
@@ -275,25 +244,33 @@ static const struct {
 	{ "consume_integers", luaL_consume_integers },
 	{ "consume_probability", luaL_consume_probability },
 	{ "remaining_bytes", luaL_remaining_bytes },
+	{ "__gc", close },
+	{ "__tostring", tostring },
+	{ NULL, NULL }
 };
 
 int
 luaL_fuzzed_data_provider(lua_State *L)
 {
-	if (lua_gettop(L) != 1)
-		luaL_error(L, "FuzzedDataProvider accepts a buffer.");
+	int index = lua_gettop(L);
+	if (index != 1)
+		luaL_error(L, "Usage: luzer.FuzzedDataProvider(string)");
 
 	const char *data = luaL_checkstring(L, 1);
 	size_t size = strlen(data);
-	fdp = new FuzzedDataProvider((const unsigned char *)data, size);
-	size_t n = sizeof(FuzzedDataProvider_functions)/
-			   sizeof(FuzzedDataProvider_functions[0]);
-	lua_createtable(L, 0, n);
-    for (int i = 0; FuzzedDataProvider_functions[i].name[0]; i++) {
-        lua_pushstring(L, FuzzedDataProvider_functions[i].name);
-        lua_pushcfunction(L, FuzzedDataProvider_functions[i].func);
-		lua_settable(L, -3);
-    }
 
-    return 1;
+	luaL_newmetatable(L, "sshmeta");
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+	luaL_register(L, NULL, methods);
+
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t*)lua_newuserdata(L, sizeof(*lfdp));
+	FuzzedDataProvider *fdp = new FuzzedDataProvider((const unsigned char *)data, size);
+	lfdp->fdp = fdp;
+
+	luaL_getmetatable(L, "sshmeta");
+	lua_setmetatable(L, -2);
+
+	return 1;
 }
