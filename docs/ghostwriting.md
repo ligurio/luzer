@@ -23,3 +23,4 @@ mulua
   Conference: 2015 International Conference on Data and Software Engineering (ICoDSE)
 - Hypothesys, https://timothycrosley.github.io/hypothesis-auto/
 - https://github.com/HexHive/FuzzGen
+- Jazzer with autofuzz, https://www.code-intelligence.com/blog/autofuzz
