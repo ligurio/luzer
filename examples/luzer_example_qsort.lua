@@ -22,8 +22,14 @@ local cmp_cb = ffi.cast("int (*)(const char *, const char *)", cmp)
 local function TestOneInput(buf, size)
     local bytes = ffi.new(("char[%s]"):format(size))
     ffi.copy(bytes, buf, size)
-    ffi.C.qsort(bytes, size, 1, cmp_cb)
-    collectgarbage()
+    ffi.C.qsort(bytes, size, 10, cmp_cb)
+    local b = ffi.string(bytes, ffi.sizeof(bytes))
+
+    -- local t = {}
+    -- buf:gsub(".", function(c) table.insert(t, c) end)
+    -- table.sort(t, cmp)
+    -- print(buf, b)
+    -- assert(#buf == #b)
 end
 
 local arg1 = {"-max_len=4096", "-max_len=4096"}
