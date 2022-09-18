@@ -22,6 +22,46 @@ $ luajit luzer_example_json.lua
 -- https://github.com/tarantool/tarantool/issues/4366
 -- See json.dict.
 
+--[[
+"json.cfg"
+"json.encode_load_metatables"
+"json.true"
+"json.encode_invalid_numbers"
+"json.true"
+"json.encode_use_tostring"
+"json.false"
+"json.decode_max_depth"
+"json.encode_max_depth"
+"json.encode_number_precision"
+"json.encode_sparse_convert"
+"json.true"
+"json.decode_invalid_numbers"
+"json.true"
+"json.encode_error_as_ext"
+"json.true"
+"json.encode_sparse_ratio"
+"json.encode_invalid_as_nil"
+"json.false"
+"json.encode_sparse_safe"
+"json.encode_deep_as_nil"
+"json.false"
+"json.decode_save_metatables"
+"json.true"
+"json.null"
+"json.NULL"
+"json.new"
+"json.array_mt"
+"json.__serialize"
+"json.seq"
+"json.__newindex"
+"json.decode"
+"json.map_mt"
+"json.__serialize"
+"json.map"
+"json.__newindex"
+"json.encode"
+]]
+
 local json = require("json")
 local cjson = require("cjson")
 local luzer = require("luzer")

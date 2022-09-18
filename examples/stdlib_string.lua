@@ -1,4 +1,6 @@
---https://github.com/Zac-HD/stdlib-property-tests
+-- https://github.com/Zac-HD/stdlib-property-tests
+-- https://github.com/Zac-HD/stdlib-property-tests/blob/master/tests/test_re_by_construction.py
+-- Differential testing with re, https://luarocks.org/modules/rrt/lrexlib-posix
 
 --[[
 -- Lua 5.1

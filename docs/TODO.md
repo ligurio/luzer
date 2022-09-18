@@ -6,7 +6,6 @@
 - удалить require_instrument()
 - передавать опции libfuzzer в таблице
 
-
 - `consume_string()` для Unicode, 6.5 – UTF-8 Support, https://www.lua.org/manual/5.4/manual.html
 - поддержка luacov
   - https://github.com/lunarmodules/luacov/blob/master/src/luacov/runner.lua#L102-L117

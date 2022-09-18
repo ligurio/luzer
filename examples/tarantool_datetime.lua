@@ -9,6 +9,7 @@
 
     https://cs.opensource.google/go/go/+/refs/tags/go1.18.2:src/time/zoneinfo_test.go
     https://github.com/dateutil/dateutil/blob/master/tests/test_tz.py
+    https://github.com/Zac-HD/stdlib-property-tests/blob/master/tests/test_datetime.py
 
 "datetime.new"
 "datetime.parse_date"
@@ -283,7 +284,6 @@ local dt2 = datetime.new({ year = non_leap_year })
 -- 30 апреля + 1 месяц = 31 мая
 -- 28 февраля 2001 + 1 месяц = 28 марта 2001
 -- 28 февраля 2004 + 1 месяц = 28 марта 2004
-
 
 --[[
 --

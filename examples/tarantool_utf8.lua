@@ -1,0 +1,14 @@
+--[[
+"utf8.casecmp"
+"utf8.isupper"
+"utf8.next"
+"utf8.lower"
+"utf8.isdigit"
+"utf8.isalpha"
+"utf8.upper"
+"utf8.sub"
+"utf8.char"
+"utf8.cmp"
+"utf8.islower"
+"utf8.len"
+]]
