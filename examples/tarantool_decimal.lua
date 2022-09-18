@@ -1,0 +1,14 @@
+--[[
+"decimal.scale"
+"decimal.new"
+"decimal.log10"
+"decimal.rescale"
+"decimal.ln"
+"decimal.round"
+"decimal.is_decimal"
+"decimal.exp"
+"decimal.trim"
+"decimal.abs"
+"decimal.precision"
+"decimal.sqrt"
+]]

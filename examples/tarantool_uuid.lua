@@ -1,0 +1,10 @@
+--[[
+"uuid.bin"
+"uuid.fromstr"
+"uuid.new"
+"uuid.str"
+"uuid.is_uuid"
+"uuid.NULL"
+"uuid.00000000-0000-0000-0000-000000000000"
+"uuid.frombin"
+]]
