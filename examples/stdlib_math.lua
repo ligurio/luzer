@@ -1,34 +1,113 @@
 -- https://github.com/Zac-HD/stdlib-property-tests
+--
+-- 18 – The Mathematical Library
+-- https://www.lua.org/pil/18.html
+
+local luzer = require("luzer")
+
+local function TestOneInput(buf)
+    local fdp = luzer.FuzzedDataProvider(buf)
+    local a = fdp.consume_number()
+
+    local sin = math.sin(a)
+    local cos = math.cos(a)
+    local tan = math.tan(a)
+
+    -- cos α = 1 / sin α
+    if sin ~= 0 then
+        assert(cos == 1/sin)
+    end
+
+    -- tan α = sin α / cos α
+    if cos ~= 0 then
+        assert(tan == sin/cos)
+    end
+
+    -- cos² α + sin² α = 1
+    assert(cos^2 + sin^2 == 1)
+
+    -- ctan α = 1/tan α
+    -- TODO
+    return
+end
+
+local function TestOneInput_abs(buf)
+    local fdp = luzer.FuzzedDataProvider(buf)
+    local a = fdp.consume_number()
+    local abs = a
+    if abs < 0 then
+        abs = -abs
+    end
+    assert(math.abs(a) == abs)
+
+    return
+end
+
+local function TestOneInput_sqrt(buf)
+    local fdp = luzer.FuzzedDataProvider(buf)
+    local a = fdp.consume_number()
+    local sqrt = math.sqrt(a)
+    assert(sqrt^2 == a)
+    return
+end
+
+-- https://schooltutoring.com/help/properties-of-logarithmic-functions/
+-- https://www.chilimath.com/lessons/advanced-algebra/logarithm-rules/
+-- https://www.shoreline.edu/math-learning-center/documents/properties-of-logarithms.pdf
+local function TestOneInput_log(buf)
+    return
+end
+
+local function TestOneInput_pow(buf)
+    local fdp = luzer.FuzzedDataProvider(buf)
+    local b = fdp.consume_number()
+    local m = fdp.consume_number()
+    local n = fdp.consume_number()
+
+    local b_pow_m = math.pow(b, m)
+    local b_pow_n = math.pow(b, n)
+
+    assert(b_pow_m * b_pow_n == math.pow(b, m + n))
+    assert(b_pow_m / b_pow_n == math.pow(b, m - n))
+    assert(math.pow(b_pow_m, n) == math.pow(b, m * n))
+
+    return
+end
+
+local arg1 = {"-max_len=4096", "-only_ascii=1", "-dict=/home/sergeyb/sources/luzer/dict_example"}
+
+luzer.Setup(arg1, TestOneInput)
+luzer.Fuzz()
 
 --[[
-"math.ceil"
 "math.tan"
-"math.log10"
-"math.randomseed"
 "math.cos"
+"math.sqrt"
+"math.sin"
+"math.atan2"
+"math.atan"
 "math.sinh"
-"math.random"
-"math.huge"
+"math.asin"
+"math.cosh"
+"math.tanh"
+"math.acos"
+
+"math.ceil"
 "math.pi"
 "math.max"
-"math.atan2"
+"math.min"
+"math.log10"
+"math.randomseed"
+"math.random"
+"math.huge"
 "math.ldexp"
 "math.floor"
-"math.sqrt"
 "math.deg"
-"math.atan"
 "math.fmod"
-"math.acos"
 "math.pow"
-"math.abs"
-"math.min"
-"math.sin"
 "math.frexp"
 "math.log"
-"math.tanh"
 "math.exp"
 "math.modf"
-"math.cosh"
-"math.asin"
 "math.rad"
 ]]
