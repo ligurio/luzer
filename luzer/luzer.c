@@ -261,8 +261,6 @@ static const struct luaL_Reg Module[] = {
 	{ "Setup", luaL_setup },
 	{ "Fuzz", luaL_fuzz },
 	{ "FuzzedDataProvider", luaL_fuzzed_data_provider },
-	{ "_set_debug_call_hook", luaL_set_debug_hook }, // FIXME: ???
-	{ "_set_debug_line_hook", luaL_set_debug_hook }, // FIXME: ???
 	{ "_set_custom_mutator", luaL_set_custom_mutator },
 	{ "_mutate", luaL_mutate },
 	{ "require_instrument", luaL_require_instrument },
