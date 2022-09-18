@@ -48,6 +48,11 @@ local function TestOneInput_sqrt(buf)
     local a = fdp.consume_number()
     local sqrt = math.sqrt(a)
     assert(sqrt^2 == a)
+
+    -- LuaJIT: "sqrt(x) and x^0.5 not interchangeable"
+    -- https://github.com/LuaJIT/LuaJIT/issues/684
+    assert(sqrt == a^0.5)
+
     return
 end
 
