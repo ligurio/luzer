@@ -116,17 +116,6 @@ luaL_set_custom_mutator(lua_State *L)
 }
 
 NO_SANITIZE static int
-luaL_set_debug_hook(lua_State *L)
-{
-	if (lua_isfunction(L, -1) != 1)
-		luaL_error(L, "custom_hook is not a Lua function.");
-
-	lua_setglobal(L, DEBUG_HOOK_FUNC);
-
-	return 0;
-}
-
-NO_SANITIZE static int
 luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
 {
 	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
@@ -244,6 +233,7 @@ luaL_fuzz(lua_State *L)
 	set_global_lua_stack(L);
 	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 	luaL_cleanup(L);
+
 	lua_pushnumber(L, rc);
 
 	return 1;

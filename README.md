@@ -119,6 +119,15 @@ input top the corpus, regardless of what coverage it triggers.
 
 **Structure-Aware Fuzzing**
 
+`luzer` is based on a coverage-guided mutation-based fuzzer (LibFuzzer). It has
+the advantage of not requiring any grammar definition for generating inputs,
+making its setup easier. The disadvantage is that it will be harder for the
+fuzzer to generate inputs for code that parses complex data types. Often the
+inputs will be rejected early, resulting in low coverage. For solving this
+issue `luzer` offers `FuzzedDataProvider` and two functions to customize the
+mutation strategy which is especially useful when fuzzing functions that
+require structured input.
+
 Often, a `bytes` object is not convenient input to your code being fuzzed.
 Similar to libFuzzer, luzer provides a `FuzzedDataProvider` that can simplify the
 task of creating a fuzz target by translating the raw input bytes received from
