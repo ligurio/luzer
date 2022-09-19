@@ -23,7 +23,9 @@ local function TestOneInput(buf, size)
     local bytes = ffi.new(("char[%s]"):format(size))
     ffi.copy(bytes, buf, size)
     ffi.C.qsort(bytes, size, 10, cmp_cb)
-    local b = ffi.string(bytes, ffi.sizeof(bytes))
+    local sorted = ffi.string(bytes, ffi.sizeof(bytes))
+
+    assert(#sorted == #buf)
 
     -- local t = {}
     -- buf:gsub(".", function(c) table.insert(t, c) end)

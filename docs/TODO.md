@@ -6,6 +6,8 @@
 - удалить require_instrument()
 - передавать опции libfuzzer в таблице
 
+- `consume_byte()` https://github.com/luc-tielen/lua-quickcheck/blob/master/lqc/generators/byte.lua
+- `consume_char()` https://github.com/luc-tielen/lua-quickcheck/blob/master/lqc/generators/char.lua
 - `consume_string()` для Unicode, 6.5 – UTF-8 Support, https://www.lua.org/manual/5.4/manual.html
 - поддержка luacov
   - https://github.com/lunarmodules/luacov/blob/master/src/luacov/runner.lua#L102-L117

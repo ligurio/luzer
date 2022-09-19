@@ -35,35 +35,35 @@ local now_dt = datetime.now
 local function random_fmt()
 	-- Field descriptors.
   	local desc = {
-       		'%a',
-		'%A',
-       		'%b',
-		'%B',
-		'%h',
-       		'%c',
-       		'%C',
-       		'%d',
-		'%e',
-       		'%D',
-       		'%H',
-       		'%I',
-       		'%j',
-       		'%m',
-       		'%M',
-       		'%n',
-       		'%p',
-       		'%r',
-       		'%R',
-       		'%S',
-       		'%t',
-       		'%T',
-       		'%U',
-       		'%w',
-       		'%W',
-       		'%x',
-       		'%X',
-       		'%y',
-       		'%Y',
+                '%a',
+                '%A',
+                '%b',
+                '%B',
+                '%h',
+                '%c',
+                '%C',
+                '%d',
+                '%e',
+                '%D',
+                '%H',
+                '%I',
+                '%j',
+                '%m',
+                '%M',
+                '%n',
+                '%p',
+                '%r',
+                '%R',
+                '%S',
+                '%t',
+                '%T',
+                '%U',
+                '%w',
+                '%W',
+                '%x',
+                '%X',
+                '%y',
+                '%Y',
 	}
 	local n = math.random(1, #desc)
 	local fmt = ''
@@ -264,8 +264,8 @@ local dt2 = datetime.new({ year = non_leap_year })
 
 -- Property: Timezone changes when DST applied.
 -- Property: The day before Saturday is always Friday.
--- Property: 29.02.YYYY + 1 day == 01.03.(YYYY + 1), where YYYY is a leap year. 
--- Property: 28.02.YYYY + 1 day == 01.03.(YYYY + 1), where YYYY is a non-leap year. 
+-- Property: 29.02.YYYY + 1 day == 01.03.(YYYY + 1), where YYYY is a leap year.
+-- Property: 28.02.YYYY + 1 day == 01.03.(YYYY + 1), where YYYY is a non-leap year.
 
 -- Прибавление месяцев к времени даёт ту же дату в другом месяце, кроме
 -- случаев, когда в итоговом месяце меньше дней нежели в исходном. В этом

@@ -13,7 +13,11 @@
 
 local luzer = require("luzer")
 local has_ffi, ffi = pcall(require, "ffi")
-local libc = require("libc")
+
+if not has_ffi then
+    print("ffi is not found")
+    os.exit(1)
+end
 
 ffi.cdef[[
 int chmod(const char *pathname, uint32_t mode);
@@ -21,7 +25,8 @@ int chmod(const char *pathname, uint32_t mode);
 
 ffi.C.chmod("xxx", 493--[[rwxr-xr-x]])
 
-local function TestOneInput(buf, _size)
+local function TestOneInput(buf)
+    print(buf)
 end
 
 luzer.Setup(arg, TestOneInput)

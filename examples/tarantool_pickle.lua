@@ -2,13 +2,12 @@ local pickle = require("pickle")
 local luzer = require("luzer")
 
 local function TestOneInput(buf)
-    local ok, res = pcall(pickle.unpack, buf)
+    local ok, unpacked = pcall(pickle.unpack, buf)
     if ok == true then
-        local b
-        ok, b = pcall(pickle.pack, buf)
+        local packed
+        ok, packed = pcall(pickle.pack, unpacked)
 	assert(ok == true)
-        assert(#b == #buf)
-        assert(b == buf)
+        assert(#packed == #buf)
     end
 end
 
