@@ -217,12 +217,10 @@ luaL_remaining_bytes(lua_State *L)
 }
 
 static int close(lua_State *L) {
-/*
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
-	FuzzedDataProvider fdp = lfdp->fdp;
-	delete fdp;
-*/
+	delete lfdp->fdp;
+
 	return 0;
 }
 
