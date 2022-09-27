@@ -179,12 +179,10 @@ luaL_setup(lua_State *L)
 		luaL_set_custom_mutator(L);
 		void* custom_mutator_lib = dlopen(CUSTOM_MUTATOR_LIB, RTLD_LAZY);
 		if (!custom_mutator_lib)
-			unreachable();
-			//luaL_error(L, "Shared library ./libcustom_mutator.so.1 is not available.");
-		void* sym = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
-		if (!sym)
-			unreachable();
-			//luaL_error(L, "Symbol LLVMFuzzerCustomMutator is not available.");
+			luaL_error(L, "shared library ./libcustom_mutator.so.1 is not available");
+		void* custom_mutator = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
+		if (!custom_mutator)
+			luaL_error(L, "custom_mutator is not available");
 		dlclose(custom_mutator_lib);
 	}
 
