@@ -10,19 +10,19 @@ end
 debug.sethook(trace, "l")
 
 -- luzer._VERSION
-local version = luzer._VERSION
-assert(type(version) == "string")
---local version_lua = version.LUA
---local version_luzer = version.LUZER
---local version_llvm = version.LLVM
---assert(type(version_lua) == "string")
-local semver_re = "%d+%.%d+%.%d+"
---assert(string.match(version_lua, semver_re) ~= nil, version_lua)
---assert(type(version_luzer) == "string")
---assert(string.match(version_luzer, semver_re) ~= nil, version_luzer)
---assert(type(version_llvm) == "string")
---assert(string.match(version_llvm, semver_re) ~= nil, version_llvm)
-assert(string.match(version, semver_re) ~= nil, version)
+local version_str = luzer._VERSION
+assert(type(version_str) == "string")
+local SEMVER_RE = "%d+%.%d+%.%d+"
+local version_iter = string.gmatch(version_str, SEMVER_RE)
+local version_luzer = version_iter()
+assert(type(version_luzer) == "string")
+assert(type(version_luzer) ~= nil)
+local version_llvm = version_iter()
+assert(type(version_llvm) == "string")
+assert(type(version_llvm) ~= nil)
+local version_lua = version_iter()
+assert(type(version_lua) == "string")
+assert(type(version_lua) ~= nil)
 
 local ok
 local err

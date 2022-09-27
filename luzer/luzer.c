@@ -239,31 +239,12 @@ luaL_fuzz(lua_State *L)
 	return 1;
 }
 
-NO_SANITIZE static int
-luaL_require_instrument(lua_State *L)
-{
-	if (lua_gettop(L) != 1)
-		luaL_error(L, "require_instrument requires module name");
-
-	if (lua_isstring(L, -1) != 1)
-		luaL_error(L, "require_instrument: bad argument (string expected)");
-
-	const char *module_name = luaL_checkstring(L, -1);
-	lua_getglobal(L, "require");
-	lua_insert(L, -2);
-	lua_call(L, 1, 1);
-	printf("instrumented: %s\n", module_name);
-
-	return 1;
-}
-
 static const struct luaL_Reg Module[] = {
 	{ "Setup", luaL_setup },
 	{ "Fuzz", luaL_fuzz },
 	{ "FuzzedDataProvider", luaL_fuzzed_data_provider },
 	{ "_set_custom_mutator", luaL_set_custom_mutator },
 	{ "_mutate", luaL_mutate },
-	{ "require_instrument", luaL_require_instrument },
 	{ NULL, NULL }
 };
 
@@ -281,7 +262,12 @@ int luaopen_luzer(lua_State *L)
     lua_pushliteral(L, "A coverage-guided, native Lua fuzzer");
     lua_settable(L, -3);
     lua_pushliteral(L, "_VERSION");
-    lua_pushstring(L, luzer_version_string()); // TODO: LUA_RELEASE, llvm_version_string()
+
+	char version[100];
+	snprintf(version, 100, "luzer %s, LLVM %s, %s", luzer_version_string(),
+													llvm_version_string(),
+													LUA_RELEASE);
+    lua_pushstring(L, version);
     lua_rawset(L, -3);
 
     return 1;

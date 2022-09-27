@@ -3,7 +3,6 @@
 - починить custom_mutator()
 - сделать LLVMFuzzerCustomCrossover()
 - трейсинг
-- удалить require_instrument()
 - передавать опции libfuzzer в таблице
 
 - `consume_byte()` https://github.com/luc-tielen/lua-quickcheck/blob/master/lqc/generators/byte.lua
