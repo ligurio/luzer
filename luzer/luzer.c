@@ -76,7 +76,7 @@ void __sanitizer_print_stack_trace()
 } /* extern "C" */
 #endif
 
-NO_SANITIZE static int
+NO_SANITIZE int
 luaL_mutate(lua_State *L)
 {
 	int index = lua_gettop(L);
