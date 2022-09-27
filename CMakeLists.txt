@@ -38,7 +38,6 @@ if(ENABLE_TESTING AND NOT EXISTS ${LUA_EXECUTABLE})
 endif()
 
 enable_testing()
-set(CMAKE_CTEST_ARGUMENTS "--verbose --progress --output-on-failure")
 add_subdirectory(mutator)
 add_subdirectory(luzer)
 
