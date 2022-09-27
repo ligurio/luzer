@@ -201,18 +201,12 @@ assert(err ~= nil)
 
 -- luzer._set_custom_mutator()
 local magic_number = 51
-local fn = function() return magic_number end
+local custom_mutator = function() return magic_number end
 assert(luzer_custom_mutator == nil)
-luzer._set_custom_mutator(fn)
+luzer._set_custom_mutator(custom_mutator)
 assert(luzer_custom_mutator ~= nil)
 assert(type(luzer_custom_mutator) == "function")
 assert(luzer_custom_mutator() == magic_number)
 luzer_custom_mutator = nil -- Clean up.
-
--- luzer._call_custom_mutator()
-local mutator = function(data, _max_size, _seed) return data end
-luzer._set_custom_mutator(mutator)
--- FIXME: local data = luzer._call_custom_mutator("xxx", 3, 4, 15)
--- FIXME: assert(data ~= nil)
 
 print("Success!")
