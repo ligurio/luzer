@@ -17,12 +17,13 @@ int __sanitizer_cov_trace_basic_block(int id) {
 #define LHASH_MAGIC_MULT 0x01000193
 #define LHASH_NEXT(x)    h = ((h ^ (unsigned char)(x)) * LHASH_MAGIC_MULT)
 
-static inline unsigned int lhash(const char *key, size_t offset) {
-    const char *const last = &key[strlen(key) - 1];
-    uint32_t h = LHASH_INIT;
-    while (key <= last)               LHASH_NEXT(*key++);
-    for (; offset != 0; offset >>= 8) LHASH_NEXT(offset);
-    return h;
+static inline unsigned int lhash(const char *key, size_t offset)
+{
+	const char *const last = &key[strlen(key) - 1];
+	uint32_t h = LHASH_INIT;
+	while (key <= last)               LHASH_NEXT(*key++);
+	for (; offset != 0; offset >>= 8) LHASH_NEXT(offset);
+	return h;
 }
 
 static unsigned int current_location;
@@ -36,14 +37,15 @@ static unsigned int current_location;
 // or before the monkey-patching, this wrapper should be applied to the
 // main function of the coroutine. Under LuaJIT this function is redundant,
 // as there is only one, global debug hook.
-void debug_hook(lua_State *L, lua_Debug *ar) {
-    lua_getinfo(L, "Sln", ar);
-    if (ar && ar->source && ar->currentline) {
-        //const unsigned int new_location = lhash(ar->source, ar->currentline) % afl_shm_size;
-        const unsigned int new_location = lhash(ar->source, ar->currentline);
-        //afl_shm[current_location ^ new_location] += 1;
-        current_location = new_location / 2;
-    }
+void debug_hook(lua_State *L, lua_Debug *ar)
+{
+	lua_getinfo(L, "Sln", ar);
+	if (ar && ar->source && ar->currentline) {
+		//const unsigned int new_location = lhash(ar->source, ar->currentline) % afl_shm_size;
+		const unsigned int new_location = lhash(ar->source, ar->currentline);
+		//afl_shm[current_location ^ new_location] += 1;
+		current_location = new_location / 2;
+	}
 
 	// distinquish event type
 	// printf("event %d\n", ar->event);
@@ -60,7 +62,7 @@ void debug_hook(lua_State *L, lua_Debug *ar) {
 	//printf("ar->short_src %s\n", ar->short_src);
 	//printf("ar->what (Lua/C) %s\n", ar->what);
 	//printf("=====================================================\n");
-    //__sanitizer_cov_trace_cmp8(1, 2);
+	//__sanitizer_cov_trace_cmp8(1, 2);
 	//__sanitizer_cov_trace_pc();
 	__sanitizer_cov_trace_basic_block(current_location);
 }

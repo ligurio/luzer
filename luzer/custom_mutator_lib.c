@@ -7,7 +7,7 @@
 
 size_t
 LLVMFuzzerCustomMutator(uint8_t* data, size_t size,
-                        size_t max_size, unsigned int seed)
+						size_t max_size, unsigned int seed)
 {
 	//lua_State *L = get_global_lua_stack();
 	printf("LLVMFuzzerCustomMutator\n");

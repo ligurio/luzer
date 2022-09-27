@@ -31,9 +31,9 @@ luaL_consume_string(lua_State *L)
 
 	std::string str = lfdp->fdp->ConsumeRandomLengthString(max_length);
 	const char *cstr = str.c_str();
-    lua_pushstring(L, cstr);
+	lua_pushstring(L, cstr);
 
-    return 1;
+	return 1;
 }
 
 /* Consumes a table with specified number of strings from the fuzzer input. */
@@ -54,14 +54,12 @@ luaL_consume_strings(lua_State *L)
 	for (int i = 1; i <= (int)count; i++) {
 		str = lfdp->fdp->ConsumeRandomLengthString(max_length);
 		cstr = str.c_str();
-		if (strlen(cstr) == 0)
-			break;
 		lua_pushnumber(L, i);
 		lua_pushstring(L, cstr);
 		lua_settable(L, -3);
 	}
 
-    return 1;
+	return 1;
 }
 
 /* Consumes a boolean from the fuzzer input. */
@@ -74,9 +72,9 @@ luaL_consume_boolean(lua_State *L)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_boolean()");
 
 	bool b = lfdp->fdp->ConsumeBool();
-    lua_pushboolean(L, (int)b);
+	lua_pushboolean(L, (int)b);
 
-    return 1;
+	return 1;
 }
 
 /* Consumes a table with specified number of booleans from the fuzzer input. */
@@ -97,7 +95,7 @@ luaL_consume_booleans(lua_State *L)
 		lua_settable(L, -3);
 	}
 
-    return 1;
+	return 1;
 }
 
 /* Consumes a float from the fuzzer input. */
@@ -114,9 +112,9 @@ luaL_consume_number(lua_State *L)
 		luaL_error(L, "min must be less than or equal to max");
 
 	auto number = lfdp->fdp->ConsumeFloatingPointInRange(min, max);
-    lua_pushnumber(L, number);
+	lua_pushnumber(L, number);
 
-    return 1;
+	return 1;
 }
 
 /* Consumes a table with specified number of numbers from the fuzzer input. */
@@ -135,13 +133,13 @@ luaL_consume_numbers(lua_State *L)
 
 	lua_newtable(L);
 	for (int i = 1; i <= count; i++) {
-	    auto number = lfdp->fdp->ConsumeFloatingPointInRange(min, max);
+		auto number = lfdp->fdp->ConsumeFloatingPointInRange(min, max);
 		lua_pushnumber(L, i);
 		lua_pushnumber(L, number);
 		lua_settable(L, -3);
 	}
 
-    return 1;
+	return 1;
 }
 
 /* Consumes an arbitrary int or an int between min and max from the fuzzer
@@ -159,9 +157,9 @@ luaL_consume_integer(lua_State *L)
 		luaL_error(L, "min must be less than or equal to max");
 
 	auto number = lfdp->fdp->ConsumeIntegralInRange(min, max);
-    lua_pushnumber(L, number);
+	lua_pushnumber(L, number);
 
-    return 1;
+	return 1;
 }
 
 /* Consumes an int array from the fuzzer input. */
@@ -180,7 +178,7 @@ luaL_consume_integers(lua_State *L)
 
 	lua_newtable(L);
 	for (int i = 1; i <= (int)count; i++) {
-	    auto number = lfdp->fdp->ConsumeIntegralInRange(min, max);
+		auto number = lfdp->fdp->ConsumeIntegralInRange(min, max);
 		lua_pushnumber(L, i);
 		lua_pushinteger(L, number);
 		lua_settable(L, -3);
@@ -198,9 +196,9 @@ luaL_consume_probability(lua_State *L)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_probability()");
 
 	auto probability = lfdp->fdp->ConsumeFloatingPointInRange(0.0, 1.0);
-    lua_pushnumber(L, probability);
+	lua_pushnumber(L, probability);
 
-    return 1;
+	return 1;
 }
 
 /* Returns the number of unconsumed bytes in the fuzzer input. */
@@ -213,9 +211,9 @@ luaL_remaining_bytes(lua_State *L)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:remaining_bytes()");
 
 	size_t sz = lfdp->fdp->remaining_bytes();
-    lua_pushnumber(L, sz);
+	lua_pushnumber(L, sz);
 
-    return 1;
+	return 1;
 }
 
 static int close(lua_State *L) {
