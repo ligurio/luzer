@@ -8,6 +8,7 @@
 требованиями к качеству и стабильности и интересуется рандомизированным
 тестированием.
 
+https://cyruscyliu.github.io/posts/2021-11-02-libFuzzer-cov-control/
 https://go-talks.appspot.com/github.com/dvyukov/go-fuzz/slides/go-fuzz.slide
 https://go-talks.appspot.com/github.com/dvyukov/go-fuzz/slides/fuzzing.slide
 
@@ -47,13 +48,18 @@ related vulnerabilities.
 
 ## Интеграция с AFL
 
+- https://lcamtuf.coredump.cx/afl/technical_details.txt
+- https://lcamtuf.blogspot.com/2014/10/fuzzing-binaries-without-execve.html
+- https://github.com/google/fuzzing/blob/master/docs/afl-based-fuzzers-overview.md
 - https://aflplus.plus/rC3_talk_2020.pdf
 - https://lcamtuf.blogspot.com/2014/10/fuzzing-binaries-without-execve.html
 - для AFL есть интеграция с Python, Ruby
 - давайте сделаем интеграцию с Lua
 - AFL++/AFL поддерживают интеграцию с помощью тн forkserver
-- AFL и вспомогательный модуль взаимодействуют через разделяемую область в памяти, где сохраняется информация о покрытых базовых блоках (aka basic blocks)
-- вспомогательный модуль с помощью стандартной библиотеки записывает информацию о покрытых блоках в разделяемую память
+- AFL и вспомогательный модуль взаимодействуют через разделяемую область в
+памяти, где сохраняется информация о покрытых базовых блоках (aka basic blocks)
+- вспомогательный модуль с помощью стандартной библиотеки записывает информацию
+о покрытых блоках в разделяемую память
 - AFL генерирует новые данные для фаззинга с учетом информации о покрытых блоках
 
 ## Интеграция с LibFuzzer

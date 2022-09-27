@@ -42,3 +42,4 @@ ProtoBuf implementations:
 - C module for Lua manipulating Google's protobuf protocol, both for version 2
   and 3 syntax and semantics.
   https://github.com/starwing/lua-protobuf
+- Python https://blog.trailofbits.com/2016/05/18/protofuzz-a-protobuf-fuzzer/
