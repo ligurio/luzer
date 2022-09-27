@@ -212,7 +212,7 @@ luzer_custom_mutator = nil -- Clean up.
 -- luzer._call_custom_mutator()
 local mutator = function(data, _max_size, _seed) return data end
 luzer._set_custom_mutator(mutator)
--- local data = luzer._call_custom_mutator("xxx", 3, 4, 15)
--- assert(data ~= nil)
+-- FIXME: local data = luzer._call_custom_mutator("xxx", 3, 4, 15)
+-- FIXME: assert(data ~= nil)
 
 print("Success!")
