@@ -18,3 +18,25 @@
 - общие свойства на основе Lua метатаблиц - https://github.com/luc-tielen/lua-quickcheck/issues/33
 - автоматически генерировать тесты для Си
 - автоматически генерировать тесты для Lua
+
+## Companion tools
+
+Testing could be more rigorous with using these tools:
+
+- `Lua` https://github.com/fab13n/checks
+- `Lua` https://github.com/tarantool/checks
+- `Lua` https://github.com/luc-tielen/lua-quickcheck
+- `C/C++` Address Sanitizer
+- `C/C++` Memory Sanitizer
+- `C/C++` Undefined Behavior Sanitizer
+- `C/C++` Thread Sanitizer
+
+## Promote:
+
+- https://groups.google.com/g/libfuzzer
+- https://github.com/uhub/awesome-lua
+- lobsters
+- группа в телеграме про фаззинг для ФСТЭК
+- ZeroBrane Studio?
+- opennet https://www.opennet.ru/opennews/art.shtml?num=54204
+- https://www.reddit.com/r/fuzzing/
