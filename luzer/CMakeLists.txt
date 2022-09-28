@@ -66,7 +66,7 @@ set_tests_properties(luzer_test PROPERTIES
 #  RENAME luzer.so
 #)
 
-install(TARGETS custom_mutator
+install(
+  TARGETS custom_mutator
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )

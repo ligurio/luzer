@@ -1,8 +1,8 @@
 ### TODO:
 
-- починить custom_mutator(), LLVMFuzzerCustomCrossover()
+- тесты для custom_mutator()
 - трейсинг
-- передавать опции libfuzzer в таблице
+- передавать опции командной строки для libfuzzer в таблице
 
 - добавить `oneof()` для выбора случайного элемента в таблице
 - `consume_byte()` https://github.com/luc-tielen/lua-quickcheck/blob/master/lqc/generators/byte.lua
