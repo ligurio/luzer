@@ -2,7 +2,7 @@ package.cpath = "./?.so"
 
 local luzer = require("luzer")
 
-local function TestOneInput(buf, _size)
+local function TestOneInput(buf)
     local fdp = luzer.FuzzedDataProvider(buf)
     local str = fdp:consume_string(1)
     if str == "c" then

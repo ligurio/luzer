@@ -2,6 +2,8 @@ files["mutator/mutator_example.lua"] = {
     globals = {
         "LLVMFuzzerCustomMutator",
         "LLVMFuzzerMutate",
+
+        "luzer_custom_mutator",
     },
 }
 
