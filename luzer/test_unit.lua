@@ -1,6 +1,7 @@
 package.cpath = "./?.so"
 
 local luzer = require("luzer")
+local math = require("math")
 
 local function trace(_, line)
     local s = debug.getinfo(2).short_src
@@ -207,6 +208,27 @@ luzer._set_custom_mutator(custom_mutator)
 assert(luzer_custom_mutator ~= nil)
 assert(type(luzer_custom_mutator) == "function")
 assert(luzer_custom_mutator() == magic_number)
+luzer_custom_mutator = nil -- Clean up.
+
+-- luzer._mutate()
+local mutator_data
+local function custom_mutator(data, size, max_size, seed)
+    --assert(type(data) == "string")
+    --assert(#data ~= 0)
+    --assert(type(size) == "number")
+    --assert(type(max_size) == "number")
+    --assert(type(seed) == "number")
+    mutator_data = data
+    return data
+end
+luzer._set_custom_mutator(custom_mutator)
+assert(luzer_custom_mutator ~= nil)
+local buf = "luzer"
+local size = #buf
+local max_size = #buf
+local seed = math.random(1, 10)
+luzer._mutate(buf, size, max_size, seed)
+--assert(mutator_data == buf)
 luzer_custom_mutator = nil -- Clean up.
 
 print("Success!")

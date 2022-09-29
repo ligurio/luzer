@@ -52,12 +52,22 @@ set_target_properties(custom_mutator PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(custom_mutator PROPERTIES SOVERSION 1)
 
 add_test(
-  NAME luzer_test
-  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test.lua
+  NAME luzer_unit_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_unit.lua
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
-set_tests_properties(luzer_test PROPERTIES
+set_tests_properties(luzer_unit_test PROPERTIES
   ENVIRONMENT "LUA_CPATH='./${CMAKE_CURRENT_BINARY_DIR}/?.so;'"
+)
+
+add_test(
+  NAME luzer_e2e_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_e2e.lua
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_e2e_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH='./${CMAKE_CURRENT_BINARY_DIR}/?.so;'"
+  PASS_REGULAR_EXPRESSION "test_e2e.lua:9: assertion failed"
 )
 
 #install(
