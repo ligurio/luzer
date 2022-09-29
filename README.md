@@ -177,7 +177,7 @@ Learn more about fuzzing with libFuzzer and structure-aware fuzzing using
 ## Using Custom Mutators Written In Lua
 
 `luzer` allows [custom mutators][libfuzzer-mutators-url] to be written in Lua 5.1
-(including Lua-JIT), 5.2, 5.3 or 5.4.
+(including LuaJIT), 5.2, 5.3 or 5.4.
 
 The environment variable `LIBFUZZER_CUSTOM_MUTATOR_LUA_SCRIPT` can be set to
 the path to the Lua mutator script. The default path is
