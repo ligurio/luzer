@@ -40,6 +40,5 @@ local function TestOneInput(buf, _size)
     assert(txt2 == buf)
 end
 
-luzer.Setup(arg, TestOneInput)
-
+luzer.Setup(TestOneInput, nil, {})
 luzer.Fuzz()

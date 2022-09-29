@@ -4,5 +4,13 @@ local uri = require('uri')
 -- "uri.format"
 -- "uri.parse"
 
-local res = uri.parse('%20a@h')
-assert(res ~= nil)
+local function TestOneInput(data)
+    local res = uri.parse(data)
+    assert(res ~= nil)
+end
+
+local args = {
+    only_ascii = 1,
+}
+luzer.Setup(TestOneInput, nil, args)
+luzer.Fuzz()

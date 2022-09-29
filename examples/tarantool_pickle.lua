@@ -11,7 +11,9 @@ local function TestOneInput(buf)
     end
 end
 
-local arg1 = { "-max_len=4096", "-max_len=4096", "-only_ascii=1", "./corpus/" }
-
-luzer.Setup(arg1, TestOneInput)
+local args = {
+    max_len = 4096,
+    only_ascii = 1,
+}
+luzer.Setup(TestOneInput, nil, args)
 luzer.Fuzz()
