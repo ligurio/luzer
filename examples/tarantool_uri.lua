@@ -1,4 +1,5 @@
-local uri = require('uri')
+local uri = require("uri")
+local luzer = require("luzer")
 
 -- "uri.parse_many"
 -- "uri.format"

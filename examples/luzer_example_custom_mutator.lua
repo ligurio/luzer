@@ -2,11 +2,11 @@ package.cpath = "./?.so"
 
 local luzer = require("luzer")
 
-local function custom_mutator(buf, _max_size, _seed)
+local function custom_mutator(buf)
     return buf .. "xxx"
 end
 
-local function TestOneInput(buf, _size)
+local function TestOneInput(buf)
     local fdp = luzer.FuzzedDataProvider(buf)
     local str = fdp:consume_string(5)
 

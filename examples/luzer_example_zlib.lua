@@ -34,7 +34,7 @@ local function uncompress(comp, n)
   return ffi.string(buf, buflen[0])
 end
 
-local function TestOneInput(buf, _size)
+local function TestOneInput(buf)
     local c = compress(buf)
     local txt2 = uncompress(c, #buf)
     assert(txt2 == buf)

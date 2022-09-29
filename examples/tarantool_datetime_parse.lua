@@ -1,7 +1,7 @@
 local luzer = require("luzer")
 local dt = require("datetime")
 
-local function TestOneInput(buf, _size)
+local function TestOneInput(buf)
     local ok, res = pcall(dt.parse, buf)
     if ok == true then
         assert(res ~= nil)

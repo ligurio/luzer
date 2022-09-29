@@ -40,7 +40,7 @@ local luzer = require("luzer")
 "yaml.encode"
 ]]
 
-local function TestOneInput(buf, _size)
+local function TestOneInput(buf)
     local obj = yaml.decode(buf)
     yaml.encode(obj)
 end

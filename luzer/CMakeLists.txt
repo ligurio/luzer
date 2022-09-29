@@ -70,11 +70,11 @@ set_tests_properties(luzer_e2e_test PROPERTIES
   PASS_REGULAR_EXPRESSION "test_e2e.lua:9: assertion failed"
 )
 
-#install(
-#  TARGETS ${PROJECT_NAME}
-#  DESTINATION ${CMAKE_SYSTEM_PREFIX_PATH}
-#  RENAME luzer.so
-#)
+install(
+  TARGETS ${PROJECT_NAME}
+  DESTINATION ${CMAKE_SYSTEM_PREFIX_PATH}
+  RENAME luzer.so
+)
 
 install(
   TARGETS custom_mutator
