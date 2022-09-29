@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <string.h>
 
 #include <dlfcn.h>
 
@@ -20,13 +21,13 @@
 
 static lua_State *LL;
 
-void
+static void
 set_global_lua_stack(lua_State *L)
 {
 	LL = L;
 }
 
-lua_State *
+static lua_State *
 get_global_lua_stack()
 {
 	if (!LL)
@@ -87,13 +88,14 @@ luaL_mutate(lua_State *L)
 
 	lua_getglobal(L, CUSTOM_MUTATOR_FUNC);
 	if (lua_isfunction(L, -1) != 1) {
-		lua_pop(L, 1);
+		lua_settop(L, 0);
 		luaL_error(L, "no luzer_custom_mutator is defined");
 	}
 	lua_call(L, 4, 1);
 
 	/*
 	if (sizeof(data) > max_size)
+		lua_settop(L, 0);
 		luaL_error(L, "The mutated data cannot be larger than max_size.");
 	*/
 
@@ -110,7 +112,6 @@ luaL_set_custom_mutator(lua_State *L)
 {
 	if (lua_isfunction(L, -1) != 1)
 		luaL_error(L, "custom_mutator is not a Lua function.");
-
 	lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
 
 	return 0;
@@ -121,8 +122,8 @@ luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
 {
 	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
 	if (lua_isfunction(L, -1) != 1) {
-		luaL_error(L, "no luzer_test_one_input is defined");
 		lua_settop(L, 0);
+		luaL_error(L, "no luzer_test_one_input is defined");
 	}
 	lua_pushstring(L, (const char *)data);
 	lua_pushnumber(L, size);
@@ -142,49 +143,63 @@ TestOneInput(const uint8_t* data, size_t size) {
 	return luaL_test_one_input(L, data, size);
 }
 
-NO_SANITIZE static int
+NO_SANITIZE int
 luaL_setup(lua_State *L)
 {
-	// Argument: libfuzzer arguments.
-	if (!lua_istable(L, 1))
-		luaL_error(L, "arg is not a table");
-
-#if LUA_VERSION_NUM == 501
-	argc = lua_objlen(L, 1);
-#else
-	argc = lua_rawlen(L, 1);
-#endif
-	argv = malloc((argc + 1) * sizeof(char*));
+	if (lua_istable(L, -1) == 0) {
+		luaL_error(L, "opts is not a table");
+	}
 	lua_pushnil(L);
 	int i = 0;
-	// FIXME: first argument is ignored.
-	while (lua_next(L, 1) != 0) {
-		const char *arg = luaL_checkstring(L, -1);
+	argv = malloc(1 * sizeof(char*));
+	if (!argv)
+		luaL_error(L, "not enough memory");
+	while (lua_next(L, -2) != 0) {
+		char **argvp = realloc(argv, sizeof(char*) * (i + 1));
+		if (argvp == NULL) {
+			free(argv);
+			luaL_error(L, "not enough memory");
+		}
+		const char *key = lua_tostring(L, -2);
+		const char *value = lua_tostring(L, -1);
+		size_t arg_str_size = strlen(key) + strlen(value) + 3;
+		char *arg = malloc(arg_str_size);
+		snprintf(arg, arg_str_size, "-%s=%s", key, value);
+		argvp[i] = (char *)arg;
 		lua_pop(L, 1);
-		argv[i] = malloc(sizeof(arg));
-		argv[i] = (char*)arg;
 		i++;
+		argv = argvp;
 	}
-	argv[i] = NULL;
-	lua_remove(L, 1);
+	argv[i] = NULL; /* not needed actually */
+	argc = i;
+	lua_pop(L, 1);
 
-	// Argument: test_one_input.
-	if (lua_isfunction(L, 1) != 1)
+	/*
+	char **p = argv;
+	while(*p++) {
+		printf("arg %s\n", *p);
+	}
+	*/
+
+	if (!lua_isnil(L, -1)) {
+		if (lua_isfunction(L, -1) == 1) {
+			luaL_set_custom_mutator(L);
+			void* custom_mutator_lib = dlopen(CUSTOM_MUTATOR_LIB, RTLD_LAZY);
+			if (!custom_mutator_lib)
+				luaL_error(L, "shared library libcustom_mutator.so.1 is not available");
+			void* custom_mutator = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
+			if (!custom_mutator)
+				luaL_error(L, "loading library is failed");
+			dlclose(custom_mutator_lib);
+		}
+	} else
+		lua_pop(L, 1);
+
+	if (lua_isfunction(L, -1) != 1) {
+		printf("test_one_input %s\n", lua_typename(L, lua_type(L, -1)));
 		luaL_error(L, "test_one_input is not a Lua function.");
-
-	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
-
-	// Argument: custom_mutator.
-	if (lua_isfunction(L, 1) == 1) {
-		luaL_set_custom_mutator(L);
-		void* custom_mutator_lib = dlopen(CUSTOM_MUTATOR_LIB, RTLD_LAZY);
-		if (!custom_mutator_lib)
-			luaL_error(L, "shared library ./libcustom_mutator.so.1 is not available");
-		void* custom_mutator = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
-		if (!custom_mutator)
-			luaL_error(L, "custom_mutator is not available");
-		dlclose(custom_mutator_lib);
 	}
+	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
 
 	// TODO: trash/atheris/src/native/core.cc
 	// TODO: __sanitizer_cov_8bit_counters_init(1, 10000);
