@@ -10,6 +10,7 @@
 extern "C" {
 #endif
 int luaL_error(lua_State *L, const char *fmt, ...);
+size_t lua_objlen(lua_State *L, int index);
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
