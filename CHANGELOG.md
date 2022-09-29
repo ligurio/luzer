@@ -12,4 +12,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration with libFuzzer's `TestOneInput()`.
 - Integration with libFuzzer's `CustomMutator()`.
 - Integration with libFuzzer's `FuzzedDataProvider`.
-- Integration with libFuzzer's `CustomMutator`

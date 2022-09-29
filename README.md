@@ -90,15 +90,15 @@ the code coverage the existing corpus already provides.
 
 The luzer module provides two key functions: `Setup()` and `Fuzz()`.
 
-`Setup(args, test_one_input, custom_mutator)`
-- `args`: A list of strings: the process arguments to pass to the fuzzer,
-  typically `arg`. This argument list may be modified in-place, to remove
-  arguments consumed by the fuzzer. See the [libFuzzer docs][libfuzzer-options-url]
-  for a list of such options.
-- `test_one_input`: Your fuzzer's entry point. Must take a single bytes
-  argument. This will be repeatedly invoked with a single bytes container.
-- `custom_mutator`: Define a custom mutator function (equivalent to
+`Setup(test_one_input, custom_mutator, args)`
+- `test_one_input` is a fuzzer's entry point, it is a function that must take a
+  single bytes argument. This will be repeatedly invoked with a single bytes
+  container.
+- `custom_mutator` defines a custom mutator function (equivalent to
   `LLVMFuzzerCustomMutator`). Default is `nil`.
+- `args` is a table with arguments: the process arguments to pass to the
+  fuzzer. See the [libFuzzer docs][libfuzzer-options-url] for a list of such
+  options.
 
 `require_instrument` imports Lua module in the same way as the standard
 function `require`, but adds module's functions to whitelist used for gathering
