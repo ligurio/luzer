@@ -211,14 +211,14 @@ assert(luzer_custom_mutator() == magic_number)
 luzer_custom_mutator = nil -- Clean up.
 
 -- luzer._mutate()
---[[
 local mutator_data
 local function custom_mutator(data, size, max_size, seed)
-    --assert(type(data) == "string")
-    --assert(#data ~= 0)
-    --assert(type(size) == "number")
-    --assert(type(max_size) == "number")
-    --assert(type(seed) == "number")
+    assert(type(data) == "string")
+    assert(#data ~= 0)
+    assert(type(size) == "number")
+    assert(size == #buf)
+    assert(type(max_size) == "number")
+    assert(type(seed) == "number")
     mutator_data = data
     return data
 end
@@ -228,9 +228,8 @@ local buf = "luzer"
 local size = #buf
 local max_size = #buf
 local seed = math.random(1, 10)
-luzer._mutate(buf, size, max_size, seed)
+--luzer._mutate(buf, size, max_size, seed)
 --assert(mutator_data == buf)
 luzer_custom_mutator = nil -- Clean up.
-]]
 
 print("Success!")

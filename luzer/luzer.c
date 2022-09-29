@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <string.h>
-
 #include <dlfcn.h>
 
 #include "fuzzed_data_provider.h"
@@ -27,7 +26,7 @@ set_global_lua_stack(lua_State *L)
 	LL = L;
 }
 
-static lua_State *
+lua_State *
 get_global_lua_stack()
 {
 	if (!LL)
@@ -57,6 +56,7 @@ int LLVMFuzzerRunDriver(int* argc, char*** argv,
 // Called in libfuzzer_driver.cpp.
 void __sanitizer_set_death_callback(void (*callback)())
 {
+	/* cleanup(); */
 }
 
 // Suppress libFuzzer warnings about missing sanitizer methods in non-sanitizer
@@ -82,25 +82,16 @@ luaL_mutate(lua_State *L)
 {
 	int index = lua_gettop(L);
 	if (index != 4) {
-		lua_pop(L, index);
 		luaL_error(L, "required arguments: data, size, max_size, seed");
 	}
-
 	lua_getglobal(L, CUSTOM_MUTATOR_FUNC);
 	if (lua_isfunction(L, -1) != 1) {
-		lua_settop(L, 0);
 		luaL_error(L, "no luzer_custom_mutator is defined");
 	}
-	lua_call(L, 4, 1);
-
-	/*
-	if (sizeof(data) > max_size)
-		lua_settop(L, 0);
-		luaL_error(L, "The mutated data cannot be larger than max_size.");
-	*/
+	lua_insert(L, 5);
+	lua_call(L, 6, 1);
 
 	if (lua_isstring(L, -1) != 1) {
-		lua_pop(L, -1);
 		luaL_error(L, "_mutate() must return a string");
 	}
 
@@ -118,15 +109,14 @@ luaL_set_custom_mutator(lua_State *L)
 }
 
 NO_SANITIZE static int
-luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
+luaL_test_one_input(lua_State *L)
 {
 	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
 	if (lua_isfunction(L, -1) != 1) {
 		lua_settop(L, 0);
 		luaL_error(L, "no luzer_test_one_input is defined");
 	}
-	lua_pushstring(L, (const char *)data);
-	lua_pushnumber(L, size);
+	lua_insert(L, -3);
 	lua_call(L, 2, 1);
 
 	int rc = 0;
@@ -140,7 +130,10 @@ luaL_test_one_input(lua_State *L, const uint8_t* data, size_t size)
 NO_SANITIZE int
 TestOneInput(const uint8_t* data, size_t size) {
 	lua_State *L = get_global_lua_stack();
-	return luaL_test_one_input(L, data, size);
+	lua_pushstring(L, (const char *)data);
+	lua_pushnumber(L, size);
+
+	return luaL_test_one_input(L);
 }
 
 NO_SANITIZE int

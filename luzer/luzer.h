@@ -4,6 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+	lua_State * get_global_lua_stack();
 	int luaL_mutate(lua_State *L);
 #ifdef __cplusplus
 } /* extern "C" */
