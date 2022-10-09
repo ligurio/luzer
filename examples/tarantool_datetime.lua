@@ -105,7 +105,12 @@ local function random_fmt()
 end
 
 local function new_dt()
+    local tz = math.random(1, #datetime.TZ)
     local d = 0
+	--[[
+	Day number. Value range: 1 - 31. The special value -1 generates the last
+	day of a particular month.
+	]]
     while d == 0 do
         d = math.random(-1, math.random(1, 31))
     end
@@ -122,7 +127,7 @@ local function new_dt()
         month     = math.random(1, 12),
         year      = math.random(MIN_DATE_YEAR, MAX_DATE_YEAR),
         tzoffset  = math.random(-720, 840),
-        tz        = 'MSK'  -- FIXME: support tz names (datetime.TZ)
+        tz        = tz,
     }
 end
 
@@ -314,6 +319,8 @@ end
 
 local args = {
     only_ascii = 1,
+    max_total_time = 10,
+    max_len = 2048,
 }
 luzer.Setup(TestOneInput, nil, args)
 luzer.Fuzz()
