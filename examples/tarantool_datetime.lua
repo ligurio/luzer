@@ -46,7 +46,6 @@ queries or aggregation
 "datetime.parse"
 "datetime.is_datetime"
 "datetime.interval"
-"datetime.new"
 ]]
 
 local math = require('math')
@@ -61,7 +60,7 @@ local MAX_DATE_YEAR = 5879611
 
 local now_dt = datetime.now
 
-local function random_fmt()
+local function new_dt_fmt(fdp)
 	-- Field descriptors.
   	local desc = {
                 '%a',
@@ -94,11 +93,11 @@ local function random_fmt()
                 '%y',
                 '%Y',
 	}
-	local n = math.random(1, #desc)
+	local n = fdp:consume_integer(1, 5)
 	local fmt = ''
 	for i = 1, n do
-            local idx = math.random(1, n)
-            fmt = fmt .. desc[idx]
+        local field_idx = fdp:consume_integer(1, #desc)
+        fmt = ("%s%s"):format(fmt, desc[field_idx])
 	end
 
 	return fmt
@@ -141,7 +140,6 @@ local min_dt = {
     month     = 1,
     year      = MIN_DATE_YEAR,
     tzoffset  = -720,
-    tz        = 'MSK'  -- FIXME: support tz names (datetime.TZ)
 }
 
 -- Maximum supported date - 5879611-07-11.
@@ -154,7 +152,6 @@ local max_dt = {
     month     = 12,
     year      = MAX_DATE_YEAR,
     tzoffset  = 840,
-    tz        = 'MSK'  -- FIXME: support tz names (datetime.TZ)
 }
 
 -- https://docs.microsoft.com/en-us/office/troubleshoot/excel/determine-a-leap-year
@@ -190,12 +187,12 @@ local function TestOneInput(buf)
         return
     end
 
-    local datetime_fmt = random_fmt()
+    local datetime_fmt = new_dt_fmt(fdp)
 
     -- Property: datetime.parse(dt:format(random_format)) == dt
     dt1 = datetime.new(time_units1)
     local dt1_str = dt1:format(datetime_fmt)
-    -- TODO: assert(datetime.parse(dt1_str) == dt1)
+    assert(datetime.parse(dt1_str, { format = datetime_fmt }) == dt1)
 
     -- Property: B - (B - A) == A
     -- Blocked by: https://github.com/tarantool/tarantool/issues/7145
