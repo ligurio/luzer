@@ -35,10 +35,15 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	-fsanitize=fuzzer-no-link
 )
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
+	-D_FORTIFY_SOURCE=2
+	-fpie
+	-fPIC
 	-Wall
 	-Wextra
+	-Werror
 	-Wpedantic
 	-Wno-unused-parameter
+	-pedantic
 	-g
 	-fsanitize=fuzzer-no-link
 )
