@@ -1,0 +1,5 @@
+```
+$ LDFLAGS="-fsanitize-coverage=trace-cmp,trace-div,trace-gep,func,trace-pc-guard,pc-table,inline-bool-flag" CFLAGS="-fsanitize-coverage=trace-cmp,trace-div,trace-gep,func,trace-pc-guard,pc-table,inline-bool-flag" CC=clang-14 CXX=clang++-14 cmake -B build/ -S . -G Ninja
+
+$ CC=clang-14 CXX=clang++-14 cmake -B build/ -S . -G Ninja -DENABLE_UB_SANITIZER=ON
+```

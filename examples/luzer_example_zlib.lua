@@ -40,5 +40,8 @@ local function TestOneInput(buf)
     assert(txt2 == buf)
 end
 
-luzer.Setup(TestOneInput, nil, {})
+local args = {
+    max_len = 4096,
+}
+luzer.Setup(TestOneInput, nil, args)
 luzer.Fuzz()

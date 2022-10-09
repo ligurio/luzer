@@ -20,12 +20,15 @@ end
 local cmp_cb = ffi.cast("int (*)(const char *, const char *)", cmp)
 
 local function TestOneInput(buf, size)
-    local bytes = ffi.new(("char[%s]"):format(size))
-    ffi.copy(bytes, buf, size)
-    ffi.C.qsort(bytes, size, 10, cmp_cb)
+    --assert(size == #buf)
+	local sz = #buf
+    local bytes = ffi.new(("char[%s]"):format(sz))
+    ffi.copy(bytes, buf, sz)
+    ffi.C.qsort(bytes, sz, 10, cmp_cb)
     local sorted = ffi.string(bytes, ffi.sizeof(bytes))
+    collectgarbage()
 
-    assert(#sorted == #buf)
+    --assert(#sorted == #buf)
 
     -- local t = {}
     -- buf:gsub(".", function(c) table.insert(t, c) end)
@@ -36,7 +39,6 @@ end
 
 local args = {
     max_len = 4096,
-    only_ascii = 1,
 }
 luzer.Setup(TestOneInput, nil, args)
 luzer.Fuzz()

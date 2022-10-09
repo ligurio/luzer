@@ -11,6 +11,35 @@
     https://github.com/dateutil/dateutil/blob/master/tests/test_tz.py
     https://github.com/Zac-HD/stdlib-property-tests/blob/master/tests/test_datetime.py
 
+датой и временем - datetime. В этом типе таится много нюансов: високосные
+года и секунда, таймзоны, DST (перевод часов на зимнее и летнее время). Из-за
+високосной секунды может быть время 23:59:60 и даже 23:59:61, 29 февраля
+бывает только в високосный год, причем иногда переход на DST может
+происходить два раза в год. С этим типом связано какое-то невероятное
+количество ошибок. Я даже писал заметку про баг в Excel, там до сих пор для
+совместимости с предыдущими версиями 1900-й год считается високосным, хотя он
+не високосный. Одно время Microsoft выпускала музыкальный плеер Zune и там
+тоже была проблема расчёта високосного года - 31 декабря в високосный год все
+плееры выключились.
+
+С таким количеством деталей идея применить тестирование с помощью свойств
+кажется очень заманчивой - генерировать тестовые примеры на всём диапазоне и
+проверять соответствие спецификации. Но я пересмотрел тесты для реализации
+datetime в Python и Go и всё тестирование там строится вокруг конкретных
+примеров. Хотя нет, вру, автор Hypothesis писал в своём блоге про тестирование
+парсинга даты из строки с помощью roundtrip - если напечатать дату в заданном
+формате в строку и распарсить её с тем же форматом, то результат должен
+совпасть с первоначальной датой. Но roundtrip это слишком просто, хотя тот же
+автор Hypothesis нашел с таким тестом проблему в базовой библиотеке Python. И
+автор книги Software testing: Craftsman approach разбирал тестирование функции
+NextDate().
+
+Несколько типов багов: переполнение, неверная арифметика, парсинг дат из строк.
+Those that lead to error conditions, such as exceptions, error return codes,
+uninitialized variables, or endless loops
+Those that lead to incorrect data, such as off-by-one problems in range
+queries or aggregation
+
 "datetime.new"
 "datetime.parse_date"
 "datetime.now"
@@ -18,88 +47,14 @@
 "datetime.is_datetime"
 "datetime.interval"
 "datetime.new"
-
-]]
-
---[[
-2012-12-24 15:30Z
-2012-12-24 15:30z
-2012-12-24 15:30
-2012-12-24 16:30+01:00
-2012-12-24 16:30+0100
-2012-12-24 16:30+01
-2012-12-24 14:30-01:00
-2012-12-24 14:30-0100
-2012-12-24 14:30-01
-2012-12-24 15:30:00Z
-2012-12-24 15:30:00z
-2012-12-24 15:30:00
-2012-12-24 16:30:00+01:00
-2012-12-24 16:30:00+0100
-2012-12-24 14:30:00-01:00
-2012-12-24 14:30:00-0100
-2012-12-24 15:30:00.123456Z
-2012-12-24 15:30:00.123456z
-2012-12-24 15:30:00.123456
-2012-12-24 16:30:00.123456+01:00
-2012-12-24 16:30:00.123456+01
-2012-12-24 14:30:00.123456-01:00
-2012-12-24 14:30:00.123456-01
-2012-12-24t15:30Z
-2012-12-24t15:30z
-2012-12-24t15:30
-2012-12-24t16:30+01:00
-2012-12-24t16:30+0100
-2012-12-24t14:30-01:00
-2012-12-24t14:30-0100
-2012-12-24t15:30:00Z
-2012-12-24t15:30:00z
-2012-12-24t15:30:00
-2012-12-24t16:30:00+01:00
-2012-12-24t16:30:00+0100
-2012-12-24t14:30:00-01:00
-2012-12-24t14:30:00-0100
-2012-12-24t15:30:00.123456Z
-2012-12-24t15:30:00.123456z
-2012-12-24t16:30:00.123456+01:00
-2012-12-24t14:30:00.123456-01:00
-2012-12-24 16:30 +01:00
-2012-12-24 14:30 -01:00
-2012-12-24 15:30 UTC
-2012-12-24 16:30 UTC+1
-2012-12-24 16:30 UTC+01
-2012-12-24 16:30 UTC+0100
-2012-12-24 16:30 UTC+01:00
-2012-12-24 14:30 UTC-1
-2012-12-24 14:30 UTC-01
-2012-12-24 14:30 UTC-01:00
-2012-12-24 14:30 UTC-0100
-2012-12-24 15:30 GMT
-2012-12-24 16:30 GMT+1
-2012-12-24 16:30 GMT+01
-2012-12-24 16:30 GMT+0100
-2012-12-24 16:30 GMT+01:00
-2012-12-24 14:30 GMT-1
-2012-12-24 14:30 GMT-01
-2012-12-24 14:30 GMT-01:00
-2012-12-24 14:30 GMT-0100
-2012-12-24 14:30 -01:00
-2012-12-24 16:30:00 +01:00
-2012-12-24 14:30:00 -01:00
-2012-12-24 16:30:00.123456 +01:00
-2012-12-24 14:30:00.123456 -01:00
-2012-12-24 15:30:00.123456 -00:00
-20121224T1630+01:00
-2012-12-24T1630+01:00
-20121224T16:30+01
-20121224T16:30 +01
 ]]
 
 local math = require('math')
 local datetime = require('datetime')
 local log = require('log')
+local luzer = require("luzer")
 
-math.randomseed(os.time())
+--math.randomseed(os.time())
 
 local MIN_DATE_YEAR = -5879610
 local MAX_DATE_YEAR = 5879611
@@ -199,7 +154,7 @@ local max_dt = {
 
 -- https://docs.microsoft.com/en-us/office/troubleshoot/excel/determine-a-leap-year
 local function isLeapYear(year)
-    -- bool leap = st.wYear % 4 == 0 && (st.wYear % 100 != 0 || st.wYear % 400 == 0); 
+    -- bool leap = st.wYear % 4 == 0 && (st.wYear % 100 != 0 || st.wYear % 400 == 0);
     if year%4 ~= 0 then
         return false
     elseif year%100 ~= 0 then
@@ -211,7 +166,7 @@ local function isLeapYear(year)
     end
 end
 
-local function getYear(is_leap)
+local function getLeapYear(is_leap)
     while true do
         local y = math.random(MIN_DATE_YEAR, MAX_DATE_YEAR)
         if isLeapYear(y) == is_leap then
@@ -220,122 +175,150 @@ local function getYear(is_leap)
     end
 end
 
--- Property: B - (B - A) == A
--- https://github.com/tarantool/tarantool/issues/7145
-local dt = new_dt()
-local new = datetime.new()
-local sub_dt = new - dt
-local add_dt = sub_dt + dt
--- BUG: assert(add_dt == new, '(A - B) + B != A')
+local function TestOneInput(buf)
+    local time_units1 = new_dt()
+    local time_units2 = new_dt()
+    local dt1, dt2
+    if not pcall(datetime.new, time_units1) or
+       not pcall(datetime.new, time_units2) then
+        return
+    end
 
--- Property: A - A == B - B
--- https://github.com/tarantool/tarantool/issues/7144
-local dt = datetime.new(new_dt())
-local now = now_dt()
--- BUG: assert(dt - dt == now - now, 'A - A != B - B')
+    local datetime_fmt = random_fmt()
 
--- Property: datetime.new(dt) == datetime.new():set(dt)
-local dt = new_dt()
-assert(datetime.new(dt) == datetime.new():set(dt), 'new(dt) != new():set(dt)')
+    -- Property: datetime.parse(dt:format(random_format)) == dt
+    dt1 = datetime.new(time_units1)
+    local dt1_str = dt1:format(datetime_fmt)
+    -- TODO: assert(datetime.parse(dt1_str) == dt1)
 
--- Property: dt == datetime.new(dt):totable()
-local dt = new_dt()
-table.equals(dt, datetime.new():totable())
-table.equals(dt, datetime.new())
+    -- Property: B - (B - A) == A
+    -- Blocked by: https://github.com/tarantool/tarantool/issues/7145
+    dt1 = datetime.new(time_units1)
+    dt2 = datetime.new(time_units2)
+    local sub_dt = dt1 - dt2
+    local add_dt = sub_dt + dt2
+    -- GH-7145 assert(add_dt == dt1, "(A - B) + B != A")
 
--- Property: datetime.parse(tostring(dt)):format() == tostring(dt)
-local dt = datetime.new(new_dt())
-local dt_iso8601 = datetime.parse(tostring(dt), {format = 'iso8601'}):format()
-assert(dt_iso8601 == tostring(dt), ('Parse roundtrip with iso8601 %s'):format(tostring(dt)))
-local dt_rfc3339 = datetime.parse(tostring(dt), {format = 'rfc3339'}):format()
-assert(dt_rfc3339 == tostring(dt), ('Parse roundtrip with rfc3339 %s'):format(tostring(dt)))
+    -- Property: A - A == B - B
+    -- https://github.com/tarantool/tarantool/issues/7144
+    dt1 = datetime.new(time_units1)
+    dt2 = datetime.new(time_units2)
+    assert(dt1 - dt1 == dt2 - dt2, "A - A != B - B")
 
--- Property: Formatted datetime is the same as produced by os.date().
-local dt = datetime.new(new_dt())
-local fmt = random_fmt()
--- Seems os.date() does not support negative epoch.
-if dt.epoch > 0 then
-    assert(os.date(fmt, dt.epoch) == dt:format(fmt), ('os.date("%s", %d) != dt:format("%s")'):format(fmt, dt.epoch, fmt))
+    -- Property: datetime.new(dt) == datetime.new():set(dt)
+    dt1 = datetime.new(time_units1)
+    assert(dt1 == datetime.new():set(time_units1), "new(dt) != new():set(dt)")
+
+    -- Property: dt == datetime.new(dt):totable()
+    dt1 = datetime.new(time_units1)
+    table.equals(dt1, dt1:totable())
+
+    -- Property: datetime.parse(tostring(dt)):format() == tostring(dt)
+    dt1 = datetime.new(time_units1)
+    dt2 = datetime.new(time_units2)
+    local dt_iso8601 = datetime.parse(tostring(dt1), {format = 'iso8601'}):format()
+    assert(dt_iso8601 == tostring(dt1), ('Parse roundtrip with iso8601 %s'):format(tostring(dt1)))
+    local dt_rfc3339 = datetime.parse(tostring(dt1), {format = 'rfc3339'}):format()
+    assert(dt_rfc3339 == tostring(dt1), ('Parse roundtrip with rfc3339 %s'):format(tostring(dt1)))
+
+    -- Property: in leap year last day in February is 29.
+    dt1 = datetime.new(time_units1)
+    dt1:set({
+        day = 01,
+        month = 02,
+        year = getLeapYear(true),
+    })
+    assert(dt1:set({ day = -1 }).day == 29, ("Last day in %s (leap year) is not a 29"):format(tostring(dt1)))
+
+    -- Property: in non-leap year last day in February is 28.
+    dt1 = datetime.new(time_units1)
+    dt1:set({
+        day = 01,
+        month = 02,
+        year = getLeapYear(false),
+    })
+    assert(dt1:set({ day = -1 }).day == 28, ("Last day in %s (non-leap year) is not a 28"):format(tostring(dt1)))
+
+    -- Property: Formatted datetime is the same as produced by os.date().
+    dt1 = datetime.new(time_units1)
+    -- Seems os.date() does not support negative epoch.
+    if dt1.epoch > 0 then
+        local msg = ('os.date("%s", %d) != dt:format("%s")'):format(datetime_fmt, dt1.epoch, datetime_fmt)
+        assert(os.date(datetime_fmt, dt1.epoch) == dt1:format(datetime_fmt), msg)
+    end
+
+    -- Property: 28.02.YYYY + 1 year == 28.02.(YYYY + 1), where YYYY is a non-leap year.
+    local dt1 = datetime.new(time_units1)
+    dt1:set({
+        year = getLeapYear(false),
+        month = 02,
+        day = 28,
+    })
+    local dt_plus_1y = dt1:add({year = 1})
+    -- https://www.quora.com/When-did-using-a-leap-year-start
+    if dt_plus_1y.year > 1584 then
+        local msg = ('Non-leap year: 28.02.YYYY + 1Y != 28.02.(YYYY + 1): %s + 1y != %s '):format(dt1, dt_plus_1y)
+        -- TODO: assert(dt_plus_1y.day == 28, msg)
+    end
+
+    -- Property: 29.02.YYYY + 1 year == 28.02.(YYYY + 1), where YYYY is a leap year.
+    local dt1 = datetime.new(time_units1)
+    dt1:set({
+        year = getLeapYear(true),
+        month = 02,
+        day = 29,
+    })
+    dt_plus_1y = dt1:add({year = 1})
+    -- https://www.quora.com/When-did-using-a-leap-year-start
+    if dt_plus_1y.year > 1584 then
+        local msg = ('Leap year: 29.02.YYYY + 1Y != 28.02.(YYYY + 1): %s + 1y != %s'):format(dt1, dt_plus_1y)
+        assert(dt_plus_1y.day == 28, msg)
+    end
+
+    -- Property: 31.03.YYYY + 1 month == 30.04.YYYY
+    local dt1 = datetime.new(time_units1)
+    dt1:set({
+        month = 03,
+        day = 31,
+    })
+    local dt_plus_1m = dt1
+    dt_plus_1m:add({ month = 1 })
+    local msg = ('31.03.YYYY + 1m != 30.04.YYYY: %s + 1m != %s'):format(dt1, dt_plus_1m)
+    -- TODO: assert(dt_plus_1m.day == 30, msg)
+    msg = ('31.03.YYYY + 1m != 30.04.YYYY: %s + 1m != %s'):format(dt1, dt_plus_1m)
+    assert(dt_plus_1m.month == 04, msg)
+
+    -- Property: 31.12.YYYY + 1 day == 01.01.(YYYY + 1)
+    -- "February 29 is not the only day affected by the leap year. Another very
+    -- important date is December 31, because it is the 366th day of the year and
+    -- many applications mistakenly hard-code a year as 365 days."
+    -- Source: https://azure.microsoft.com/en-us/blog/is-your-code-ready-for-the-leap-year/
+    local dt1 = datetime.new(time_units1)
+    dt1:set({
+        day = 01,
+        month = 12,
+    })
+    dt1 = dt1:set({ day = -1 })
+    assert(dt1.day == 31)
+    dt1 = dt1:add({ day = 1})
+    -- TODO: assert(dt.day == 1, ('31 Dec + 1 day != 1 Jan (%s)'):format(dt))
+
+    -- Property: Difference of datetimes with leap and non-leap years is 1 second.
+    local leap_year = getLeapYear(true)
+    local non_leap_year = getLeapYear(false)
+    dt1 = datetime.new({ year = leap_year })
+    dt2 = datetime.new({ year = non_leap_year })
+    --local diff = datetime.new():set({ year = leap_year - non_leap_year, sec = 1 })
+    -- TODO: assert(dt1 - dt2 == single_sec, ('%s - %s != 1 sec (%s)'):format(dt1, dt2, dt1 - dt2))
 end
 
--- Property: in leap year last day in February is 29.
-local dt = datetime.new(new_dt())
-dt:set({
-    day = 01,
-    month = 02,
-    year = getYear(true),
-})
-assert(dt:set({ day = -1}).day == 29, ("Last day in %s (leap year) is not a 29"):format(tostring(dt)))
+local args = {
+    only_ascii = 1,
+}
+luzer.Setup(TestOneInput, nil, args)
+luzer.Fuzz()
 
--- Property: in non-leap year last day in February is 28.
-local dt = datetime.new(new_dt())
-dt:set({
-    day = 01,
-    month = 02,
-    year = getYear(false),
-})
-assert(dt:set({ day = -1 }).day == 28, ("Last day in %s (non-leap year) is not a 28"):format(tostring(dt)))
-
--- Property: 28.02.YYYY + 1 year == 28.02.(YYYY + 1), where YYYY is a non-leap year.
-local dt = datetime.new(new_dt())
-dt:set({
-    year = getYear(false),
-    month = 02,
-    day = 28,
-})
-dt_plus_1y = dt:add({year = 1})
--- https://www.quora.com/When-did-using-a-leap-year-start
-if dt_plus_1y.year > 1584 then
-    assert(dt_plus_1y.day == 28, ('Non-leap year: 28.02.YYYY + 1Y != 28.02.(YYYY + 1): %s + 1y != %s '):format(dt, dt_plus_1y))
-end
-
--- Property: 29.02.YYYY + 1 year == 28.02.(YYYY + 1), where YYYY is a leap year. 
-local dt = datetime.new(new_dt())
-dt:set({
-    year = getYear(true),
-    month = 02,
-    day = 29,
-})
-dt_plus_1y = dt:add({year = 1})
--- https://www.quora.com/When-did-using-a-leap-year-start
-if dt_plus_1y.year > 1584 then
-    assert(dt_plus_1y.day == 28, ('Leap year: 29.02.YYYY + 1Y != 28.02.(YYYY + 1): %s + 1y != %s'):format(dt, dt_plus_1y))
-end
-
--- Property: 31.03.YYYY + 1 month == 30.04.YYYY
-local dt = datetime.new(new_dt())
-dt:set({
-    month = 03,
-    day = 31,
-})
-dt_plus_1m = dt
-dt_plus_1m:add({month = 1})
-assert(dt_plus_1m.day == 30, ('31.03.YYYY + 1m != 30.04.YYYY: %s + 1m != %s'):format(dt, dt_plus_1m))
-assert(dt_plus_1m.month == 04, ('31.03.YYYY + 1m != 30.04.YYYY: %s + 1m != %s'):format(dt, dt_plus_1m))
-
--- Property: 31.12.YYYY + 1 day == 01.01.(YYYY + 1)
--- "February 29 is not the only day affected by the leap year. Another very
--- important date is December 31, because it is the 366th day of the year and
--- many applications mistakenly hard-code a year as 365 days."
--- Source: https://azure.microsoft.com/en-us/blog/is-your-code-ready-for-the-leap-year/
-local dt = datetime.new(new_dt())
-dt:set({
-    day = 01,
-    month = 12,
-})
-dt = dt:set({ day = -1 })
-assert(dt.day == 31)
-dt = dt:add({ day = 1})
--- BUG: assert(dt.day == 1, ('31 Dec + 1 day != 1 Jan (%s)'):format(dt))
-
--- Property: Difference of datetimes with leap and non-leap years is 1 second.
-local leap_year = getYear(true) 
-local non_leap_year = getYear(false) 
-local dt1 = datetime.new({ year = leap_year })
-local dt2 = datetime.new({ year = non_leap_year })
--- local diff = datetime.new():set({ year = leap_year - non_leap_year, sec = 1})
--- TODO: assert(dt1 - dt2 == single_sec, ('%s - %s != 1 sec (%s)'):format(dt1, dt2, dt1 - dt2))
-
+--[[
 -- Property: Timezone changes when DST applied.
 -- Property: The day before Saturday is always Friday.
 -- Property: 29.02.YYYY + 1 day == 01.03.(YYYY + 1), where YYYY is a leap year.
@@ -358,36 +341,4 @@ local dt2 = datetime.new({ year = non_leap_year })
 -- 30 апреля + 1 месяц = 31 мая
 -- 28 февраля 2001 + 1 месяц = 28 марта 2001
 -- 28 февраля 2004 + 1 месяц = 28 марта 2004
-
---[[
---
---На прошлой неделе мы выпустили новую версию Tarantool - 2.10. Эта версия
---примечательна тем, что в ней появилась поддержка нового типа для работы с
---датой и временем - datetime. В этом типе таится много нюансов: високосные
---года и секунда, таймзоны, DST (перевод часов на зимнее и летнее время). Из-за
---високосной секунды может быть время 23:59:60 и даже 23:59:61, 29 февраля
---бывает только в високосный год, причем иногда переход на DST может
---происходить два раза в год. С этим типом связано какое-то невероятное
---количество ошибок. Я даже писал заметку про баг в Excel, там до сих пор для
---совместимости с предыдущими версиями 1900-й год считается високосным, хотя он
---не високосный. Одно время Microsoft выпускала музыкальный плеер Zune и там
---тоже была проблема расчёта високосного года - 31 декабря в високосный год все
---плееры выключились.
---
---С таким количеством деталей идея применить тестирование с помощью свойств
---кажется очень заманчивой - генерировать тестовые примеры на всём диапазоне и
---проверять соответствие спецификации. Но я пересмотрел тесты для реализации
---datetime в Python и Go и всё тестирование там строится вокруг конкретных
---примеров. Хотя нет, вру, автор Hypothesis писал в своём блоге про тестирование
---парсинга даты из строки с помощью roundtrip - если напечатать дату в заданном
---формате в строку и распарсить её с тем же форматом, то результат должен
---совпасть с первоначальной датой. Но roundtrip это слишком просто, хотя тот же
---автор Hypothesis нашел с таким тестом проблему в базовой библиотеке Python.
---
--- Несколько типов багов: переполнение, неверная арифметика, парсинг дат из строк.
--- Those that lead to error conditions, such as exceptions, error return codes,
--- uninitialized variables, or endless loops
--- Those that lead to incorrect data, such as off-by-one problems in range
--- queries or aggregation
---
---]]
+]]

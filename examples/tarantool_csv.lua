@@ -1,19 +1,19 @@
 local csv = require("csv")
 local luzer = require("luzer")
 
--- "csv.dump"
--- "csv.iterate"
-
 local function TestOneInput(buf)
     local ok, res = pcall(csv.load, buf)
     if ok == true then
         assert(res ~= nil)
     end
+	ok, res = pcall(csv.dump, res)
+	assert(ok == true)
+	assert(res)
 end
 
 local args = {
-    max_len = 4096,
-    only_ascii = 1,
+    dict = "/home/sergeyb/sources/luzer/examples/tarantool_csv.dict",
+    --corpus = "/home/sergeyb/sources/luzer/examples/tarantool_csv",
 }
 luzer.Setup(TestOneInput, nil, args)
 luzer.Fuzz()

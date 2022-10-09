@@ -3,11 +3,9 @@ local luzer = require("luzer")
 
 -- "uri.parse_many"
 -- "uri.format"
--- "uri.parse"
 
-local function TestOneInput(data)
-    local res = uri.parse(data)
-    assert(res ~= nil)
+local function TestOneInput(buf)
+    uri.parse(buf)
 end
 
 local args = {
