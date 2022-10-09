@@ -104,30 +104,30 @@ local function random_fmt()
 	return fmt
 end
 
-local function new_dt()
-    local tz = math.random(1, #datetime.TZ)
+local function new_dt(fdp)
+    local tz_idx = fdp:consume_integer(1, #datetime.TZ)
     local d = 0
 	--[[
 	Day number. Value range: 1 - 31. The special value -1 generates the last
 	day of a particular month.
 	]]
     while d == 0 do
-        d = math.random(-1, math.random(1, 31))
+        d = fdp:consume_integer(-1, 31)
     end
 
     return {
         -- FIXME: only one of nsec, usec or msecs may be defined simultaneously.
         -- TODO: usec
         -- TODO: msec
-        nsec      = math.random(0, 1000000000),
-        sec       = math.random(0, 60),
-        min       = math.random(0, 59),
-        hour      = math.random(0, 23),
+        nsec      = fdp:consume_integer(0, 1000000000),
+        sec       = fdp:consume_integer(0, 60),
+        min       = fdp:consume_integer(0, 59),
+        hour      = fdp:consume_integer(0, 23),
         day       = d,
-        month     = math.random(1, 12),
-        year      = math.random(MIN_DATE_YEAR, MAX_DATE_YEAR),
-        tzoffset  = math.random(-720, 840),
-        tz        = tz,
+        month     = fdp:consume_integer(1, 12),
+        year      = fdp:consume_integer(MIN_DATE_YEAR, MAX_DATE_YEAR),
+        tzoffset  = fdp:consume_integer(-720, 840),
+        tz        = datetime.TZ[tz_idx],
     }
 end
 
@@ -181,8 +181,9 @@ local function getLeapYear(is_leap)
 end
 
 local function TestOneInput(buf)
-    local time_units1 = new_dt()
-    local time_units2 = new_dt()
+    local fdp = luzer.FuzzedDataProvider(buf)
+    local time_units1 = new_dt(fdp)
+    local time_units2 = new_dt(fdp)
     local dt1, dt2
     if not pcall(datetime.new, time_units1) or
        not pcall(datetime.new, time_units2) then
@@ -249,7 +250,7 @@ local function TestOneInput(buf)
     -- Seems os.date() does not support negative epoch.
     if dt1.epoch > 0 then
         local msg = ('os.date("%s", %d) != dt:format("%s")'):format(datetime_fmt, dt1.epoch, datetime_fmt)
-        assert(os.date(datetime_fmt, dt1.epoch) == dt1:format(datetime_fmt), msg)
+        --assert(os.date(datetime_fmt, dt1.epoch) == dt1:format(datetime_fmt), msg)
     end
 
     -- Property: 28.02.YYYY + 1 year == 28.02.(YYYY + 1), where YYYY is a non-leap year.
@@ -318,8 +319,11 @@ local function TestOneInput(buf)
 end
 
 local args = {
-    only_ascii = 1,
-    max_total_time = 10,
+    --only_ascii = 1,
+    --max_total_time = 15,
+    print_pcs = 1,
+    detect_leaks = 1,
+    dict = "/home/sergeyb/sources/luzer/examples/tarantool_datetime.dict",
     max_len = 2048,
 }
 luzer.Setup(TestOneInput, nil, args)
