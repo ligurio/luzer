@@ -40,12 +40,11 @@ uninitialized variables, or endless loops
 Those that lead to incorrect data, such as off-by-one problems in range
 queries or aggregation
 
-"datetime.new"
 "datetime.parse_date"
 "datetime.now"
-"datetime.parse"
-"datetime.is_datetime"
 "datetime.interval"
+
+https://www.tarantool.io/en/doc/latest/reference/reference_lua/datetime/
 ]]
 
 local math = require('math')
@@ -53,12 +52,8 @@ local datetime = require('datetime')
 local log = require('log')
 local luzer = require("luzer")
 
---math.randomseed(os.time())
-
 local MIN_DATE_YEAR = -5879610
 local MAX_DATE_YEAR = 5879611
-
-local now_dt = datetime.now
 
 local function new_dt_fmt(fdp)
 	-- Field descriptors.
@@ -182,6 +177,8 @@ local function TestOneInput(buf)
     local time_units1 = new_dt(fdp)
     local time_units2 = new_dt(fdp)
     local dt1, dt2
+
+    -- Sanity check.
     if not pcall(datetime.new, time_units1) or
        not pcall(datetime.new, time_units2) then
         return
@@ -192,7 +189,8 @@ local function TestOneInput(buf)
     -- Property: datetime.parse(dt:format(random_format)) == dt
     dt1 = datetime.new(time_units1)
     local dt1_str = dt1:format(datetime_fmt)
-    assert(datetime.parse(dt1_str, { format = datetime_fmt }) == dt1)
+    local dt_parsed = datetime.parse(dt1_str, { format = datetime_fmt })
+    assert(dt_parsed == dt1)
 
     -- Property: B - (B - A) == A
     -- Blocked by: https://github.com/tarantool/tarantool/issues/7145
