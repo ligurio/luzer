@@ -3,6 +3,9 @@
 -- Differential testing with re, https://luarocks.org/modules/rrt/lrexlib-posix
 -- https://github.com/codenote/regfuzz
 
+-- 6.4 – String Manipulation
+-- https://www.lua.org/manual/5.3/manual.html#6.4
+
 -- 20.2 – Patterns
 -- https://www.lua.org/pil/20.2.html
 
