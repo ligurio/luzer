@@ -181,15 +181,12 @@ luaL_fuzz(lua_State *L)
 	}
 	lua_pushnil(L);
 
-	int i = 0;
-	int argc;
-	char **argv;
-
-	argv = malloc(1 * sizeof(char*));
+	int argc = 0;
+	char **argv = malloc(1 * sizeof(char*));
 	if (!argv)
 		luaL_error(L, "not enough memory");
 	while (lua_next(L, -2) != 0) {
-		char **argvp = realloc(argv, sizeof(char*) * (i + 1));
+		char **argvp = realloc(argv, sizeof(char*) * (argc + 1));
 		if (argvp == NULL) {
 			free(argv);
 			luaL_error(L, "not enough memory");
@@ -199,19 +196,18 @@ luaL_fuzz(lua_State *L)
 		size_t arg_str_size = strlen(key) + strlen(value) + 3;
 		char *arg = malloc(arg_str_size);
 		snprintf(arg, arg_str_size, "-%s=%s", key, value);
-		argvp[i] = (char *)arg;
+		argvp[argc] = (char *)arg;
 		lua_pop(L, 1);
-		i++;
+		argc++;
 		argv = argvp;
 	}
-	argv[i] = NULL; /* not needed actually */
-	argc = i;
+	argv[argc] = NULL; /* not needed actually */
 	lua_pop(L, 1);
 
 	/*
 	char **p = argv;
 	while(*p++) {
-		printf("arg %s\n", *p);
+		printf("DEBUG: arg %s\n", *p);
 	}
 	*/
 
