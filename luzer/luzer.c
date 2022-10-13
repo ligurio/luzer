@@ -279,14 +279,7 @@ int luaopen_luzer(lua_State *L)
 #else
 	luaL_newlib(L, Module);
 #endif
-	lua_pushliteral(L, "_COPYRIGHT");
-	lua_pushliteral(L, "Copyright (C) 2020-2022 Sergey Bronnikov");
-	lua_settable(L, -3);
-	lua_pushliteral(L, "_DESCRIPTION");
-	lua_pushliteral(L, "A coverage-guided, native Lua fuzzer");
-	lua_settable(L, -3);
 	lua_pushliteral(L, "_VERSION");
-
 	char version[50];
 	snprintf(version, sizeof(version), "luzer %s, LLVM %s, %s",
 			 luzer_version_string(),
