@@ -29,5 +29,4 @@ end
 local args = {
     max_len = 4096,
 }
-luzer.Setup(TestOneInput, nil, args)
-luzer.Fuzz()
+luzer.Fuzz(TestOneInput, nil, args)

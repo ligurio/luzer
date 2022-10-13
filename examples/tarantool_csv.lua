@@ -15,5 +15,4 @@ local args = {
     dict = "/home/sergeyb/sources/luzer/examples/tarantool_csv.dict",
     --corpus = "/home/sergeyb/sources/luzer/examples/tarantool_csv",
 }
-luzer.Setup(TestOneInput, nil, args)
-luzer.Fuzz()
+luzer.Fuzz(TestOneInput, nil, args)

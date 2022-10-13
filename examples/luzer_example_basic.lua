@@ -27,5 +27,4 @@ local args = {
     dict = "/home/sergeyb/sources/luzer/examples/luzer_example_basic.dict",
     max_len = 1,
 }
-luzer.Setup(TestOneInput, nil, args)
-luzer.Fuzz()
+luzer.Fuzz(TestOneInput, nil, args)

@@ -52,5 +52,4 @@ local args = {
     -- corpus = "~/sources/luzer/build/luzer/msgpack.dict",
     max_len = 4096,
 }
-luzer.Setup(TestOneInput, nil, args)
-luzer.Fuzz()
+luzer.Fuzz(TestOneInput, nil, args)

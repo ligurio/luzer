@@ -14,5 +14,4 @@ end
 local opts = {
     max_len = 4096,
 }
-luzer.Setup(TestOneInput, nil, opts)
-luzer.Fuzz()
+luzer.Fuzz(TestOneInput, nil, opts)

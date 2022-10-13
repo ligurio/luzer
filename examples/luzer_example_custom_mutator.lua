@@ -32,5 +32,4 @@ local args = {
     only_ascii = 1,
 }
 
-luzer.Setup(TestOneInput, custom_mutator, args)
-luzer.Fuzz()
+luzer.Fuzz(TestOneInput, custom_mutator, args)

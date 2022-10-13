@@ -56,8 +56,7 @@ local function TestOneInput(buf)
     end
 end
 
-luzer.Setup({}, TestOneInput)
-luzer.Fuzz()
+luzer.Fuzz({}, TestOneInput)
 ```
 
 While fuzzing is in progress, the fuzzing engine generates new inputs and runs
@@ -88,9 +87,11 @@ the code coverage the existing corpus already provides.
 
 **Fuzzing API**
 
-The luzer module provides two key functions: `Setup()` and `Fuzz()`.
+The luzer module provides a function `Fuzz()`.
 
-`Setup(test_one_input, custom_mutator, args)`
+`Fuzz(test_one_input, custom_mutator, args)` starts the fuzzer. This function
+does not return.
+
 - `test_one_input` is a fuzzer's entry point, it is a function that must take a
   single bytes argument. This will be repeatedly invoked with a single bytes
   container.
@@ -99,12 +100,6 @@ The luzer module provides two key functions: `Setup()` and `Fuzz()`.
 - `args` is a table with arguments: the process arguments to pass to the
   fuzzer. See the [libFuzzer docs][libfuzzer-options-url] for a list of such
   options.
-
-`Fuzz()` starts the fuzzer. You must have called `Setup()` before calling this
-function. This function does not return. In many cases `Setup()` and `Fuzz()`
-could be combined into a single function, but they are separated because you
-may want the fuzzer to consume the command-line arguments it handles before
-passing any remaining arguments to another setup function.
 
 It may be desirable to reject some inputs, i.e. to not add them to the corpus.
 For example, when fuzzing an API consisting of parsing and other logic, one may

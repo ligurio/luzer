@@ -29,5 +29,4 @@ local function TestOneInput(buf)
     print(buf)
 end
 
-luzer.Setup(TestOneInput, nil, {})
-luzer.Fuzz()
+luzer.Fuzz(TestOneInput, nil, {})

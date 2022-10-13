@@ -35,8 +35,23 @@ get_global_lua_stack()
 	return LL;
 }
 
-static int argc;
-static char **argv;
+static int luaL_traceback(lua_State *L) {
+	lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+	if (!lua_istable(L, -1)) {
+		lua_pop(L, 1);
+		return 1;
+	}
+	lua_getfield(L, -1, "traceback");
+	if (!lua_isfunction(L, -1)) {
+		lua_pop(L, 2);
+		return 1;
+	}
+	lua_pushvalue(L, 1);
+	lua_pushinteger(L, 2);
+	lua_call(L, 2, 1);
+	fprintf(stderr, "%s\n", lua_tostring(L, -1));
+	return 1;
+}
 
 // See GracefulExit() in trash/atheris/src/native/util.cc
 static void sig_handler(int sig)
@@ -136,14 +151,32 @@ TestOneInput(const uint8_t* data, size_t size) {
 	return luaL_test_one_input(L);
 }
 
-NO_SANITIZE int
-luaL_setup(lua_State *L)
+NO_SANITIZE static int
+luaL_cleanup(lua_State *L)
+{
+	lua_sethook(L, debug_hook, 0, 0);
+	lua_pushnil(L);
+	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
+	lua_pushnil(L);
+	lua_setglobal(L, DEBUG_HOOK_FUNC);
+	lua_pushnil(L);
+	lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
+
+	return 0;
+}
+
+NO_SANITIZE static int
+luaL_fuzz(lua_State *L)
 {
 	if (lua_istable(L, -1) == 0) {
 		luaL_error(L, "opts is not a table");
 	}
 	lua_pushnil(L);
+
 	int i = 0;
+	int argc;
+	char **argv;
+
 	argv = malloc(1 * sizeof(char*));
 	if (!argv)
 		luaL_error(L, "not enough memory");
@@ -215,26 +248,7 @@ luaL_setup(lua_State *L)
 	act.sa_handler = sig_handler;
 	sigaction(SIGINT, &act, NULL);
 
-	return 1;
-}
-
-NO_SANITIZE static int
-luaL_cleanup(lua_State *L)
-{
-	lua_sethook(L, debug_hook, 0, 0);
-	lua_pushnil(L);
-	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
-	lua_pushnil(L);
-	lua_setglobal(L, DEBUG_HOOK_FUNC);
-	lua_pushnil(L);
-	lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
-
-	return 0;
-}
-
-NO_SANITIZE static int
-luaL_fuzz(lua_State *L)
-{
+	////////////////////////////////////////////////////////
 	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
 	if (lua_isfunction(L, -1) != 1) {
 		luaL_error(L, "test_one_input is not defined");
@@ -251,7 +265,6 @@ luaL_fuzz(lua_State *L)
 }
 
 static const struct luaL_Reg Module[] = {
-	{ "Setup", luaL_setup },
 	{ "Fuzz", luaL_fuzz },
 	{ "FuzzedDataProvider", luaL_fuzzed_data_provider },
 	{ "_set_custom_mutator", luaL_set_custom_mutator },

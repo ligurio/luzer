@@ -187,18 +187,6 @@ assert(p1 >= 0 and p2 >= 0)
 assert(p1 <= 1 and p2 <= 1)
 assert(p1 ~= p2)
 
--- luzer.Fuzz()
-luzer = require("luzer")
-ok, err = pcall(luzer.Fuzz)
-assert(ok == false)
-assert(err ~= nil)
-
--- luzer.Setup()
-luzer = require("luzer")
-ok, err = pcall(luzer.Setup)
-assert(ok == false)
-assert(err ~= nil)
-
 -- luzer._set_custom_mutator()
 --[[
 local magic_number = 51

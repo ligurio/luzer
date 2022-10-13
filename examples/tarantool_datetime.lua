@@ -321,8 +321,7 @@ local args = {
     dict = "/home/sergeyb/sources/luzer/examples/tarantool_datetime.dict",
     max_len = 2048,
 }
-luzer.Setup(TestOneInput, nil, args)
-luzer.Fuzz()
+luzer.Fuzz(TestOneInput, nil, args)
 
 --[[
 -- Property: Timezone changes when DST applied.
