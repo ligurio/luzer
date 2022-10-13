@@ -18,6 +18,7 @@ mulua
 
 - FUTAG (FUzzing Target Automated Generator) -- автоматический генератор целей
   для фаззинга. https://github.com/ispras/Futag
+- HypoFuzz https://hypofuzz.com/docs/roadmap.html
 - Hypothesis - https://hypothesis.readthedocs.io/en/latest/ghostwriter.html
 - Unit test code generator for lua programming language,
   Conference: 2015 International Conference on Data and Software Engineering (ICoDSE)
