@@ -35,6 +35,7 @@ get_global_lua_stack()
 	return LL;
 }
 
+#if LUA_VERSION_NUM < 502
 static int luaL_traceback(lua_State *L) {
 	lua_getfield(L, LUA_GLOBALSINDEX, "debug");
 	if (!lua_istable(L, -1)) {
@@ -52,6 +53,7 @@ static int luaL_traceback(lua_State *L) {
 	fprintf(stderr, "%s\n", lua_tostring(L, -1));
 	return 1;
 }
+#endif
 
 // See GracefulExit() in trash/atheris/src/native/util.cc
 static void sig_handler(int sig)
@@ -82,11 +84,17 @@ int __sanitizer_acquire_crash_state()
 }
 
 // Print the stack trace leading to this call. Useful for debugging user code.
-// TODO
 // https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
 // http://www.lua.org/manual/5.2/manual.html#luaL_traceback
+// https://www.lua.org/manual/5.3/manual.html#luaL_traceback
 void __sanitizer_print_stack_trace()
 {
+	lua_State *L = get_global_lua_stack();
+#if LUA_VERSION_NUM < 502
+	luaL_traceback(L);
+#else
+	luaL_traceback(L, NULL, "traceback", 3);
+#endif
 }
 #ifdef __cplusplus
 } /* extern "C" */
