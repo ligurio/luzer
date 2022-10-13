@@ -56,7 +56,7 @@ local function TestOneInput(buf)
     end
 end
 
-luzer.Fuzz({}, TestOneInput)
+luzer.Fuzz(TestOneInput)
 ```
 
 While fuzzing is in progress, the fuzzing engine generates new inputs and runs
