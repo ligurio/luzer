@@ -45,11 +45,11 @@ add_subdirectory(luzer)
 ###############################################################################
 
 if (NOT CMAKE_LUADIR)
-  set(CMAKE_LUADIR "${CMAKE_INSTALL_PREFIX}")
+  set(CMAKE_LUADIR "${CMAKE_PREFIX_PATH}")
 endif()
 
 if (NOT CMAKE_LIBDIR)
-  set(CMAKE_LIBDIR "${CMAKE_INSTALL_PREFIX}")
+  set(CMAKE_LIBDIR "${CMAKE_INCLUDE_PATH}")
 endif()
 
 install(
