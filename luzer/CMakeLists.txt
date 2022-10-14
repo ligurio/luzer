@@ -77,11 +77,13 @@ set_tests_properties(luzer_e2e_test PROPERTIES
 
 install(
   TARGETS ${PROJECT_NAME}
-  DESTINATION ${CMAKE_SYSTEM_PREFIX_PATH}
+  LIBRARY
+  DESTINATION "${CMAKE_INSTALL_PREFIX}/luzer/"
   RENAME luzer.so
 )
 
 install(
-  TARGETS custom_mutator
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/custom_mutator_lib.c
+  DESTINATION "${CMAKE_INSTALL_PREFIX}/luzer/"
 )
