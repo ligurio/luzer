@@ -44,6 +44,14 @@ add_subdirectory(luzer)
 ## Install ####################################################################
 ###############################################################################
 
+if (NOT CMAKE_LUADIR)
+  set(CMAKE_LUADIR "${CMAKE_INSTALL_PREFIX}")
+endif()
+
+if (NOT CMAKE_LIBDIR)
+  set(CMAKE_LIBDIR "${CMAKE_INSTALL_PREFIX}")
+endif()
+
 install(
   FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/README.md

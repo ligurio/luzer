@@ -58,7 +58,7 @@ set_target_properties(custom_mutator PROPERTIES SOVERSION 1)
 
 add_test(
   NAME luzer_unit_test
-  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_unit.lua
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_unit.lua
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 set_tests_properties(luzer_unit_test PROPERTIES
@@ -67,7 +67,7 @@ set_tests_properties(luzer_unit_test PROPERTIES
 
 add_test(
   NAME luzer_e2e_test
-  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_e2e.lua
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_e2e.lua
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 set_tests_properties(luzer_e2e_test PROPERTIES
@@ -78,12 +78,12 @@ set_tests_properties(luzer_e2e_test PROPERTIES
 install(
   TARGETS ${PROJECT_NAME}
   LIBRARY
-  DESTINATION "${CMAKE_LIBDIR}"
+  DESTINATION "${CMAKE_LIBDIR}/"
   RENAME luzer.so
 )
 
 install(
   FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/custom_mutator_lib.c
-  DESTINATION "${CMAKE_LUADIR}"
+  DESTINATION "${CMAKE_LUADIR}/"
 )
