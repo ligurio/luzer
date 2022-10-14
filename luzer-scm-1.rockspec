@@ -22,6 +22,7 @@ dependencies = {
 
 build = {
     type = "cmake",
+	-- https://github.com/luarocks/luarocks/wiki/Config-file-format#variables
     variables = {
         CMAKE_LUADIR = "$(LUADIR)",
         CMAKE_LIBDIR = "$(LIBDIR)",
