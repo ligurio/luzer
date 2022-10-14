@@ -18,5 +18,5 @@ install(
   FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/mutator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/mutator_example.lua
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/
+  DESTINATION ${CMAKE_LUADIR}/mutator/
 )

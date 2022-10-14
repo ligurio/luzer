@@ -5,13 +5,9 @@ project(luzer
   VERSION "0.1.0"
 )
 
+find_package(Lua 5.1 REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 find_library(LIBRT rt)
-
-set(LUA_LIBRARIES "")
-if(NOT LUA_LIBRARIES)
-    find_package(Lua 5.1 REQUIRED)
-endif()
 
 find_program(LUA_EXECUTABLE luajit)
 if(NOT EXISTS ${LUA_EXECUTABLE})
@@ -51,5 +47,5 @@ add_subdirectory(luzer)
 install(
   FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/README.md
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/doc
+  DESTINATION ${CMAKE_LUADIR}/doc
 )
