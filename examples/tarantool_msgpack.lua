@@ -40,9 +40,9 @@ local luzer = require("luzer")
 local function TestOneInput(buf)
     local ok, res = pcall(msgpack.decode, buf)
     if ok == true then
-        local b
-        ok, b = pcall(msgpack.encode, res)
-        --assert(ok == true)
+        local _
+        ok, _ = pcall(msgpack.encode, res)
+        assert(ok == true)
         --assert(#b == #buf)
         --assert(b == buf)
     end

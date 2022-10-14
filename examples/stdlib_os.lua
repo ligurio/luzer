@@ -3,17 +3,17 @@
 -- 6.9 – Operating System Facilities
 -- https://www.lua.org/manual/5.3/manual.html#6.9
 
--- os.date ([format [, time]])
--- os.difftime (t2, t1)
--- os.time ([table])
-
 local luzer = require("luzer")
 
 local function TestOneInput(buf)
+    local str = os.date(buf)
+    assert(str)
+    -- os.difftime(t2, t1)
+    -- os.time([table])
 end
 
 local args = {
-    max_len = 4096,
     only_ascii = 1,
+    max_len = 1024,
 }
-luzer.Fuzz(TestOneInput_sqrt, nil, args)
+luzer.Fuzz(TestOneInput, nil, args)
