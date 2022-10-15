@@ -193,10 +193,13 @@ luaL_fuzz(lua_State *L)
 		}
 		const char *key = lua_tostring(L, -2);
 		const char *value = lua_tostring(L, -1);
-		size_t arg_str_size = strlen(key) + strlen(value) + 3;
-		char *arg = malloc(arg_str_size);
-		snprintf(arg, arg_str_size, "-%s=%s", key, value);
-		argvp[argc] = (char *)arg;
+		char *arg = (char *)value;
+		if (strcmp(key, "corpus"))	{
+			size_t arg_str_size = strlen(key) + strlen(value) + 3;
+			arg = malloc(arg_str_size);
+			snprintf(arg, arg_str_size, "-%s=%s", key, value);
+		}
+		argvp[argc] = arg;
 		lua_pop(L, 1);
 		argc++;
 		argv = argvp;
