@@ -1,4 +1,4 @@
-[[
+--[[
 https://github.com/tarantool/tarantool/issues/206
 https://github.com/tarantool/tarantool/issues/5184
 https://github.com/tarantool/tarantool/issues/5017
