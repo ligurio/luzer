@@ -32,19 +32,20 @@ local function TestOneInput(buf)
         return -1
     end
     if ok == true then
-        ok = json.encode(obj)
-        assert(ok == true)
+        assert(json.encode(obj) ~= nil)
     end
 end
 
 if arg[1] then
-    local testcase = io.open(arg[1]):read("*all")
+    local fh = io.open(arg[1])
+    local testcase = fh:read("*all")
     TestOneInput(testcase)
     os.exit()
 end
 
 local args = {
-    dict = "/home/sergeyb/sources/luzer/examples/tarantool_json.dict",
     max_len = 4096,
+    dict = "/home/sergeyb/sources/luzer/examples/tarantool_json.dict",
+    corpus = "/home/sergeyb/sources/luzer/examples/tarantool_json",
 }
 luzer.Fuzz(TestOneInput, nil, args)

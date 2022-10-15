@@ -1,37 +1,13 @@
---[[
-"msgpack.decode_array_header"
-"msgpack.encode"
-"msgpack.array_mt"
-"msgpack.__serialize"
-"msgpack.seq"
-"msgpack.__newindex"
-"msgpack.map_mt"
-"msgpack.__serialize"
-"msgpack.map"
-"msgpack.__newindex"
-"msgpack.object_from_raw"
-"msgpack.new"
-"msgpack.is_object"
-"msgpack.cfg"
-"msgpack.encode_load_metatables"
-"msgpack.encode_invalid_numbers"
-"msgpack.encode_use_tostring"
-"msgpack.decode_max_depth"
-"msgpack.encode_max_depth"
-"msgpack.encode_number_precision"
-"msgpack.encode_sparse_convert"
-"msgpack.decode_invalid_numbers"
-"msgpack.encode_error_as_ext"
-"msgpack.encode_sparse_ratio"
-"msgpack.encode_invalid_as_nil"
-"msgpack.encode_sparse_safe"
-"msgpack.encode_deep_as_nil"
-"msgpack.decode_save_metatables"
-"msgpack.object"
-"msgpack.ibuf_decode"
-"msgpack.decode"
-"msgpack.decode_map_header"
-"msgpack.decode_unchecked"
+[[
+https://github.com/tarantool/tarantool/issues/206
+https://github.com/tarantool/tarantool/issues/5184
+https://github.com/tarantool/tarantool/issues/5017
+https://github.com/tarantool/tarantool/issues/5016
+https://github.com/tarantool/tarantool/issues/5014
+https://github.com/tarantool/tarantool/issues/4724
+https://github.com/tarantool/tarantool/issues/3900
+
+https://www.tarantool.io/ru/doc/latest/reference/reference_lua/msgpack/
 ]]
 
 local msgpack = require("msgpack")
@@ -40,11 +16,13 @@ local luzer = require("luzer")
 local function TestOneInput(buf)
     local ok, res = pcall(msgpack.decode, buf)
     if ok == true then
-        local _
-        ok, _ = pcall(msgpack.encode, res)
+        ok, res = pcall(msgpack.encode, res)
+        if ok == false and
+           string.find(res, "Too high nest level") then
+            return
+        end
         assert(ok == true)
-        --assert(#b == #buf)
-        --assert(b == buf)
+        assert(res ~= nil)
     end
 end
 
@@ -55,7 +33,6 @@ if arg[1] then
 end
 
 local args = {
-    -- corpus = "~/sources/luzer/build/luzer/msgpack.dict",
     max_len = 4096,
 }
 luzer.Fuzz(TestOneInput, nil, args)

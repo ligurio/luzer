@@ -19,6 +19,6 @@ end
 
 local args = {
     dict = "/home/sergeyb/sources/luzer/examples/tarantool_csv.dict",
-    --corpus = "/home/sergeyb/sources/luzer/examples/tarantool_csv",
+    corpus = "/home/sergeyb/sources/luzer/examples/tarantool_csv",
 }
 luzer.Fuzz(TestOneInput, nil, args)
