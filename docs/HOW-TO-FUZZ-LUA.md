@@ -14,9 +14,12 @@ https://go-talks.appspot.com/github.com/dvyukov/go-fuzz/slides/fuzzing.slide
 
 ## Зачем?
 
-- тарантул состоит из нескольких компонентов: LuaJIT, сервера приложений, функциональность СУБД и др.
-- Пользователь может взаимодействовать с Tarantool с помощью SQL, Lua API и в исключительных случаях C API.
-- сервер приложений состоит из большого количества модулей написанных на Си с оберткой на Lua или чистом Lua
+- тарантул состоит из нескольких компонентов: LuaJIT, сервера приложений,
+функциональность СУБД и др.
+- Пользователь может взаимодействовать с Tarantool с помощью SQL, Lua API и в
+исключительных случаях C API.
+- сервер приложений состоит из большого количества модулей написанных на Си с
+оберткой на Lua или чистом Lua
 - все модули покрываются регресионными тестами, но этого не всегда достаточно
 - нужно дополнительное тестирование - Фаззинг!
 
@@ -36,13 +39,36 @@ later the Alibaba team found many other issues in cmsgpack and other code paths
 using the Lua API. In a short amount of time I was sitting on a pile of Lua
 related vulnerabilities.
 
+```
+string.strip (Lua) ->
+	string_strip (Lua) ->
+		ffi.C.string_strip_helper (LuaJIT FFI) ->
+			string_strip_helper (C) ->
+				libc (C)
+
+msgpack.decode (Lua) ->
+	luamp_iterator_decode (Lua C API) ->
+		luamp_iterator_decode (Lua C API) ->
+			luamp_decode (Lua C API) ->
+				msgpuck
+
+datetime.parse (Lua) ->
+	datetime_parse_from (Lua) ->
+		builtin.tnt_datetime_strptime (LuaJIT FFI) ->
+			tnt_datetime_strptime (C) ->
+				datetime_strptime (C) ->
+					tm_to_datetime (C)
+```
+
 ## Подходы
 
 - готовых инструментов для фаззинга программ на Lua нет, возможно из-за небольшого размера сообщества вокруг языка Lua
 - есть lua-quickcheck, аналог Hypothesis для Python, но он очень скромный по возможностям
 - есть форк интерпретатора Lua c патчами для фаззинга https://github.com/stevenjohnstone/afl-lua
 - писать свой фаззер с нуля неэффективно
-- самые популярные движки: AFL, LibFuzzer, hongfuzz. Принцип как и в статическом анализе: механизм работы тулов немного отличается и лучше использовать несколько разных, а не один из них.
+- самые популярные движки: AFL, LibFuzzer, hongfuzz. Принцип как и в
+статическом анализе: механизм работы тулов немного отличается и лучше
+использовать несколько разных, а не один из них.
 	- https://habr.com/ru/company/bizone/blog/570312/
 - Интеграция популярных движков с Lua! https://www.fuzzbench.com/reports/sample/index.html
 
@@ -76,10 +102,12 @@ related vulnerabilities.
 
 - Swift https://github.com/apple/swift/blob/main/docs/libFuzzerIntegration.md
 - Java https://github.com/CodeIntelligenceTesting/jazzer
+- Python https://github.com/fuzzitdev/pythonfuzz
 - Python https://github.com/google/atheris
 - Python https://pypi.org/project/atheris-libprotobuf-mutator/
 - Python https://pypi.org/project/pyfuzzer/
 - Javascript https://github.com/guidovranken/libfuzzer-js
+- Javascript https://github.com/fuzzitdev/jsfuzz
 - Rust https://github.com/rust-fuzz/cargo-fuzz
 - Go https://github.com/dvyukov/go-fuzz
 
