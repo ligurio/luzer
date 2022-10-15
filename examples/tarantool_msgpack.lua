@@ -48,6 +48,12 @@ local function TestOneInput(buf)
     end
 end
 
+if arg[1] then
+    local testcase = io.open(arg[1]):read("*all")
+    TestOneInput(testcase)
+    os.exit()
+end
+
 local args = {
     -- corpus = "~/sources/luzer/build/luzer/msgpack.dict",
     max_len = 4096,

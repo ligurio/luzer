@@ -313,9 +313,15 @@ local function TestOneInput(buf)
     -- TODO: assert(dt1 - dt2 == single_sec, ('%s - %s != 1 sec (%s)'):format(dt1, dt2, dt1 - dt2))
 end
 
+if arg[1] then
+    local fh = io.open(arg[1])
+    local testcase = fh:read("*all")
+    TestOneInput(testcase)
+    os.exit()
+end
+
 local args = {
-    --only_ascii = 1,
-    --max_total_time = 15,
+    max_total_time = 15,
     print_pcs = 1,
     detect_leaks = 1,
     dict = "/home/sergeyb/sources/luzer/examples/tarantool_datetime.dict",

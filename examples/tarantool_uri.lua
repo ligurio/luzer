@@ -8,6 +8,12 @@ local function TestOneInput(buf)
     uri.parse(buf)
 end
 
+if arg[1] then
+    local testcase = io.open(arg[1]):read("*all")
+    TestOneInput(testcase)
+    os.exit()
+end
+
 local args = {
     only_ascii = 1,
 }

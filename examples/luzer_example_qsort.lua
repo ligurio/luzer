@@ -37,6 +37,11 @@ local function TestOneInput(buf, size)
     -- assert(#buf == #b)
 end
 
+if arg[1] then
+    local testcase = io.open(arg[1]):read("*all")
+    TestOneInput(testcase)
+end
+
 local args = {
     max_len = 4096,
 }

@@ -40,6 +40,12 @@ local function TestOneInput(buf)
     collectgarbage()
 end
 
+if arg[1] then
+    local testcase = io.open(arg[1]):read("*all")
+    TestOneInput(testcase)
+    os.exit()
+end
+
 local args = {
     dict = "/home/sergeyb/sources/luzer/examples/tarantool_yaml.dict",
     max_len = 2048,

@@ -29,4 +29,10 @@ local function TestOneInput(buf)
     print(buf)
 end
 
+if arg[1] then
+    local testcase = io.open(arg[1]):read("*all")
+    TestOneInput(testcase)
+    os.exit()
+end
+
 luzer.Fuzz(TestOneInput, nil, {})

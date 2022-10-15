@@ -32,3 +32,9 @@ local function is_valid_utf8(str)
 
   return true
 end
+
+if arg[1] then
+    local testcase = io.open(arg[1]):read("*all")
+    TestOneInput(testcase)
+    os.exit()
+end

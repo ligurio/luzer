@@ -43,6 +43,12 @@ local function TestOneInput(buf)
     assert(buf == des_cbc.decrypt(res, _8byte_pass, _8byte_iv))
 end
 
+if arg[1] then
+    local testcase = io.open(arg[1]):read("*all")
+    TestOneInput(testcase)
+    os.exit()
+end
+
 local args = {
     only_ascii = 1,
     max_len = 4096,

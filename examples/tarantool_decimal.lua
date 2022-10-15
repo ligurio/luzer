@@ -26,6 +26,12 @@ local function TestOneInput(buf)
     assert(res - res == 0)
 end
 
+if arg[1] then
+    local testcase = io.open(arg[1]):read("*all")
+    TestOneInput(testcase)
+    os.exit()
+end
+
 local args = {
     max_len = 4096,
 }
