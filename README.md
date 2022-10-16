@@ -66,7 +66,7 @@ failing input is found, or the user cancels the process (e.g. with `Ctrl^C`).
 The output will look something like this:
 
 ```
-$ luajit examples/luzer_example.lua
+$ luajit examples/luzer_example_basic.lua
 INFO: Running with entropic power schedule (0xFF, 100).
 INFO: Seed: 1557779137
 INFO: Loaded 1 modules   (151 inline 8-bit counters): 151 [0x7f0640e706e3, 0x7f0640e7077a),
@@ -98,8 +98,8 @@ does not return.
 - `custom_mutator` defines a custom mutator function (equivalent to
   `LLVMFuzzerCustomMutator`). Default is `nil`.
 - `args` is a table with arguments: the process arguments to pass to the
-  fuzzer. See the [libFuzzer docs][libfuzzer-options-url] for a list of such
-  options.
+  fuzzer. Field `corpus` specifies a path to a directory with seed corpus, see a
+  list with other options in the [libFuzzer documentation][libfuzzer-options-url].
 
 It may be desirable to reject some inputs, i.e. to not add them to the corpus.
 For example, when fuzzing an API consisting of parsing and other logic, one may
