@@ -7,7 +7,7 @@ source = {
 
 description = {
     summary = "A coverage-guided, native Lua fuzzer",
-	detailed = [[ luzer is a coverage-guided Lua fuzzing engine. It supports
+    detailed = [[ luzer is a coverage-guided Lua fuzzing engine. It supports
 fuzzing of Lua code, but also C extensions written for Lua. Luzer is based off
 of libFuzzer. When fuzzing native code, luzer can be used in combination with
 Address Sanitizer or Undefined Behavior Sanitizer to catch extra bugs. ]],
@@ -22,7 +22,7 @@ dependencies = {
 
 build = {
     type = "cmake",
-	-- https://github.com/luarocks/luarocks/wiki/Config-file-format#variables
+    -- https://github.com/luarocks/luarocks/wiki/Config-file-format#variables
     variables = {
         CMAKE_LUADIR = "$(LUADIR)",
         CMAKE_LIBDIR = "$(LIBDIR)",
