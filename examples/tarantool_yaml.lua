@@ -6,8 +6,7 @@ local function TestOneInput(buf)
     if ok == false then
         return
     end
-    local encoded = yaml.encode(res)
-    assert(#encoded == #buf)
+    yaml.encode(res)
 end
 
 if arg[1] then
@@ -19,7 +18,9 @@ end
 local script_path = debug.getinfo(1).source:match("@?(.*/)")
 
 local args = {
+    max_len = 128,
     dict = script_path .. "tarantool_yaml.dict",
-    max_len = 1024,
+    corpus = script_path .. "tarantool_yaml",
+    print_pcs = 1,
 }
 luzer.Fuzz(TestOneInput, nil, args)
