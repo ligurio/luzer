@@ -4,9 +4,7 @@ local luzer = require("luzer")
 local function TestOneInput(buf)
     local ok, unpacked = pcall(pickle.unpack, buf)
     if ok == true then
-        local packed
-        ok, packed = pcall(pickle.pack, unpacked)
-	assert(ok == true)
+        local packed = pickle.pack(unpacked)
         assert(#packed == #buf)
     end
 end

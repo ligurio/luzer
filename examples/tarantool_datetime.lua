@@ -45,11 +45,33 @@ queries or aggregation
 "datetime.interval"
 
 https://www.tarantool.io/en/doc/latest/reference/reference_lua/datetime/
+
+-- Property: Timezone changes when DST applied.
+-- Property: The day before Saturday is always Friday.
+-- Property: 29.02.YYYY + 1 day == 01.03.(YYYY + 1), where YYYY is a leap year.
+-- Property: 28.02.YYYY + 1 day == 01.03.(YYYY + 1), where YYYY is a non-leap year.
+
+-- Прибавление месяцев к времени даёт ту же дату в другом месяце, кроме
+-- случаев, когда в итоговом месяце меньше дней нежели в исходном. В этом
+-- случае получаем последний день.
+-- 31 января + 1 месяц = 28 или 29 февраля
+-- 30 января + 1 месяц = 28 или 29 февраля
+-- 29 февраля + 1 месяц = 29 марта
+-- 31 марта + 1 месяц = 30 апреля
+
+-- Прибавление месяцев к последнему дню месяца (требует обсуждения). При
+-- прибавлении месяцев к последнему дню месяца надо получать последний день
+-- месяца.
+-- 31 января + 1 месяц  = 28 или 29 февраля
+-- 29 февраля + 1 месяц = 31 марта
+-- 31 марта + 1 месяц = 30 апреля
+-- 30 апреля + 1 месяц = 31 мая
+-- 28 февраля 2001 + 1 месяц = 28 марта 2001
+-- 28 февраля 2004 + 1 месяц = 28 марта 2004
 ]]
 
-local math = require('math')
-local datetime = require('datetime')
-local log = require('log')
+local math = require("math")
+local datetime = require("datetime")
 local luzer = require("luzer")
 
 local MIN_DATE_YEAR = -5879610
@@ -320,36 +342,13 @@ if arg[1] then
     os.exit()
 end
 
+local script_path = debug.getinfo(1).source:match("@?(.*/)")
+
 local args = {
     max_total_time = 15,
     print_pcs = 1,
     detect_leaks = 1,
-    dict = "/home/sergeyb/sources/luzer/examples/tarantool_datetime.dict",
+    dict = script_path .. "tarantool_datetime.dict",
     max_len = 2048,
 }
 luzer.Fuzz(TestOneInput, nil, args)
-
---[[
--- Property: Timezone changes when DST applied.
--- Property: The day before Saturday is always Friday.
--- Property: 29.02.YYYY + 1 day == 01.03.(YYYY + 1), where YYYY is a leap year.
--- Property: 28.02.YYYY + 1 day == 01.03.(YYYY + 1), where YYYY is a non-leap year.
-
--- Прибавление месяцев к времени даёт ту же дату в другом месяце, кроме
--- случаев, когда в итоговом месяце меньше дней нежели в исходном. В этом
--- случае получаем последний день.
--- 31 января + 1 месяц = 28 или 29 февраля
--- 30 января + 1 месяц = 28 или 29 февраля
--- 29 февраля + 1 месяц = 29 марта
--- 31 марта + 1 месяц = 30 апреля
-
--- Прибавление месяцев к последнему дню месяца (требует обсуждения). При
--- прибавлении месяцев к последнему дню месяца надо получать последний день
--- месяца.
--- 31 января + 1 месяц  = 28 или 29 февраля
--- 29 февраля + 1 месяц = 31 марта
--- 31 марта + 1 месяц = 30 апреля
--- 30 апреля + 1 месяц = 31 мая
--- 28 февраля 2001 + 1 месяц = 28 марта 2001
--- 28 февраля 2004 + 1 месяц = 28 марта 2004
-]]

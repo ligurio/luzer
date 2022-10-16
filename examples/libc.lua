@@ -42,11 +42,12 @@ local function TestOneInput(buf)
     local len = fdp:consume_integer(1, 10000)
     local arg = fdp:consume_number(1, len)
     -- NYI: cannot call this C function (yet)
-    --libc.sin(arg)
-    --libc.sinf(arg)
-    --libc.sinl(arg)
+    libc.sin(arg)
+    libc.sinf(arg)
+    libc.sinl(arg)
 
 --[[
+TODO:
 int i = regcomp(&re, "hello([0-9]*)world", REG_EXTENDED);
 assert(i==0);
 const char *data = "hello42world";

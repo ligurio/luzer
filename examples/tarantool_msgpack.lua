@@ -32,9 +32,11 @@ if arg[1] then
     os.exit()
 end
 
+local script_path = debug.getinfo(1).source:match("@?(.*/)")
+
 local args = {
     max_len = 4096,
-    dict = "/home/sergeyb/sources/luzer/examples/tarantool_msgpack.dict",
-    corpus = "/home/sergeyb/sources/luzer/examples/tarantool_msgpack",
+    dict = script_path .. "tarantool_msgpack.dict",
+    corpus = script_path .. "tarantool_msgpack",
 }
 luzer.Fuzz(TestOneInput, nil, args)

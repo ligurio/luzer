@@ -19,7 +19,7 @@ end
 
 local cmp_cb = ffi.cast("int (*)(const char *, const char *)", cmp)
 
-local function TestOneInput(buf, size)
+local function TestOneInput(buf)
     --assert(size == #buf)
 	local sz = #buf
     local bytes = ffi.new(("char[%s]"):format(sz))
@@ -28,7 +28,7 @@ local function TestOneInput(buf, size)
     local sorted = ffi.string(bytes, ffi.sizeof(bytes))
     collectgarbage()
 
-    --assert(#sorted == #buf)
+    assert(#sorted == #buf)
 
     -- local t = {}
     -- buf:gsub(".", function(c) table.insert(t, c) end)

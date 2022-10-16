@@ -5,7 +5,6 @@
 -- https://github.com/geoffmcl/utf8-test/tree/master/src
 -- https://github.com/kikito/utf8_validator.lua/blob/master/utf8_validator.lua
 
-
 -- 6.5 – UTF-8 Support
 -- https://www.lua.org/manual/5.3/manual.html#6.5
 
@@ -13,6 +12,7 @@
 -- www.unicode.org/versions/Unicode6.2.0/UnicodeStandard-6.2.pdf
 -- Find-based solution inspired by
 -- http://notebook.kulchenko.com/programming/fixing-malformed-utf8-in-lua
+--[[
 local function is_valid_utf8(str)
   local i, len = 1, #str
   while i <= len do
@@ -38,3 +38,4 @@ if arg[1] then
     TestOneInput(testcase)
     os.exit()
 end
+]]

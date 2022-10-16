@@ -17,8 +17,10 @@ if arg[1] then
     os.exit()
 end
 
+local script_path = debug.getinfo(1).source:match("@?(.*/)")
+
 local args = {
-    dict = "/home/sergeyb/sources/luzer/examples/tarantool_csv.dict",
-    corpus = "/home/sergeyb/sources/luzer/examples/tarantool_csv",
+    dict = script_path .. "tarantool_csv.dict",
+    corpus = script_path .. "tarantool_csv",
 }
 luzer.Fuzz(TestOneInput, nil, args)
