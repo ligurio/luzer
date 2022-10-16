@@ -1,18 +1,3 @@
---[[
-"decimal.scale"
-"decimal.new"
-"decimal.log10"
-"decimal.rescale"
-"decimal.ln"
-"decimal.round"
-"decimal.is_decimal"
-"decimal.exp"
-"decimal.trim"
-"decimal.abs"
-"decimal.precision"
-"decimal.sqrt"
-]]
-
 local luzer = require("luzer")
 local decimal = require("decimal")
 
@@ -32,7 +17,12 @@ if arg[1] then
     os.exit()
 end
 
+local script_path = debug.getinfo(1).source:match("@?(.*/)")
+
 local args = {
     max_len = 4096,
+    corpus = script_path .. "tarantool_decimal",
+    print_pcs = 1,
+    detect_leaks = 1,
 }
 luzer.Fuzz(TestOneInput, nil, args)
