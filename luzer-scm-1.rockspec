@@ -26,7 +26,7 @@ build = {
     variables = {
         CMAKE_LUADIR = "$(LUADIR)",
         CMAKE_LIBDIR = "$(LIBDIR)",
-        CMAKE_BUILD_TYPE="RelWithDebInfo",
+        CMAKE_BUILD_TYPE = "RelWithDebInfo",
         CMAKE_C_COMPILER = "clang",
         CMAKE_CXX_COMPILER = "clang++",
     },
