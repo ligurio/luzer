@@ -1,9 +1,11 @@
 ### TODO:
 
 - падает когда args == {}
+- починить проблему с первым аргументом
 - тесты для custom_mutator()
 - трейсинг
 
+- шарить фидбек от C кода и Lua кода (custom coverage functions https://clang.llvm.org/docs/SanitizerCoverage.html)
 - патч для Lua с поддержкой трейсинга
 - генерировать словарь автоматически для более эффективного фаззинга
 - добавить `oneof()` для выбора случайного элемента в таблице
@@ -15,7 +17,6 @@
   - https://lunarmodules.github.io/luacov/doc/modules/luacov.runner.html#debug_hook
 - передавать корпус в таблице
 - передавать словарь в таблице
-- интеграция с LPM
 - генератор таблиц по схеме JSONschema https://github.com/jdesgats/ljsonschema
 - общие свойства на основе Lua метатаблиц - https://github.com/luc-tielen/lua-quickcheck/issues/33
 - автоматически генерировать тесты для Си (cparser)

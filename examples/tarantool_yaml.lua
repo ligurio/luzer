@@ -1,3 +1,5 @@
+-- https://github.com/tarantool/tarantool/issues/4773 \x36\x00\x80
+
 local yaml = require("yaml")
 local luzer = require("luzer")
 

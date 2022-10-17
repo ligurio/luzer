@@ -1,3 +1,7 @@
+globals = {
+    "box",
+}
+
 files["mutator/mutator_example.lua"] = {
     globals = {
         "LLVMFuzzerCustomMutator",

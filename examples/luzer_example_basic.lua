@@ -29,8 +29,10 @@ if arg[1] then
     os.exit()
 end
 
+local script_path = debug.getinfo(1).source:match("@?(.*/)")
+
 local args = {
-    dict = "/home/sergeyb/sources/luzer/examples/luzer_example_basic.dict",
-    max_len = 1,
+    dict = script_path .. "luzer_example_basic.dict",
+    max_len = 1024,
 }
 luzer.Fuzz(TestOneInput, nil, args)
