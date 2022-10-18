@@ -3,11 +3,4 @@ https://github.com/tarantool/tarantool/issues/7818
 - "Wrong datetime calculation (A - B + B != A)"
 https://github.com/tarantool/tarantool/issues/7145
 - "Variable with expression with ending comma becomes nil"
-```
-~$ cat sample.lua
-a = "aaaa",
-print(a)
-~$ tarantool sample.lua
-nil
-~$
-```
+`tarantool -e "a = 'aaa', print(a)"`
