@@ -55,12 +55,6 @@ static int luaL_traceback(lua_State *L) {
 }
 #endif
 
-// See GracefulExit() in trash/atheris/src/native/util.cc
-static void sig_handler(int sig)
-{
-	exit(0);
-}
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -99,6 +93,19 @@ void __sanitizer_print_stack_trace()
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+// See GracefulExit() in trash/atheris/src/native/util.cc
+static void sig_handler(int sig)
+{
+	switch (sig) {
+	case SIGINT:
+		exit(0);
+		break;
+	case SIGSEGV:
+		__sanitizer_print_stack_trace();
+		break;
+	}
+}
 
 NO_SANITIZE int
 luaL_mutate(lua_State *L)
@@ -250,10 +257,10 @@ luaL_fuzz(lua_State *L)
 	lua_sethook(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
 	lua_pushboolean(L, 1);
 
-	// Set signal handler.
 	struct sigaction act;
 	act.sa_handler = sig_handler;
 	sigaction(SIGINT, &act, NULL);
+	sigaction(SIGSEGV, &act, NULL);
 
 	////////////////////////////////////////////////////////
 	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
