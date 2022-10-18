@@ -1,11 +1,13 @@
 local uri = require("uri")
 local luzer = require("luzer")
 
--- "uri.parse_many"
--- "uri.format"
-
 local function TestOneInput(buf)
-    uri.parse(buf)
+    local url = uri.parse(buf)
+    if type(url) == "table" and
+        url ~= nil then
+        local str = uri.format(url)
+        assert(str)
+    end
 end
 
 if arg[1] then

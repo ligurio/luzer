@@ -36,7 +36,6 @@ local script_path = debug.getinfo(1).source:match("@?(.*/)")
 
 local args = {
     max_len = 4096,
-    dict = script_path .. "tarantool_msgpack.dict",
     corpus = script_path .. "tarantool_msgpack",
 }
 luzer.Fuzz(TestOneInput, nil, args)

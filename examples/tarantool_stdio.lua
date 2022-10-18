@@ -28,7 +28,12 @@ if arg[1] then
     os.exit()
 end
 
+local script_path = debug.getinfo(1).source:match("@?(.*/)")
+
 local args = {
     max_len = 4096,
+    print_pcs = 1,
+    detect_leaks = 1,
+    corpus = script_path .. "tarantool_stdio",
 }
 luzer.Fuzz(TestOneInput, nil, args)

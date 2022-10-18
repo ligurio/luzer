@@ -345,7 +345,6 @@ end
 local script_path = debug.getinfo(1).source:match("@?(.*/)")
 
 local args = {
-    max_total_time = 15,
     print_pcs = 1,
     detect_leaks = 1,
     dict = script_path .. "tarantool_datetime.dict",

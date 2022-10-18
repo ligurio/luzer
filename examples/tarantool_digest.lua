@@ -1,5 +1,3 @@
-local digest = require('digest')
-
 --[[
 "digest.sha512_hex"
 "digest.sha1_hex"
@@ -37,11 +35,27 @@ local digest = require('digest')
 "digest.md5"
 ]]
 
-local buf, res
-buf = "xxx"
-res = digest.base64_encode(buf)
-assert(buf == digest.base64_decode(res))
+local luzer = require("luzer")
+local digest = require("digest")
 
-buf = "xxx"
-res = digest.aes256cbc.encrypt(buf)
-assert(buf == digest.aes256cbc.decrypt(res))
+local function TestOneInput(buf)
+    local ok, res = pcall(digest.base64_decode, buf)
+    if ok == true then
+        res = digest.base64_encode(buf)
+    end
+end
+
+if arg[1] then
+    local fh = io.open(arg[1])
+    local testcase = fh:read("*all")
+    TestOneInput(testcase)
+    os.exit()
+end
+
+local script_path = debug.getinfo(1).source:match("@?(.*/)")
+
+local args = {
+    max_len = 4096,
+    print_pcs = 1,
+}
+luzer.Fuzz(TestOneInput, nil, args)
