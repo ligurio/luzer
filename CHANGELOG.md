@@ -9,6 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Integration with libFuzzer's `TestOneInput()`.
-- Integration with libFuzzer's `CustomMutator()`.
+- Integration with libFuzzer's `LLVMFuzzerTestOneInput()`.
+- Integration with libFuzzer's `LLVMFuzzerCustomMutator()`.
 - Integration with libFuzzer's `FuzzedDataProvider`.
