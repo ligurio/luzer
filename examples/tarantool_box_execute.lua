@@ -1,4 +1,3 @@
--- box.sql.execute('ANALYZE t')
 -- https://github.com/tarantool/tarantool/issues/3866
 -- https://github.com/tarantool/tarantool/issues/3861
 

@@ -12,6 +12,9 @@ https://cyruscyliu.github.io/posts/2021-11-02-libFuzzer-cov-control/
 https://go-talks.appspot.com/github.com/dvyukov/go-fuzz/slides/go-fuzz.slide
 https://go-talks.appspot.com/github.com/dvyukov/go-fuzz/slides/fuzzing.slide
 http://taviso.decsystem.org/making_software_dumber.pdf
+https://github.com/stevenjohnstone/toughfuzzer
+https://cyruscyliu.github.io/posts/2021-11-02-libFuzzer-cov-control/
+https://github.com/googleprojectzero/CompareCoverage
 
 ## Зачем?
 
@@ -111,6 +114,7 @@ datetime.parse (Lua) ->
 - Javascript https://github.com/guidovranken/libfuzzer-js
 - Javascript https://github.com/fuzzitdev/jsfuzz
 - Rust https://github.com/rust-fuzz/cargo-fuzz
+- Rust https://github.com/rust-fuzz/libfuzzer
 - Go https://github.com/dvyukov/go-fuzz
 
 custom mutators:
