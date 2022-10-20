@@ -2,7 +2,6 @@
 -- https://github.com/tarantool/tarantool/issues/3861
 
 local luzer = require("luzer")
-local net_box = require("net.box")
 
 local function TestOneInput(buf)
     os.execute("rm -f *.snap")

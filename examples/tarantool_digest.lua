@@ -41,7 +41,9 @@ local digest = require("digest")
 local function TestOneInput(buf)
     local ok, res = pcall(digest.base64_decode, buf)
     if ok == true then
+        assert(res)
         res = digest.base64_encode(buf)
+        assert(res == buf)
     end
 end
 
@@ -51,8 +53,6 @@ if arg[1] then
     TestOneInput(testcase)
     os.exit()
 end
-
-local script_path = debug.getinfo(1).source:match("@?(.*/)")
 
 local args = {
     max_len = 4096,
