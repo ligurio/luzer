@@ -209,10 +209,12 @@ local function TestOneInput(buf)
     local datetime_fmt = new_dt_fmt(fdp)
 
     -- Property: datetime.parse(dt:format(random_format)) == dt
+	--[[
     dt1 = datetime.new(time_units1)
     local dt1_str = dt1:format(datetime_fmt)
     local dt_parsed = datetime.parse(dt1_str, { format = datetime_fmt })
     assert(dt_parsed == dt1)
+	]]
 
     -- Property: B - (B - A) == A
     -- Blocked by: https://github.com/tarantool/tarantool/issues/7145
