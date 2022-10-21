@@ -4,23 +4,16 @@ local luzer = require("luzer")
 
 local function TestOneInput(buf)
     local fdp = luzer.FuzzedDataProvider(buf)
-    local str = fdp:consume_string(5)
+    local str = fdp:consume_string(4)
 
     local b = {}
     str:gsub(".", function(c) table.insert(b, c) end)
-    if b[1] == 'c' then
-        if b[2] == 'r' then
-            if b[3] == 'a' then
-                if b[4] == 's' then
-                    if b[5] == 'h' then
-                        assert(nil)
-                    end
-                end
-            end
-        end
-    end
-
-    return
+    local count = 0
+    if b[1] == "o" then count = count + 1 end
+    if b[2] == "o" then count = count + 1 end
+    if b[3] == "p" then count = count + 1 end
+    if b[4] == "s" then count = count + 1 end
+    if count == 4 then assert() end
 end
 
 if arg[1] then
@@ -32,7 +25,9 @@ end
 local script_path = debug.getinfo(1).source:match("@?(.*/)")
 
 local args = {
-    dict = script_path .. "luzer_example_basic.dict",
     max_len = 1024,
+    dict = script_path .. "luzer_example_basic.dict",
+    print_pcs = 1,
+    detect_leaks = 1,
 }
 luzer.Fuzz(TestOneInput, nil, args)
