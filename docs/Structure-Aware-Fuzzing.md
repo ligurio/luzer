@@ -9,7 +9,7 @@ language corresponding to this grammar.
 - URL: https://bitbucket.org/chentz/lgen/src/master/GenerationEngine/Grammars/
 - URL: http://lgen.wikidot.com/repgrammar
 
-The re module supports a somewhat conventional regex syntax for pattern usage
+The `re` module supports a somewhat conventional regex syntax for pattern usage
 within LPeg.
 - URL: http://www.inf.puc-rio.br/~roberto/lpeg/re.html
 
@@ -25,8 +25,9 @@ URL: https://github.com/vsbenas/parser-gen
 Parsing common data formats via LPeg (e-mail, JSON, IPv4 and IPv6 addresses,
 INI, strftime, URL).
 - URL: https://github.com/spc476/LPeg-Parsers
+- URL: https://github.com/daurnimator/lpeg_patterns
 
-libprotobuf-mutator is a library to randomly mutate protobuffers.
+`libprotobuf-mutator` is a library to randomly mutate protobuffers.
 It could be used together with guided fuzzing engines, such as libFuzzer.
 Requires protobuf and LPM support in Lua.
 - URL: https://github.com/google/libprotobuf-mutator
