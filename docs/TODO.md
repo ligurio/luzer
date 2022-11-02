@@ -1,13 +1,22 @@
 ### TODO:
 
 - падает когда args == {}
-- починить проблему с первым аргументом
+- починить проблему с первым аргументом в opts
 - тесты для custom_mutator()
 - трейсинг
 
-- шарить фидбек от C кода и Lua кода (custom coverage functions https://clang.llvm.org/docs/SanitizerCoverage.html)
+- фаззинг нативных модулей
+	- шарить фидбек от C кода и Lua кода (custom coverage functions https://clang.llvm.org/docs/SanitizerCoverage.html)
+	- ASAN LD_PRELOAD
+	- /usr/lib/llvm-13/lib/clang/13.0.1/lib/linux/libclang_rt.ubsan_standalone-x86_64.so
+	- /usr/lib/llvm-13/lib/clang/13.0.1/lib/linux/libclang_rt.asan-x86_64.so
+	- https://github.com/google/sanitizers/wiki/SanitizerCommonFlags
+	- https://github.com/google/sanitizers/wiki/AddressSanitizerAsDso#asan-and-ld_preload
+
+- IJON
+- описать в доке составление словаря с помощью mulua, https://github.com/RUB-SysSec/ijon/tree/master/libtokencap
+- втащить исходный код libfuzzer в luzer
 - патч для Lua с поддержкой трейсинга
-- генерировать словарь автоматически для более эффективного фаззинга
 - добавить `oneof()` для выбора случайного элемента в таблице
 - `consume_byte()` https://github.com/luc-tielen/lua-quickcheck/blob/master/lqc/generators/byte.lua
 - `consume_char()` https://github.com/luc-tielen/lua-quickcheck/blob/master/lqc/generators/char.lua
@@ -80,18 +89,6 @@ With `-fsanitize-coverage=trace-stores` the compiler will instrument stores.
 `void __sanitizer_cov_store4(uint32_t *addr);`
 `void __sanitizer_cov_store8(uint64_t *addr);`
 `void __sanitizer_cov_store16(__int128 *addr);`
-
-## Companion tools
-
-Testing could be more rigorous with using these tools:
-
-- `Lua` https://github.com/fab13n/checks
-- `Lua` https://github.com/tarantool/checks
-- `Lua` https://github.com/luc-tielen/lua-quickcheck
-- `C/C++` Address Sanitizer
-- `C/C++` Memory Sanitizer
-- `C/C++` Undefined Behavior Sanitizer
-- `C/C++` Thread Sanitizer
 
 ## Promote:
 

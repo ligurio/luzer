@@ -11,7 +11,9 @@
 
 ## libFuzzer
 
-- [Confirmed] "Assertion `ls->p < ls->pe' failed: lj_bcread.c:122: uint32_t bcread_byte(LexState *)"
+- [Confirmed] "Fix narrowing of unary minus""
+  https://github.com/tarantool/tarantool/issues/6976
+- [Confirmed] "Assertion `ls->p < ls->pe' failed: lj_bcread.c:122: uint32_t bcread_byte(LexState \*)"
   https://github.com/tarantool/tarantool/issues/4824
 - [Fixed] "http_parser() crashes (src/lib/http_parser/http_parser.h)"
   https://github.com/tarantool/security/issues/6

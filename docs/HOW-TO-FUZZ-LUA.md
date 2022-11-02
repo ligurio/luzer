@@ -9,8 +9,7 @@
 тестированием.
 
 https://cyruscyliu.github.io/posts/2021-11-02-libFuzzer-cov-control/
-https://go-talks.appspot.com/github.com/dvyukov/go-fuzz/slides/go-fuzz.slide
-https://go-talks.appspot.com/github.com/dvyukov/go-fuzz/slides/fuzzing.slide
+https://github.com/dvyukov/go-fuzz/tree/master/slides
 http://taviso.decsystem.org/making_software_dumber.pdf
 https://github.com/stevenjohnstone/toughfuzzer
 https://cyruscyliu.github.io/posts/2021-11-02-libFuzzer-cov-control/
