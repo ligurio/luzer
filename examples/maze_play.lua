@@ -1,3 +1,5 @@
+-- https://asciinema.org/a/486297
+
 local maze_generator = require("maze_generator")
 
 local clear_screen = function()

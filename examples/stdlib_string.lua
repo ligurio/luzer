@@ -1,19 +1,10 @@
--- https://github.com/Zac-HD/stdlib-property-tests
--- https://github.com/Zac-HD/stdlib-property-tests/blob/master/tests/test_re_by_construction.py
--- Differential testing with re, https://luarocks.org/modules/rrt/lrexlib-posix
--- https://github.com/codenote/regfuzz
-
 -- 6.4 – String Manipulation
 -- https://www.lua.org/manual/5.3/manual.html#6.4
 
--- 20.2 – Patterns
--- https://www.lua.org/pil/20.2.html
-
--- Source code: http://www.lua.org/source/5.1/lstrlib.c.html
-
--- s = "Deadline is 30/05/1999, firm"
--- date = "%d%d/%d%d/%d%d%d%d"
--- print(string.sub(s, string.find(s, date)))   --> 30/05/1999
+--[[
+"string.rep"
+"string.dump"
+]]
 
 local luzer = require("luzer")
 
@@ -93,11 +84,6 @@ local function TestOneInput_byte(buf)
     assert(byte == b)
 end
 
---[[
-"string.rep"
-"string.dump"
-]]
-
 if arg[1] then
     local testcase = io.open(arg[1]):read("*all")
     TestOneInput(testcase)
@@ -109,18 +95,3 @@ local args = {
     only_ascii = 1,
 }
 luzer.Fuzz(TestOneInput, nil, args)
-
---[[
--- Tarantool
-"string.ljust"
-"string.rstrip"
-"string.split"
-"string.center"
-"string.strip"
-"string.endswith"
-"string.hex"
-"string.fromhex"
-"string.startswith"
-"string.rjust"
-"string.lstrip"
-]]
