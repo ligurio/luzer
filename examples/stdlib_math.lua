@@ -1,14 +1,20 @@
--- https://github.com/Zac-HD/stdlib-property-tests
-
--- 18 – The Mathematical Library
--- https://www.lua.org/pil/18.html
---
--- 6.7 – Mathematical Functions
--- https://www.lua.org/manual/5.3/manual.html#6.7
-
--- Example: https://github.com/LuaJIT/LuaJIT/issues/817
-
 --[[
+
+https://github.com/Zac-HD/stdlib-property-tests
+
+18 – The Mathematical Library
+https://www.lua.org/pil/18.html
+
+6.7 – Mathematical Functions
+https://www.lua.org/manual/5.3/manual.html#6.7
+
+PUC Rio Lua bugs: https://www.lua.org/bugs.html
+
+LuaJIT bugs:
+- https://github.com/LuaJIT/LuaJIT/issues/859
+- https://github.com/LuaJIT/LuaJIT/issues/817
+- https://github.com/LuaJIT/LuaJIT/issues/817
+
 "math.tan"
 "math.cos"
 "math.sqrt"

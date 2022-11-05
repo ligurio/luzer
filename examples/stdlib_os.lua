@@ -1,7 +1,12 @@
--- https://github.com/Zac-HD/stdlib-property-tests
+--[[
 
--- 6.9 – Operating System Facilities
--- https://www.lua.org/manual/5.3/manual.html#6.9
+6.9 – Operating System Facilities
+https://www.lua.org/manual/5.3/manual.html#6.9
+
+PUC Rio Lua bugs: https://www.lua.org/bugs.html
+
+]]
+
 
 local luzer = require("luzer")
 
