@@ -24,9 +24,9 @@ local function TestOneInput(buf, size)
 
     local tbl = {}
     buf:gsub(".", function(c)
-	    local pos = table.getn(tbl) + 1
-	    table.insert(tbl, pos, c)
-	    assert(tbl[pos] == c)
+        local pos = table.getn(tbl) + 1
+        table.insert(tbl, pos, c)
+        assert(tbl[pos] == c)
     end)
     assert(table.getn(tbl), len)
     assert(buf == table.concat(tbl))
