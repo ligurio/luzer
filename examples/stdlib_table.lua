@@ -10,8 +10,6 @@ LuaJIT bugs:
 - https://github.com/LuaJIT/LuaJIT/issues/844
 - https://github.com/LuaJIT/LuaJIT/issues/792
 
-"table.foreach"
-"table.foreachi"
 "table.sort"
 "table.move"
 
@@ -42,7 +40,13 @@ local function TestOneInput(buf, size)
     assert(table.getn(tbl) == 0)
 end
 
+local script_path = debug.getinfo(1).source:match("@?(.*/)")
+
 local args = {
     max_len = 4096,
+    artifact_prefix = "stdlib_table_",
+    dict = script_path .. "stdlib_table.dict",
+    max_total_time = 60,
+    print_final_stats = 1,
 }
 luzer.Fuzz(TestOneInput, nil, args)

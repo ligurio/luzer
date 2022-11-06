@@ -47,7 +47,7 @@ local function TestOneInput(buf, size)
     end)
     assert(string.len(buf) == table.getn(tbl))
 
-	-- local fdp = luzer.FuzzedDataProvider(buf)
+    -- local fdp = luzer.FuzzedDataProvider(buf)
     -- local b = fdp:consume_string(1)
     -- local char_code = string.byte(b)
     -- assert(type(char_code) == "number")
@@ -61,7 +61,13 @@ if arg[1] then
     os.exit()
 end
 
+local script_path = debug.getinfo(1).source:match("@?(.*/)")
+
 local args = {
     max_len = 4096,
+    max_total_time = 60,
+    artifact_prefix = "stdlib_string_",
+    dict = script_path .. "stdlib_string.dict",
+    print_final_stats = 1,
 }
 luzer.Fuzz(TestOneInput, nil, args)

@@ -1,7 +1,5 @@
 --[[
 
-https://github.com/Zac-HD/stdlib-property-tests
-
 18 – The Mathematical Library
 https://www.lua.org/pil/18.html
 
@@ -126,6 +124,8 @@ end
 
 local args = {
     max_len = 4096,
-    only_ascii = 1,
+    artifact_prefix = "stdlib_math_",
+    max_total_time = 60,
+    print_final_stats = 1,
 }
 luzer.Fuzz(TestOneInput_sqrt, nil, args)

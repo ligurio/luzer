@@ -20,7 +20,9 @@ local script_path = debug.getinfo(1).source:match("@?(.*/)")
 
 local args = {
     max_len = 1024,
-    only_ascii = 1,
     corpus = script_path .. "tarantool_uri",
+    artifact_prefix = "tarantool_uri_",
+    max_total_time = 60,
+    print_final_stats = 1,
 }
 luzer.Fuzz(TestOneInput, nil, args)

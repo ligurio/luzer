@@ -24,7 +24,9 @@ if arg[1] then
 end
 
 local args = {
-    only_ascii = 1,
     max_len = 1024,
+    max_total_time = 60,
+    artifact_prefix = "stdlib_os_",
+    print_final_stats = 1,
 }
 luzer.Fuzz(TestOneInput, nil, args)

@@ -22,5 +22,8 @@ local script_path = debug.getinfo(1).source:match("@?(.*/)")
 local args = {
     dict = script_path .. "tarantool_csv.dict",
     corpus = script_path .. "tarantool_csv",
+    artifact_prefix = "tarantool_csv_",
+    max_total_time = 60,
+    print_final_stats = 1,
 }
 luzer.Fuzz(TestOneInput, nil, args)

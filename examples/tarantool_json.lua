@@ -28,5 +28,8 @@ local args = {
     max_len = 4096,
     dict = script_path .. "tarantool_json.dict",
     corpus = script_path .. "tarantool_json",
+    artifact_prefix = "tarantool_json_",
+    max_total_time = 60,
+    print_final_stats = 1,
 }
 luzer.Fuzz(TestOneInput, nil, args)

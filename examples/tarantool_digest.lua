@@ -57,5 +57,8 @@ end
 local args = {
     max_len = 4096,
     print_pcs = 1,
+    artifact_prefix = "tarantool_digest_",
+    max_total_time = 60,
+    print_final_stats = 1,
 }
 luzer.Fuzz(TestOneInput, nil, args)
