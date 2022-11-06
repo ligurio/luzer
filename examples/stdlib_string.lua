@@ -3,8 +3,6 @@
 6.4 – String Manipulation
 https://www.lua.org/manual/5.3/manual.html#6.4
 
-PUC Rio Lua bugs: https://www.lua.org/bugs.html
-
 LuaJIT bugs:
 
 - https://github.com/LuaJIT/LuaJIT/issues/300

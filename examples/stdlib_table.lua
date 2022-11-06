@@ -3,8 +3,6 @@
 6.6 – Table Manipulation
 https://www.lua.org/manual/5.1/manual.html#5.5
 
-PUC Rio Lua bugs: https://www.lua.org/bugs.html
-
 LuaJIT bugs:
 - https://github.com/LuaJIT/LuaJIT/issues/494
 - https://github.com/LuaJIT/LuaJIT/issues/844
