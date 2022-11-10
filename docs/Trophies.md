@@ -13,7 +13,7 @@
 
 - [Confirmed] "Fix narrowing of unary minus""
   https://github.com/tarantool/tarantool/issues/6976
-- [Confirmed] `./third_party/luajit/src/lj_debug.c:104: BCPos debug_framepc(lua_State *, GCfunc *, cTValue *): Assertion `bc_isret( ((BCOp)((ins[-1])&0xff)))' failed.`
+- [Confirmed] `./third_party/luajit/src/lj_debug.c:104: BCPos debug_framepc(lua_State *, GCfunc *, cTValue *): Assertion 'bc_isret( ((BCOp)((ins[-1])&0xff)))' failed.`
 - [Confirmed] "Assertion `ls->p < ls->pe' failed: lj_bcread.c:122: uint32_t bcread_byte(LexState \*)"
   https://github.com/tarantool/tarantool/issues/4824
 - [Fixed] "http\_parser() crashes (src/lib/http\_parser/http\_parser.h)"
