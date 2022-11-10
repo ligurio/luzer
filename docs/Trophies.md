@@ -13,9 +13,10 @@
 
 - [Confirmed] "Fix narrowing of unary minus""
   https://github.com/tarantool/tarantool/issues/6976
+- [Confirmed] `./third\_party/luajit/src/lj\_debug.c:104: BCPos debug\_framepc(lua\_State \*, GCfunc \*, cTValue \*): Assertion `bc_isret( ((BCOp)((ins[-1])&0xff)))' failed.`
 - [Confirmed] "Assertion `ls->p < ls->pe' failed: lj_bcread.c:122: uint32_t bcread_byte(LexState \*)"
   https://github.com/tarantool/tarantool/issues/4824
-- [Fixed] "http_parser() crashes (src/lib/http_parser/http_parser.h)"
+- [Fixed] "http\_parser() crashes (src/lib/http\_parser/http\_parser.h)"
   https://github.com/tarantool/security/issues/6
 - [Fixed] "swim: fix out of bounds access in proto decode"
   https://github.com/tarantool/tarantool/pull/6614
