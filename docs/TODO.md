@@ -5,6 +5,13 @@
 - тесты для custom_mutator()
 - трейсинг
 
+- коллбек-функция которая вызывается каждый раз когда появляются новые результаты от фаззера
+	результаты получать парсингом вывода libfuzzer
+	поток вывода получать через dup()
+	https://github.com/tarantool/luatest/blob/master/luatest/capture.lua
+- рисовать графики статуса фаззинга
+	https://gitlab.com/hansonry/luasvgwriter
+	https://github.com/Jericho1060/svg-lua
 - фаззинг нативных модулей
 	- шарить фидбек от C кода и Lua кода (custom coverage functions https://clang.llvm.org/docs/SanitizerCoverage.html)
 	- ASAN LD_PRELOAD
@@ -13,10 +20,10 @@
 	- https://github.com/google/sanitizers/wiki/SanitizerCommonFlags
 	- https://github.com/google/sanitizers/wiki/AddressSanitizerAsDso#asan-and-ld_preload
 
+- патч для Lua с поддержкой трейсинга
 - IJON
 - описать в доке составление словаря с помощью mulua, https://github.com/RUB-SysSec/ijon/tree/master/libtokencap
-- втащить исходный код libfuzzer в luzer
-- патч для Lua с поддержкой трейсинга
+- ? втащить исходный код libfuzzer в luzer
 - добавить `oneof()` для выбора случайного элемента в таблице
 - `consume_byte()` https://github.com/luc-tielen/lua-quickcheck/blob/master/lqc/generators/byte.lua
 - `consume_char()` https://github.com/luc-tielen/lua-quickcheck/blob/master/lqc/generators/char.lua
@@ -99,3 +106,4 @@ With `-fsanitize-coverage=trace-stores` the compiler will instrument stores.
 - ZeroBrane Studio?
 - opennet https://www.opennet.ru/opennews/art.shtml?num=54204
 - https://www.reddit.com/r/fuzzing/
+- https://www.reddit.com/r/lua/
