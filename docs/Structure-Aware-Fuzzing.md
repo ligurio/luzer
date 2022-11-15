@@ -34,6 +34,10 @@ Requires protobuf and LPM support in Lua.
 
 ProtoBuf implementations:
 
+- sproto - yet another protocol library like google protocol buffers , but
+  simple and fast. https://github.com/cloudwu/sproto
+- pbc - a protocol buffers library for C,
+  https://github.com/cloudwu/pbc
 - μpb - a small protobuf implementation in C,
   https://github.com/haberman/upb
 - Google's Protocol Buffers project, ported to Lua,
