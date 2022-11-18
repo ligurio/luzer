@@ -21,7 +21,7 @@ local script_path = debug.getinfo(1).source:match("@?(.*/)")
 
 local args = {
     max_len = 4096,
-    corpus = script_path .. "tarantool_box_execute",
+    corpus = script_path .. "tarantool-corpus/tarantool_box_execute",
     print_pcs = 1,
     print_final_stats = 1,
     artifact_prefix = "tarantool_box_execute_",

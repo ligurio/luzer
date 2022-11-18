@@ -21,8 +21,8 @@ local script_path = debug.getinfo(1).source:match("@?(.*/)")
 
 local args = {
     max_len = 128,
-    dict = script_path .. "tarantool_yaml.dict",
-    corpus = script_path .. "tarantool_yaml",
+    dict = script_path .. "tarantool-corpus/tarantool_yaml.dict",
+    corpus = script_path .. "tarantool-corpus/tarantool_yaml",
     print_pcs = 1,
     artifact_prefix = "tarantool_yaml_",
     max_total_time = 60,
