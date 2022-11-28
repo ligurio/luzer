@@ -13,7 +13,8 @@ local function TestOneInput(buf)
     if b[2] == "o" then count = count + 1 end
     if b[3] == "p" then count = count + 1 end
     if b[4] == "s" then count = count + 1 end
-    if count == 4 then assert() end
+
+    if count == 4 then assert(nil) end
 end
 
 if arg[1] then

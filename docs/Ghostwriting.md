@@ -25,3 +25,7 @@ mulua
 - Hypothesys, https://timothycrosley.github.io/hypothesis-auto/
 - https://github.com/HexHive/FuzzGen
 - Jazzer with autofuzz, https://www.code-intelligence.com/blog/autofuzz
+- Haskell, quickspec
+	- https://github.com/nick8325/quickspec
+	- https://hackage.haskell.org/package/quickspec-2.1.5/docs/QuickSpec.html
+	- https://smallbone.se/papers/quickspec2.pdf

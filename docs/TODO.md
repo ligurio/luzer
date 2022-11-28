@@ -2,9 +2,12 @@
 
 - падает когда args == {}
 - починить проблему с первым аргументом в opts
-- тесты для custom_mutator()
-- трейсинг
+- тесты для `custom_mutator()`
+- трейсинг для `LUA_LINE`, `LUA_CALL`
 
+- добавить `fdp:oneof()` для выбора случайного элемента в таблице
+- FDP: https://hypothesis.readthedocs.io/en/latest/data.html
+- https://github.com/google/centipede/tree/main/puzzles
 - коллбек-функция которая вызывается каждый раз когда появляются новые результаты от фаззера
 	результаты получать парсингом вывода libfuzzer
 	поток вывода получать через dup()
@@ -20,11 +23,22 @@
 	- https://github.com/google/sanitizers/wiki/SanitizerCommonFlags
 	- https://github.com/google/sanitizers/wiki/AddressSanitizerAsDso#asan-and-ld_preload
 
+- использование с mod_lua
+	https://httpd.apache.org/docs/trunk/developer/lua.html
+	https://httpd.apache.org/docs/trunk/mod/mod_lua.html
+- таргеты или воспроизвести с помощью luzer:
+	https://www.ubercomp.com/posts/2022-01-20_redis_on_debian_rce
+	https://github.com/vulhub/vulhub/tree/master/redis/CVE-2022-0543
+	https://nvd.nist.gov/vuln/detail/CVE-2020-36309
+	https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=Lua
+	lua-openssl
+	prosody
+	OpenResty
+	PowerDNS
 - патч для Lua с поддержкой трейсинга
 - IJON
 - описать в доке составление словаря с помощью mulua, https://github.com/RUB-SysSec/ijon/tree/master/libtokencap
 - ? втащить исходный код libfuzzer в luzer
-- добавить `oneof()` для выбора случайного элемента в таблице
 - `consume_byte()` https://github.com/luc-tielen/lua-quickcheck/blob/master/lqc/generators/byte.lua
 - `consume_char()` https://github.com/luc-tielen/lua-quickcheck/blob/master/lqc/generators/char.lua
 - `consume_string()` для Unicode, 6.5 – UTF-8 Support, https://www.lua.org/manual/5.4/manual.html
