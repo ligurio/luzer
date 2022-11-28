@@ -350,8 +350,8 @@ local args = {
     max_len = 2048,
     print_pcs = 1,
     detect_leaks = 1,
-    dict = script_path .. "tarantool-corpus/tarantool_datetime.dict",
-    artifact_prefix = "tarantool_datetime_",
+    corpus = script_path .. "tarantool-corpus/datetime_new",
+    artifact_prefix = "datetime_new_",
     max_total_time = 60,
     print_final_stats = 1,
 }
