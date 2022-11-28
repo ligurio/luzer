@@ -27,9 +27,5 @@ include_files = {
 exclude_files = {
     '.rocks',
     'build/',
-
-    'examples/tarantool_datetime.lua',
-    'examples/stdlib_string.lua',
-    'examples/stdlib_math.lua',
     'trash/',
 }
