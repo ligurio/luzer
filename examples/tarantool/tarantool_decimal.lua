@@ -21,10 +21,10 @@ local script_path = debug.getinfo(1).source:match("@?(.*/)")
 
 local args = {
     max_len = 4096,
-    corpus = script_path .. "tarantool-corpus/tarantool_decimal",
+    corpus = script_path .. "tarantool-corpus/decimal_new",
     print_pcs = 1,
     detect_leaks = 1,
-    artifact_prefix = "tarantool_decimal_",
+    artifact_prefix = "decimal_new_",
     max_total_time = 60,
     print_final_stats = 1,
 }

@@ -26,9 +26,9 @@ local script_path = debug.getinfo(1).source:match("@?(.*/)")
 
 local args = {
     max_len = 4096,
-    dict = script_path .. "tarantool-corpus/tarantool_json.dict",
-    corpus = script_path .. "tarantool-corpus/tarantool_json",
-    artifact_prefix = "tarantool_json_",
+    dict = script_path .. "tarantool-corpus/json_decode.dict",
+    corpus = script_path .. "tarantool-corpus/json_decode",
+    artifact_prefix = "json_decode_",
     max_total_time = 60,
     print_final_stats = 1,
 }

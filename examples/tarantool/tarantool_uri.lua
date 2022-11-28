@@ -1,14 +1,13 @@
-local csv = require("csv")
+local uri = require("uri")
 local luzer = require("luzer")
 
 local function TestOneInput(buf)
-    local ok, res = pcall(csv.load, buf)
-    if ok == true then
-        assert(res ~= nil)
+    local url = uri.parse(buf)
+    if type(url) == "table" and
+        url ~= nil then
+        local str = uri.format(url)
+        assert(str)
     end
-	ok, res = pcall(csv.dump, res)
-	assert(ok == true)
-	assert(res)
 end
 
 if arg[1] then
@@ -20,9 +19,9 @@ end
 local script_path = debug.getinfo(1).source:match("@?(.*/)")
 
 local args = {
-    dict = script_path .. "tarantool-corpus/tarantool_csv.dict",
-    corpus = script_path .. "tarantool-corpus/tarantool_csv",
-    artifact_prefix = "tarantool_csv_",
+    max_len = 1024,
+    corpus = script_path .. "tarantool-corpus/uri_parse",
+    artifact_prefix = "uri_parse_",
     max_total_time = 60,
     print_final_stats = 1,
 }

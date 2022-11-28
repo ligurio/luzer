@@ -1,15 +1,14 @@
--- https://www.tarantool.io/en/doc/latest/reference/reference_lua/uuid/
-
-local uuid = require("uuid")
+local csv = require("csv")
 local luzer = require("luzer")
 
 local function TestOneInput(buf)
-    local ok, res = pcall(uuid.frombin, buf)
+    local ok, res = pcall(csv.load, buf)
     if ok == true then
         assert(res ~= nil)
-        assert(uuid.is_uuid(res))
-        assert(res:str())
     end
+	ok, res = pcall(csv.dump, res)
+	assert(ok == true)
+	assert(res)
 end
 
 if arg[1] then
@@ -21,10 +20,9 @@ end
 local script_path = debug.getinfo(1).source:match("@?(.*/)")
 
 local args = {
-    print_pcs = 1,
-    max_len = 1024,
-    corpus = script_path .. "tarantool-corpus/tarantool_uuid",
-    artifact_prefix = "tarantool_uuid_",
+    dict = script_path .. "tarantool-corpus/csv.dict",
+    corpus = script_path .. "tarantool-corpus/csv_load",
+    artifact_prefix = "csv_load_",
     max_total_time = 60,
     print_final_stats = 1,
 }

@@ -34,8 +34,8 @@ local args = {
     max_len = 4096,
     print_pcs = 1,
     detect_leaks = 1,
-    corpus = script_path .. "tarantool-corpus/tarantool_stdio",
-    artifact_prefix = "tarantool_stdio_",
+    corpus = script_path .. "tarantool-corpus/stdio",
+    artifact_prefix = "stdio_",
     max_total_time = 60,
     print_final_stats = 1,
 }
