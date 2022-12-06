@@ -31,10 +31,30 @@
 	https://github.com/vulhub/vulhub/tree/master/redis/CVE-2022-0543
 	https://nvd.nist.gov/vuln/detail/CVE-2020-36309
 	https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=Lua
-	lua-openssl
-	prosody
-	OpenResty
-	PowerDNS
+	https://en.m.wikipedia.org/wiki/List_of_applications_using_Lua
+		lua-openssl
+		prosody
+		OpenResty
+		PowerDNS
+		Neovim
+		Darktable
+		Redis
+		Haproxy
+		Netbsd lua
+		Nmap
+		Bodemcu
+		Openresty
+		Pandoc
+		Powerdns
+		Prosody
+		Snort
+		Torch
+		Vlc
+		Varnish
+		Wireshark
+		Zerobrane
+		Lightroom
+
 - патч для Lua с поддержкой трейсинга
 - IJON
 - описать в доке составление словаря с помощью mulua, https://github.com/RUB-SysSec/ijon/tree/master/libtokencap
@@ -51,65 +71,6 @@
 - общие свойства на основе Lua метатаблиц - https://github.com/luc-tielen/lua-quickcheck/issues/33
 - автоматически генерировать тесты для Си (cparser)
 - автоматически генерировать тесты для Lua (mulua?)
-
-# tracing
-
-https://clang.llvm.org/docs/SanitizerCoverage.html
-
-With `-fsanitize-coverage=trace-pc-guard` the compiler will insert the
-following code on every edge:
-
-`__sanitizer_cov_trace_pc_guard(&guard_variable)`
-
-With `-fsanitize-coverage=trace-cmp` the compiler will insert extra
-instrumentation around comparison instructions.
-
-// Called before a comparison instruction.
-// Arg1 and Arg2 are arguments of the comparison.
-`void __sanitizer_cov_trace_cmp1(uint8_t Arg1, uint8_t Arg2);`
-`void __sanitizer_cov_trace_cmp2(uint16_t Arg1, uint16_t Arg2);`
-`void __sanitizer_cov_trace_cmp4(uint32_t Arg1, uint32_t Arg2);`
-`void __sanitizer_cov_trace_cmp8(uint64_t Arg1, uint64_t Arg2);`
-
-// Called before a comparison instruction if exactly one of the arguments is constant.
-// Arg1 and Arg2 are arguments of the comparison, Arg1 is a compile-time constant.
-`void __sanitizer_cov_trace_const_cmp1(uint8_t Arg1, uint8_t Arg2);`
-`void __sanitizer_cov_trace_const_cmp2(uint16_t Arg1, uint16_t Arg2);`
-`void __sanitizer_cov_trace_const_cmp4(uint32_t Arg1, uint32_t Arg2);`
-`void __sanitizer_cov_trace_const_cmp8(uint64_t Arg1, uint64_t Arg2);`
-
-With `-fsanitize-coverage=trace-div` the compiler will instrument
-integer division instructions (to capture the right argument of division).
-
-// Called before a division statement.
-// Val is the second argument of division.
-`void __sanitizer_cov_trace_div4(uint32_t Val);`
-`void __sanitizer_cov_trace_div8(uint64_t Val);`
-
-With `-fsanitize-coverage=trace-gep` – the LLVM GEP instructions (to capture
-array indices).
-
-// Called before a GetElemementPtr (GEP) instruction
-// for every non-constant array index.
-`void __sanitizer_cov_trace_gep(uintptr_t Idx);`
-
-With `-fsanitize-coverage=trace-loads` the compiler will instrument loads.
-
-// Called before a load of appropriate size. Addr is the address of the load.
-`void __sanitizer_cov_load1(uint8_t *addr);`
-`void __sanitizer_cov_load2(uint16_t *addr);`
-`void __sanitizer_cov_load4(uint32_t *addr);`
-`void __sanitizer_cov_load8(uint64_t *addr);`
-`void __sanitizer_cov_load16(__int128 *addr);`
-
-With `-fsanitize-coverage=trace-stores` the compiler will instrument stores.
-
-// Called before a store of appropriate size. Addr is the address of the store.
-`void __sanitizer_cov_store1(uint8_t *addr);`
-`void __sanitizer_cov_store2(uint16_t *addr);`
-`void __sanitizer_cov_store4(uint32_t *addr);`
-`void __sanitizer_cov_store8(uint64_t *addr);`
-`void __sanitizer_cov_store16(__int128 *addr);`
 
 ## Promote:
 
