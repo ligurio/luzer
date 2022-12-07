@@ -32,28 +32,26 @@
 	https://nvd.nist.gov/vuln/detail/CVE-2020-36309
 	https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=Lua
 	https://en.m.wikipedia.org/wiki/List_of_applications_using_Lua
-		lua-openssl
-		prosody
-		OpenResty
-		PowerDNS
-		Neovim
-		Darktable
-		Redis
-		Haproxy
-		Netbsd lua
-		Nmap
 		Bodemcu
-		Openresty
+		Darktable
+		Haproxy
+		Lightroom
+		lua-openssl
+		Neovim
+		NetBSD lua
+		Nmap
+		OpenResty
 		Pandoc
-		Powerdns
+		PowerDNS
+		prosody
 		Prosody
+		Redis
 		Snort
 		Torch
-		Vlc
 		Varnish
+		Vlc
 		Wireshark
 		Zerobrane
-		Lightroom
 
 - патч для Lua с поддержкой трейсинга
 - IJON
