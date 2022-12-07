@@ -1,22 +1,28 @@
 ### Fuzzing C library
 
+Lua has a FFI library that allows seamless integration with C/C++ libraries.
+LuaJIT has a builtin FFI library, see https://luajit.org/ext_ffi_tutorial.html.
+
 Build C library with "-fsanitize=fuzzer-no-link,address".
 Create a fuzzing target.
 Run fuzzing target.
 
 `examples/example_zlib.lua`
 
-### Fuzzing builtin Lua modules
+### Fuzzing builtin Lua functions
 
-Download archive with Lua source code on [download page](https://www.lua.org/download.html)
-and unpack archive:
+`luzer` is useful for testing builtin Lua functions. This example describes
+fuzzing testing of builtin Lua function.
+
+Download archive with Lua 5.4 source code on [download
+page](https://www.lua.org/download.html) and unpack archive:
 
 ```sh
 curl -O https://www.lua.org/ftp/lua-5.4.4.tar.g
 tar xvzf lua-5.4.4.tar.gz
 ```
 
-Build Lua interpreter with "-fsanitize=fuzzer-no-link,undefined".
+Build Lua interpreter with `-fsanitize=fuzzer-no-link,undefined`.
 Set `CFLAGS` and `LDFLAGS`:
 
 ```diff
@@ -61,8 +67,7 @@ TODO:
 Setup module using `luarocks`:
 
 ```
-$ luarocks install --tree modules --lua-version 5.1
-	lua-cjson CC="clang" CFLAGS="-ggdb -fPIC -fsanitize=address" LDFLAGS="-fsanitize=address"
+$ luarocks install --tree modules --lua-version 5.1 lua-cjson CC="clang" CFLAGS="-ggdb -fPIC -fsanitize=address" LDFLAGS="-fsanitize=address"
 
 Installing https://luarocks.org/lua-cjson-2.1.0.6-1.src.rock
 
