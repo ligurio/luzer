@@ -82,15 +82,9 @@ install(
   RENAME luzer.so
 )
 
-file(GLOB LIBCUSTOM_MUTATOR_LIB ${CMAKE_CURRENT_BINARY_DIR}/libcustom_mutator.so.*)
-
-# install(
-#   TARGETS custom_mutator
-#   LIBRARY
-#   DESTINATION "${CMAKE_LIBDIR}/"
-# )
-
-install(FILES ${LIBCUSTOM_MUTATOR_LIB}
+install(
+  TARGETS custom_mutator
   LIBRARY
+  NAMELINK_ONLY
   DESTINATION "${CMAKE_LIBDIR}/"
 )
