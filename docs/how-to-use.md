@@ -1,7 +1,7 @@
 ### Fuzzing C library
 
 Lua has a FFI library that allows seamless integration with C/C++ libraries.
-LuaJIT has a builtin FFI library, see https://luajit.org/ext_ffi_tutorial.html.
+LuaJIT has a builtin FFI library, see https://luajit.org/ext_ffi.html
 
 Build C library with "-fsanitize=fuzzer-no-link,address".
 Create a fuzzing target.
@@ -58,12 +58,6 @@ TODO
 
 ### Fuzzing C Extensions
 
-TODO:
-
-- https://github.com/google/atheris/blob/master/native_extension_fuzzing.md
-- "Fuzzing native Python extensions with Atheris" https://www.youtube.com/watch?v=oM-7lt43-GA
-- https://github.com/google/atheris/blob/master/native_extension_fuzzing.md
-
 Setup module using `luarocks`:
 
 ```
@@ -87,3 +81,9 @@ $ mkdir cjson-corpus
 $ echo -n "{}" > cjson-corpus/sample
 $ luajit luzer_example_json.lua
 ```
+
+TODO:
+
+- https://github.com/google/atheris/blob/master/native_extension_fuzzing.md
+- "Fuzzing native Python extensions with Atheris" https://www.youtube.com/watch?v=oM-7lt43-GA
+- https://github.com/google/atheris/blob/master/native_extension_fuzzing.md
