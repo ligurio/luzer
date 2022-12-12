@@ -1,5 +1,3 @@
-package.cpath = "./?.so"
-
 local luzer = require("luzer")
 
 local function TestOneInput(buf)
@@ -23,11 +21,8 @@ if arg[1] then
     os.exit()
 end
 
-local script_path = debug.getinfo(1).source:match("@?(.*/)")
-
 local args = {
     max_len = 1024,
-    dict = script_path .. "luzer_example_basic.dict",
     print_pcs = 1,
     detect_leaks = 1,
 }
