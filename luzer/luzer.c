@@ -211,6 +211,10 @@ luaL_fuzz(lua_State *L)
 		argc++;
 		argv = argvp;
 	}
+	if (argc == 0) {
+		argv[argc] = "";
+		argc++;
+	}
 	argv[argc] = NULL; /* not needed actually */
 	lua_pop(L, 1);
 
