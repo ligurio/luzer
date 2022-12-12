@@ -85,6 +85,6 @@ install(
 install(
   TARGETS custom_mutator
   LIBRARY
-  NAMELINK_ONLY
+  NAMELINK_SKIP
   DESTINATION "${CMAKE_LIBDIR}/"
 )
