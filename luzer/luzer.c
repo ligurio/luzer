@@ -27,7 +27,7 @@ set_global_lua_stack(lua_State *L)
 }
 
 lua_State *
-get_global_lua_stack()
+get_global_lua_stack(void)
 {
 	if (!LL)
 		luaL_error(LL, "Lua stack is not initialized.");
@@ -65,14 +65,14 @@ int LLVMFuzzerRunDriver(int* argc, char*** argv,
 // Sets the callback to be called right before death on error.
 // Passing 0 will unset the callback.
 // Called in libfuzzer_driver.cpp.
-void __sanitizer_set_death_callback(void (*callback)())
+void __sanitizer_set_death_callback(void (*callback)(void))
 {
 	/* cleanup(); */
 }
 
 // Suppress libFuzzer warnings about missing sanitizer methods in non-sanitizer
 // builds.
-int __sanitizer_acquire_crash_state()
+int __sanitizer_acquire_crash_state(void)
 {
 	return 1;
 }
@@ -81,7 +81,7 @@ int __sanitizer_acquire_crash_state()
 // https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
 // http://www.lua.org/manual/5.2/manual.html#luaL_traceback
 // https://www.lua.org/manual/5.3/manual.html#luaL_traceback
-void __sanitizer_print_stack_trace()
+void __sanitizer_print_stack_trace(void)
 {
 	lua_State *L = get_global_lua_stack();
 #if LUA_VERSION_NUM < 502
