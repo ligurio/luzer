@@ -202,9 +202,9 @@ luaL_fuzz(lua_State *L)
 		const char *value = lua_tostring(L, -1);
 		char *arg = (char *)value;
 		if (strcmp(key, "corpus"))	{
-			size_t arg_str_size = strlen(key) + strlen(value) + 3;
+			size_t arg_str_size = 6 + strlen(value) + 3;
 			arg = malloc(arg_str_size);
-			snprintf(arg, arg_str_size, "-%s=%s", key, value);
+			snprintf(arg, arg_str_size, "-corpus=%s", value);
 		}
 		argvp[argc] = arg;
 		lua_pop(L, 1);
