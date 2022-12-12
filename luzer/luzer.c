@@ -218,12 +218,12 @@ luaL_fuzz(lua_State *L)
 	argv[argc] = NULL; /* not needed actually */
 	lua_pop(L, 1);
 
-	/*
+#ifdef DEBUG
 	char **p = argv;
 	while(*p++) {
-		printf("DEBUG: arg %s\n", *p);
+		printf("DEBUG: libFuzzer arg %s\n", *p);
 	}
-	*/
+#endif /* DEBUG */
 
 	if (!lua_isnil(L, -1)) {
 		if (lua_isfunction(L, -1) == 1) {
