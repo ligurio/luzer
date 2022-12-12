@@ -67,7 +67,7 @@ failing input is found, or the user cancels the process (e.g. with `Ctrl^C`).
 The output will look something like this:
 
 ```
-$ luajit examples/luzer_example_basic.lua
+$ luajit examples/example_basic.lua
 INFO: Running with entropic power schedule (0xFF, 100).
 INFO: Seed: 1557779137
 INFO: Loaded 1 modules   (151 inline 8-bit counters): 151 [0x7f0640e706e3, 0x7f0640e7077a),
