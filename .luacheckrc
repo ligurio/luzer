@@ -6,12 +6,10 @@ files["mutator/mutator_example.lua"] = {
     globals = {
         "LLVMFuzzerCustomMutator",
         "LLVMFuzzerMutate",
-
-        "luzer_custom_mutator",
     },
 }
 
-files["luzer/test.lua"] = {
+files["luzer/tests/*.lua"] = {
     globals = {
         "luzer_test_one_input",
         "luzer_custom_mutator",
