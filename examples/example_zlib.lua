@@ -35,15 +35,11 @@ local function uncompress(comp, n)
 end
 
 local function TestOneInput(buf)
-    local c = compress(buf)
-    local txt2 = uncompress(c, #buf)
-    assert(txt2 == buf)
-end
-
-if arg[1] then
-    local testcase = io.open(arg[1]):read("*all")
-    TestOneInput(testcase)
-    os.exit()
+    local compressed = compress(buf)
+    if compressed ~= nil then
+        local raw = uncompress(compressed, #buf)
+        assert(raw == buf)
+    end
 end
 
 local args = {
