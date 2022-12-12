@@ -25,6 +25,7 @@ extra bugs.
 
 ```sh
 $ luarocks --local install luzer
+$ eval $(luarocks path)
 ```
 
 ## Writing Fuzz Tests In Lua
