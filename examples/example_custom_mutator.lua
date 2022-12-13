@@ -10,14 +10,10 @@ local function TestOneInput(buf)
 
     local b = {}
     str:gsub(".", function(c) table.insert(b, c) end)
-    if b[1] == 'c' then
-        if b[2] == 'r' then
-            if b[3] == 'a' then
-                if b[4] == 's' then
-                    if b[5] == 'h' then
-                        assert(nil)
-                    end
-                end
+    if b[1] == 'L' then
+        if b[2] == 'U' then
+            if b[3] == 'A' then
+                assert(nil)
             end
         end
     end
