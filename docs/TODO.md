@@ -4,7 +4,6 @@
 - починить проблему с первым аргументом в opts
 - тесты для `custom_mutator()`
 
-
 - трейсинг для `LUA_LINE`, `LUA_CALL`
 - добавить `fdp:oneof()` для выбора случайного элемента в таблице
 - FDP: https://hypothesis.readthedocs.io/en/latest/data.html
@@ -33,6 +32,7 @@
 		Apache mod_lua
 			https://httpd.apache.org/docs/trunk/developer/lua.html
 			https://httpd.apache.org/docs/trunk/mod/mod_lua.html
+		pandoc filters
 		rspamd
 		Bodemcu
 		Darktable
@@ -45,9 +45,10 @@
 		OpenResty
 		Pandoc
 		PowerDNS
-		prosody
-		Prosody
+		Prosody (high cyclomatic complexity!)
 		Redis
+		Sile https://github.com/sile-typesetter/sile
+		https://github.com/speedata/luaqrcode
 		Snort
 		Torch
 		Varnish
