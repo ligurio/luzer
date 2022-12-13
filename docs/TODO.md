@@ -1,7 +1,9 @@
 ### TODO:
 
+- совместимость с Lua 5.2 починить
 - починить проблему с первым аргументом в opts
 - тесты для `custom_mutator()`
+
 
 - трейсинг для `LUA_LINE`, `LUA_CALL`
 - добавить `fdp:oneof()` для выбора случайного элемента в таблице
@@ -22,15 +24,16 @@
 	- https://github.com/google/sanitizers/wiki/SanitizerCommonFlags
 	- https://github.com/google/sanitizers/wiki/AddressSanitizerAsDso#asan-and-ld_preload
 
-- использование с mod_lua
-	https://httpd.apache.org/docs/trunk/developer/lua.html
-	https://httpd.apache.org/docs/trunk/mod/mod_lua.html
 - таргеты или воспроизвести с помощью luzer:
 	https://www.ubercomp.com/posts/2022-01-20_redis_on_debian_rce
 	https://github.com/vulhub/vulhub/tree/master/redis/CVE-2022-0543
 	https://nvd.nist.gov/vuln/detail/CVE-2020-36309
 	https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=Lua
 	https://en.m.wikipedia.org/wiki/List_of_applications_using_Lua
+		Apache mod_lua
+			https://httpd.apache.org/docs/trunk/developer/lua.html
+			https://httpd.apache.org/docs/trunk/mod/mod_lua.html
+		rspamd
 		Bodemcu
 		Darktable
 		Haproxy
@@ -52,7 +55,7 @@
 		Wireshark
 		Zerobrane
 
-- патч для Lua с поддержкой трейсинга
+- патч для PUC Rio Lua с поддержкой трейсинга
 - IJON
 - описать в доке составление словаря с помощью mulua, https://github.com/RUB-SysSec/ijon/tree/master/libtokencap
 - ? втащить исходный код libfuzzer в luzer
@@ -65,7 +68,7 @@
 - передавать корпус в таблице
 - передавать словарь в таблице
 - генератор таблиц по схеме JSONschema https://github.com/jdesgats/ljsonschema
-- общие свойства на основе Lua метатаблиц - https://github.com/luc-tielen/lua-quickcheck/issues/33
+- Документация: общие свойства на основе Lua метатаблиц - https://github.com/luc-tielen/lua-quickcheck/issues/33
 - автоматически генерировать тесты для Си (cparser)
 - автоматически генерировать тесты для Lua (mulua?)
 
