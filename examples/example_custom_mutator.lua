@@ -1,17 +1,20 @@
 local luzer = require("luzer")
 
 local function custom_mutator(buf)
-    return buf .. "xxx"
+    return buf .. "A"
 end
 
 local function TestOneInput(buf)
     local fdp = luzer.FuzzedDataProvider(buf)
-    local str = fdp:consume_string(5)
+    local str = fdp:consume_string(3)
 
     local b = {}
-    str:gsub(".", function(c) table.insert(b, c) end)
-    if b[1] == 'L' then
-        if b[2] == 'U' then
+    str:gsub(".", function(c)
+        table.insert(b, c)
+    end)
+
+    if b[1] == 'A' then
+        if b[2] == 'A' then
             if b[3] == 'A' then
                 assert(nil)
             end
