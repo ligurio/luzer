@@ -52,9 +52,15 @@
 		Snort
 		Torch
 		Varnish
-		Vlc
+		Vlc https://vlc.verg.ca/
+		mpv
+			https://github.com/mpv-player/mpv/blob/master/DOCS/man/lua.rst
+			https://github.com/CogentRedTester/mpv-scripts
 		Wireshark
-		Zerobrane
+		Zerobrane https://github.com/pkulchenko/ZeroBraneStudio
+		lapis https://github.com/leafo/lapis
+		https://love2d.org/
+		Torch http://torch.ch/
 
 - патч для PUC Rio Lua с поддержкой трейсинга
 - IJON
