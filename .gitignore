@@ -1,6 +1,8 @@
 build
 build.luarocks
-tags
 crash-*
-cmake
-trash
+.ccls-cache
+.luarc.json
+.rocks
+tags
+tests
