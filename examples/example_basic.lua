@@ -15,14 +15,7 @@ local function TestOneInput(buf)
     if count == 4 then assert(nil) end
 end
 
-if arg[1] then
-    local testcase = io.open(arg[1]):read("*all")
-    TestOneInput(testcase)
-    os.exit()
-end
-
 local args = {
-    max_len = 1024,
     print_pcs = 1,
     detect_leaks = 1,
 }
