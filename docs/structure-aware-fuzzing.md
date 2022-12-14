@@ -1,16 +1,18 @@
-### Structure-Aware Fuzzing
+# Structure-Aware Fuzzing
 
 LGen - the Lua Language Generator is a sentence (test data) generator based on
 syntax description and which uses coverage criteria to restrict the set of
 generated sentences. This generator takes as input a grammar described in a
 notation based on Extended BNF (EBNF) and returns a set of sentences of the
 language corresponding to this grammar.
+
 - URL: https://bitbucket.org/chentz/lgen/src/master/
 - URL: https://bitbucket.org/chentz/lgen/src/master/GenerationEngine/Grammars/
 - URL: http://lgen.wikidot.com/repgrammar
 
 The `re` module supports a somewhat conventional regex syntax for pattern usage
 within LPeg.
+
 - URL: http://www.inf.puc-rio.br/~roberto/lpeg/re.html
 
 A Lua parser generator that makes it possible to describe grammars in a PEG
@@ -24,8 +26,11 @@ URL: https://github.com/vsbenas/parser-gen
 
 Parsing common data formats via LPeg (e-mail, JSON, IPv4 and IPv6 addresses,
 INI, strftime, URL).
+
 - URL: https://github.com/spc476/LPeg-Parsers
 - URL: https://github.com/daurnimator/lpeg_patterns
+
+## References
 
 - [libFuzzer Tutorial][libfuzzer-tutorial-url]
 - [How To Split A Fuzzer-Generated Input Into Several ][split-inputs-url]
