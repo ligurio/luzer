@@ -164,8 +164,8 @@ true
 AAAAAAAAA
 ```
 
-Learn more about structure-aware fuzzing in
-[docs/structure-aware-fuzzing.md](docs/structure-aware-fuzzing.md).
+Learn more about structure-aware fuzzing in the
+[documentation](docs/structure-aware-fuzzing.md).
 
 ## Using Custom Mutators Written In Lua
 
