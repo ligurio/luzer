@@ -81,6 +81,8 @@ install(
   RENAME luzer.so
 )
 
+# See description of NAMELINK_SKIP in
+# https://cmake.org/cmake/help/latest/command/install.html
 install(
   TARGETS custom_mutator
   LIBRARY
