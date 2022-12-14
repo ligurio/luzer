@@ -35,6 +35,9 @@ INI, strftime, URL).
 - [libFuzzer Tutorial][libfuzzer-tutorial-url]
 - [How To Split A Fuzzer-Generated Input Into Several ][split-inputs-url]
 
+[libfuzzer-tutorial-url]: https://github.com/google/fuzzing/blob/master/tutorial/libFuzzerTutorial.md
+[split-inputs-url]: https://github.com/google/fuzzing/blob/master/docs/split-inputs.md
+
 <!--
 
 `libprotobuf-mutator` is a library to randomly mutate protobuffers.

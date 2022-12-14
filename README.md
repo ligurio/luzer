@@ -218,6 +218,4 @@ Distributed under the ISC License.
 [libfuzzer-url]: https://llvm.org/docs/LibFuzzer.html
 [libfuzzer-options-url]: https://llvm.org/docs/LibFuzzer.html#options
 [libfuzzer-mutators-url]: https://github.com/google/fuzzing/blob/master/docs/structure-aware-fuzzing.md
-[libfuzzer-tutorial-url]: https://github.com/google/fuzzing/blob/master/tutorial/libFuzzerTutorial.md
-[split-inputs-url]: https://github.com/google/fuzzing/blob/master/docs/split-inputs.md
 [bronevichok-url]: https://bronevichok.ru/
