@@ -1,6 +1,6 @@
-### Ghostwriting tests for you
+# Ghostwriting tests for you
 
-#### автоматически генерировать тесты для Си:
+## автоматически генерировать тесты для Си:
 
 - парсить заголовки функций
   - https://github.com/facebookresearch/CParser
@@ -10,11 +10,11 @@
 - https://github.com/mkottman/luaclang-parser
 - https://github.com/vinniefalco/LuaBridge
 
-#### автоматически генерировать тесты для Lua:
+## автоматически генерировать тесты для Lua:
 
 mulua
 
-#### См. также
+## См. также
 
 - FUTAG (FUzzing Target Automated Generator) -- автоматический генератор целей
   для фаззинга. https://github.com/ispras/Futag

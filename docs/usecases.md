@@ -1,4 +1,6 @@
-### Fuzzing C library
+# Usecases
+
+## Fuzzing C library
 
 Lua has a FFI library that allows seamless integration with C/C++ libraries.
 LuaJIT has a builtin FFI library, see https://luajit.org/ext_ffi.html
@@ -9,7 +11,7 @@ Run fuzzing target.
 
 `examples/example_zlib.lua`
 
-### Fuzzing builtin Lua functions
+## Fuzzing builtin Lua functions
 
 `luzer` is useful for testing builtin Lua functions. This example describes
 fuzzing testing of builtin Lua function.
@@ -46,17 +48,17 @@ Set `CFLAGS` and `LDFLAGS`:
 +MYLDFLAGS=-fsanitize=fuzzer-no-link,undefined
  MYLIBS=
  MYOBJS=
- 
+
 ```
 
 Create a fuzzing target.
 Run fuzzing target with instrumented Lua runtime.
 
-### Fuzzing pure Lua external modules
+## Fuzzing pure Lua external modules
 
 TODO
 
-### Fuzzing C Extensions
+## Fuzzing C Extensions
 
 Setup module using `luarocks`:
 
