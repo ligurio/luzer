@@ -27,6 +27,11 @@ INI, strftime, URL).
 - URL: https://github.com/spc476/LPeg-Parsers
 - URL: https://github.com/daurnimator/lpeg_patterns
 
+- [libFuzzer Tutorial][libfuzzer-tutorial-url]
+- [How To Split A Fuzzer-Generated Input Into Several ][split-inputs-url]
+
+<!--
+
 `libprotobuf-mutator` is a library to randomly mutate protobuffers.
 It could be used together with guided fuzzing engines, such as libFuzzer.
 Requires protobuf and LPM support in Lua.
@@ -48,3 +53,4 @@ ProtoBuf implementations:
   and 3 syntax and semantics.
   https://github.com/starwing/lua-protobuf
 - Python https://blog.trailofbits.com/2016/05/18/protofuzz-a-protobuf-fuzzer/
+-->

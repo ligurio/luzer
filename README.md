@@ -164,11 +164,8 @@ true
 AAAAAAAAA
 ```
 
-Learn more about fuzzing with libFuzzer and structure-aware fuzzing using
-`FuzzedDataProvider`:
-
-- [libFuzzer Tutorial][libfuzzer-tutorial-url]
-- [How To Split A Fuzzer-Generated Input Into Several ][split-inputs-url]
+Learn more about structure-aware fuzzing in
+[docs/structure-aware-fuzzing.md](docs/structure-aware-fuzzing.md).
 
 ## Using Custom Mutators Written In Lua
 
