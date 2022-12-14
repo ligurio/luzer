@@ -4,6 +4,9 @@
 - починить проблему с первым аргументом в opts
 - тесты для `custom_mutator()`
 
+-------------------------------
+
+- патч для PUC Rio Lua с поддержкой трейсинга
 - трейсинг для `LUA_LINE`, `LUA_CALL`
 - добавить `fdp:oneof()` для выбора случайного элемента в таблице
 - FDP: https://hypothesis.readthedocs.io/en/latest/data.html
@@ -62,7 +65,6 @@
 		https://love2d.org/
 		Torch http://torch.ch/
 
-- патч для PUC Rio Lua с поддержкой трейсинга
 - IJON
 - описать в доке составление словаря с помощью mulua, https://github.com/RUB-SysSec/ijon/tree/master/libtokencap
 - ? втащить исходный код libfuzzer в luzer
