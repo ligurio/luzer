@@ -15,7 +15,7 @@
 
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
 #define CUSTOM_MUTATOR_FUNC "luzer_custom_mutator"
-#define CUSTOM_MUTATOR_LIB "./libcustom_mutator.so.1"
+#define CUSTOM_MUTATOR_LIB "libcustom_mutator.so.1"
 #define DEBUG_HOOK_FUNC "luzer_custom_hook"
 
 static lua_State *LL;
@@ -229,7 +229,26 @@ luaL_fuzz(lua_State *L)
 	if (!lua_isnil(L, -1)) {
 		if (lua_isfunction(L, -1) == 1) {
 			luaL_set_custom_mutator(L);
-			void* custom_mutator_lib = dlopen(CUSTOM_MUTATOR_LIB, RTLD_LAZY);
+			char *lua_cpath = getenv("LUA_CPATH");
+			if (!lua_cpath)
+				lua_cpath = "./";
+#define DEBUG 1
+#ifdef DEBUG
+			/* printf("LUA_CPATH: %s\n", lua_cpath); */
+			char *cpath;
+			char so_path[PATH_MAX];
+			while ((cpath = strsep(&lua_cpath, ";")) != NULL) {
+				/* printf("path = %s\n", cpath); */
+				char *dir = dirname(cpath);
+				/* printf("dirname of path = %s\n", dir); */
+				snprintf(so_path, PATH_MAX, "%s/%s", dir, CUSTOM_MUTATOR_LIB);
+				if (access(so_path, F_OK) == 0) {
+					printf("Found path %s\n", so_path);
+					break;
+				}
+			}
+#endif /* DEBUG */
+			void* custom_mutator_lib = dlopen(so_path, RTLD_LAZY);
 			if (!custom_mutator_lib)
 				luaL_error(L, "shared library libcustom_mutator.so.1 is not available");
 			void* custom_mutator = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
