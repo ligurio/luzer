@@ -1,8 +1,9 @@
 ### TODO:
 
-- совместимость с Lua 5.2 починить
+- совместимость с Lua 5.2 починить https://github.com/antirez/lua-cmsgpack/commit/2ed313c217218ebad01a6dd0aeca9eabac7e5cea
 - починить проблему с первым аргументом в opts
-- тесты для `custom_mutator()`
+- отладить `custom_mutator()`
+- см https://github.com/geoffleyland/luatrace
 
 -------------------------------
 

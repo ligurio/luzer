@@ -11,7 +11,7 @@ Run fuzzing target.
 
 `examples/example_zlib.lua`
 
-## Fuzzing builtin Lua functions
+## Fuzzing builtin Lua functions and Lua runtimes
 
 `luzer` is useful for testing builtin Lua functions. This example describes
 fuzzing testing of builtin Lua function.
@@ -53,6 +53,11 @@ Set `CFLAGS` and `LDFLAGS`:
 
 Create a fuzzing target.
 Run fuzzing target with instrumented Lua runtime.
+
+TODO: reproduce
+- https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15945
+- https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-24369
+- https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-24370
 
 ## Fuzzing pure Lua external modules
 
