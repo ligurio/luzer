@@ -249,10 +249,12 @@ luaL_fuzz(lua_State *L)
 	}
 	lua_pushnil(L);
 
+	/* Processing a table with options. */
 	int argc = 0;
 	char **argv = malloc(1 * sizeof(char*));
 	if (!argv)
 		luaL_error(L, "not enough memory");
+	const char *corpus_path = NULL;
 	while (lua_next(L, -2) != 0) {
 		char **argvp = realloc(argv, sizeof(char*) * (argc + 1));
 		if (argvp == NULL) {
@@ -261,16 +263,23 @@ luaL_fuzz(lua_State *L)
 		}
 		const char *key = lua_tostring(L, -2);
 		const char *value = lua_tostring(L, -1);
-		char *arg = (char *)value;
-		if (strcmp(key, "corpus"))	{
-			size_t arg_str_size = strlen(key) + strlen(value) + 3;
-			arg = malloc(arg_str_size);
-			snprintf(arg, arg_str_size, "-%s=%s", key, value);
+		if (strcmp(key, "corpus") != 0) {
+			size_t arg_len = strlen(key) + strlen(value) + 3;
+			char *arg = calloc(arg_len, sizeof(char));
+			if (!arg)
+				luaL_error(L, "not enough memory");
+			snprintf(arg, arg_len, "-%s=%s", key, value);
+			argvp[argc] = arg;
+			argc++;
+		} else {
+			corpus_path = strdup(value);
 		}
-		argvp[argc] = arg;
 		lua_pop(L, 1);
-		argc++;
 		argv = argvp;
+	}
+	if (corpus_path) {
+		argv[argc] = (char*)corpus_path;
+		argc++;
 	}
 	if (argc == 0) {
 		argv[argc] = "";
@@ -283,46 +292,23 @@ luaL_fuzz(lua_State *L)
 	char **p = argv;
 	while(*p++) {
 		if (*p)
-			printf("DEBUG: libFuzzer arg '%s'\n", *p);
+			printf("DEBUG: libFuzzer arg - '%s'\n", *p);
 	}
 #endif /* DEBUG */
 
-	if (!lua_isnil(L, -1)) {
-		if (lua_isfunction(L, -1) == 1) {
+	/* Processing a function with custom mutator. */
+	if (!lua_isnil(L, -1) && (lua_isfunction(L, -1) == 1)) {
+			if (!load_LLVMFuzzerCustomMutator())
+				luaL_error(L, "function LLVMFuzzerCustomMutator is not available");
 			luaL_set_custom_mutator(L);
-			char *lua_cpath = getenv("LUA_CPATH");
-			if (!lua_cpath)
-				lua_cpath = "./";
-#define DEBUG 1
-#ifdef DEBUG
-			/* printf("LUA_CPATH: %s\n", lua_cpath); */
-			char *cpath;
-			char so_path[PATH_MAX];
-			while ((cpath = strsep(&lua_cpath, ";")) != NULL) {
-				/* printf("path = %s\n", cpath); */
-				char *dir = dirname(cpath);
-				/* printf("dirname of path = %s\n", dir); */
-				snprintf(so_path, PATH_MAX, "%s/%s", dir, CUSTOM_MUTATOR_LIB);
-				if (access(so_path, F_OK) == 0) {
-					printf("Found path %s\n", so_path);
-					break;
-				}
-			}
-#endif /* DEBUG */
-			void* custom_mutator_lib = dlopen(so_path, RTLD_LAZY);
-			if (!custom_mutator_lib)
-				luaL_error(L, "shared library libcustom_mutator.so.1 is not available");
-			void* custom_mutator = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
-			if (!custom_mutator)
-				luaL_error(L, "loading library is failed");
-			dlclose(custom_mutator_lib);
-		}
-	} else
+	} else {
 		lua_pop(L, 1);
+	}
 
+	/* Processing a function LLVMFuzzerTestOneInput. */
 	if (lua_isfunction(L, -1) != 1) {
 		printf("test_one_input %s\n", lua_typename(L, lua_type(L, -1)));
-		luaL_error(L, "test_one_input is not a Lua function.");
+		luaL_error(L, "test_one_input is not a Lua function");
 	}
 	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
 
