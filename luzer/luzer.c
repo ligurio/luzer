@@ -1,11 +1,15 @@
 #include <lua.h>
-#include <lauxlib.h>
 #include <lualib.h>
+#include <lauxlib.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <string.h>
 #include <dlfcn.h>
+#include <libgen.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <linux/limits.h>
 
 #include "fuzzed_data_provider.h"
 #include "macros.h"
@@ -36,7 +40,8 @@ get_global_lua_stack(void)
 }
 
 #if LUA_VERSION_NUM < 502
-static int luaL_traceback(lua_State *L) {
+static int
+luaL_traceback(lua_State *L) {
 	lua_getfield(L, LUA_GLOBALSINDEX, "debug");
 	if (!lua_istable(L, -1)) {
 		lua_pop(L, 1);
@@ -81,7 +86,8 @@ int __sanitizer_acquire_crash_state(void)
 // https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
 // http://www.lua.org/manual/5.2/manual.html#luaL_traceback
 // https://www.lua.org/manual/5.3/manual.html#luaL_traceback
-void __sanitizer_print_stack_trace(void)
+void
+__sanitizer_print_stack_trace(void)
 {
 	lua_State *L = get_global_lua_stack();
 #if LUA_VERSION_NUM < 502
@@ -95,7 +101,8 @@ void __sanitizer_print_stack_trace(void)
 #endif
 
 // See GracefulExit() in trash/atheris/src/native/util.cc
-static void sig_handler(int sig)
+static void
+sig_handler(int sig)
 {
 	switch (sig) {
 	case SIGINT:
@@ -274,15 +281,14 @@ luaL_fuzz(lua_State *L)
 	// TODO: __sanitizer_cov_8bit_counters_init(1, 10000);
 	// TODO: __sanitizer_cov_pcs_init
 
-	// Setup Lua.
-	luaL_openlibs(L);
-
 	// TODO: detect installed hook function with lua_gethook()
 
-	// Hook is called when the interpreter calls a function and when the
-	// interpreter is about to start the execution of a new line of code, or
-	// when it jumps back in the code (even to the same line).
-	// https://www.lua.org/pil/23.2.html
+	/**
+	 * Hook is called when the Lua interpreter calls a function and when the
+	 * interpreter is about to start the execution of a new line of code, or
+	 * when it jumps back in the code (even to the same line).
+	 * https://www.lua.org/pil/23.2.html
+	 */
 	lua_sethook(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
 	lua_pushboolean(L, 1);
 
