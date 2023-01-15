@@ -74,6 +74,16 @@ set_tests_properties(luzer_e2e_test PROPERTIES
   PASS_REGULAR_EXPRESSION "test_e2e.lua:9: assertion failed"
 )
 
+add_test(
+  NAME luzer_options_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_options.lua
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_options_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH='./${CMAKE_CURRENT_BINARY_DIR}/?.so;'"
+  PASS_REGULAR_EXPRESSION "ERROR: The required directory \"undefined\" does not exist"
+)
+
 install(
   TARGETS ${PROJECT_NAME}
   LIBRARY
