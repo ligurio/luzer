@@ -160,10 +160,15 @@ luaL_test_one_input(lua_State *L)
 NO_SANITIZE int
 TestOneInput(const uint8_t* data, size_t size) {
 	lua_State *L = get_global_lua_stack();
-	lua_pushstring(L, (const char *)data);
+	char *buf = calloc(size + 1, sizeof(char));
+	memcpy(buf, data, size);
+	buf[size] = '\0';
+	lua_pushstring(L, buf);
 	lua_pushnumber(L, size);
+	int rc = luaL_test_one_input(L);
+	free(buf);
 
-	return luaL_test_one_input(L);
+	return rc;
 }
 
 NO_SANITIZE static int
