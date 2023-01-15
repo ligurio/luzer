@@ -4,6 +4,7 @@
 - починить проблему с первым аргументом в opts
 - отладить `custom_mutator()`
 - см https://github.com/geoffleyland/luatrace
+- fix crash with malloc
 
 -------------------------------
 
@@ -33,6 +34,9 @@
 	https://nvd.nist.gov/vuln/detail/CVE-2020-36309
 	https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=Lua
 	https://en.m.wikipedia.org/wiki/List_of_applications_using_Lua
+		? ScummVM https://github.com/scummvm/scummvm/blob/master/engines/grim/lua_v1_set.cpp
+		https://github.com/openresty/lua-nginx-module
+		openwrt's luci https://github.com/openwrt/luci
 		Apache mod_lua
 			https://httpd.apache.org/docs/trunk/developer/lua.html
 			https://httpd.apache.org/docs/trunk/mod/mod_lua.html
@@ -54,7 +58,7 @@
 		Sile https://github.com/sile-typesetter/sile
 		https://github.com/speedata/luaqrcode
 		Snort
-		Torch
+		Torch https://github.com/torch/image etc
 		Varnish
 		Vlc https://vlc.verg.ca/
 		mpv
