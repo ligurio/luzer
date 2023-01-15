@@ -100,7 +100,6 @@ __sanitizer_print_stack_trace(void)
 } /* extern "C" */
 #endif
 
-// See GracefulExit() in trash/atheris/src/native/util.cc
 static void
 sig_handler(int sig)
 {
@@ -214,30 +213,36 @@ search_module_path(char *so_path, size_t len) {
 /**
  * We couldn't define custom mutator function in a compile-time,
  * so we define it in runtime - when user has specified a Lua
- * function with custom mutator. LibFuzzer will use custom mutator
- * defined by user when function LLVMFuzzerCustomMutator has been defined.
+ * function with custom mutator. LibFuzzer uses custom mutator
+ * defined by user when a function LLVMFuzzerCustomMutator has been defined.
  * We define that function in a shared library and preload it when
- * user defines Lua function with custom mutator.
- * Shared library is located in the same directory where the main
- * shared library is placed. We search shared library in
- * directories listed in environment variable LUA_CPATH.
+ * user defines a Lua function with custom mutator.
+ * LLVMFuzzerCustomMutator executes a Lua function, mutates portion of data
+ * and returns it back to LibFuzzer. Shared library is located
+ * at the same directory where the main shared library with luzer's
+ * implementation is placed. To search it's location we search
+ * shared library CUSTOM_MUTATOR_LIB in directories listed in
+ * environment variable LUA_CPATH.
  */
 NO_SANITIZE static int
-load_LLVMFuzzerCustomMutator(void) {
+load_custom_mutator_lib(void) {
 	char *so_path = calloc(PATH_MAX, sizeof(char));
 	int rc = search_module_path(so_path, PATH_MAX);
 	if (rc) {
 		free(so_path);
 		return -1;
 	}
-	void* custom_mutator_lib = dlopen(so_path, RTLD_LAZY);
+	void *custom_mutator_lib = dlopen(so_path, RTLD_LAZY);
 	free(so_path);
 	if (!custom_mutator_lib)
 		return -1;
-	void* custom_mutator = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
+	void *custom_mutator = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
 	if (!custom_mutator)
 		return -1;
-	dlclose(custom_mutator_lib);
+	rc = dlclose(custom_mutator_lib);
+	if (rc)
+		return -1;
+
 	return 0;
 }
 
@@ -298,7 +303,7 @@ luaL_fuzz(lua_State *L)
 
 	/* Processing a function with custom mutator. */
 	if (!lua_isnil(L, -1) && (lua_isfunction(L, -1) == 1)) {
-			if (!load_LLVMFuzzerCustomMutator())
+			if (!load_custom_mutator_lib())
 				luaL_error(L, "function LLVMFuzzerCustomMutator is not available");
 			luaL_set_custom_mutator(L);
 	} else {
