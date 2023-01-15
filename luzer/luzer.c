@@ -193,6 +193,55 @@ luaL_cleanup(lua_State *L)
 }
 
 NO_SANITIZE static int
+search_module_path(char *so_path, size_t len) {
+	char *lua_cpath = getenv("LUA_CPATH");
+	if (!lua_cpath)
+		lua_cpath = "./";
+	int rc = -1;
+	char *cpath = NULL;
+	while ((cpath = strsep(&lua_cpath, ";")) != NULL) {
+		const char *dir = dirname(cpath);
+		snprintf(so_path, len, "%s/%s", dir, CUSTOM_MUTATOR_LIB);
+		if (access(so_path, F_OK) == 0) {
+			rc = 0;
+			break;
+		}
+	}
+
+	return rc;
+}
+
+/**
+ * We couldn't define custom mutator function in a compile-time,
+ * so we define it in runtime - when user has specified a Lua
+ * function with custom mutator. LibFuzzer will use custom mutator
+ * defined by user when function LLVMFuzzerCustomMutator has been defined.
+ * We define that function in a shared library and preload it when
+ * user defines Lua function with custom mutator.
+ * Shared library is located in the same directory where the main
+ * shared library is placed. We search shared library in
+ * directories listed in environment variable LUA_CPATH.
+ */
+NO_SANITIZE static int
+load_LLVMFuzzerCustomMutator(void) {
+	char *so_path = calloc(PATH_MAX, sizeof(char));
+	int rc = search_module_path(so_path, PATH_MAX);
+	if (rc) {
+		free(so_path);
+		return -1;
+	}
+	void* custom_mutator_lib = dlopen(so_path, RTLD_LAZY);
+	free(so_path);
+	if (!custom_mutator_lib)
+		return -1;
+	void* custom_mutator = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
+	if (!custom_mutator)
+		return -1;
+	dlclose(custom_mutator_lib);
+	return 0;
+}
+
+NO_SANITIZE static int
 luaL_fuzz(lua_State *L)
 {
 	if (lua_istable(L, -1) == 0) {
