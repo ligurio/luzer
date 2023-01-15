@@ -67,17 +67,20 @@ typedef int (*UserCb)(const uint8_t* Data, size_t Size);
 int LLVMFuzzerRunDriver(int* argc, char*** argv,
 						int (*UserCb)(const uint8_t* Data, size_t Size));
 
-// Sets the callback to be called right before death on error.
-// Passing 0 will unset the callback.
-// Called in libfuzzer_driver.cpp.
-void __sanitizer_set_death_callback(void (*callback)(void))
+/**
+ * Sets the callback to be called right before death on error.
+ * Passing 0 will unset the callback. Called in libfuzzer_driver.cpp.
+ */
+NO_SANITIZE void
+__sanitizer_set_death_callback(void (*callback)(void))
 {
 	/* cleanup(); */
 }
 
 // Suppress libFuzzer warnings about missing sanitizer methods in non-sanitizer
 // builds.
-int __sanitizer_acquire_crash_state(void)
+NO_SANITIZE int
+__sanitizer_acquire_crash_state(void)
 {
 	return 1;
 }
@@ -86,7 +89,7 @@ int __sanitizer_acquire_crash_state(void)
 // https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
 // http://www.lua.org/manual/5.2/manual.html#luaL_traceback
 // https://www.lua.org/manual/5.3/manual.html#luaL_traceback
-void
+NO_SANITIZE void
 __sanitizer_print_stack_trace(void)
 {
 	lua_State *L = get_global_lua_stack();
@@ -317,12 +320,6 @@ luaL_fuzz(lua_State *L)
 	}
 	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
 
-	// TODO: trash/atheris/src/native/core.cc
-	// TODO: __sanitizer_cov_8bit_counters_init(1, 10000);
-	// TODO: __sanitizer_cov_pcs_init
-
-	// TODO: detect installed hook function with lua_gethook()
-
 	/**
 	 * Hook is called when the Lua interpreter calls a function and when the
 	 * interpreter is about to start the execution of a new line of code, or
@@ -337,7 +334,6 @@ luaL_fuzz(lua_State *L)
 	sigaction(SIGINT, &act, NULL);
 	sigaction(SIGSEGV, &act, NULL);
 
-	////////////////////////////////////////////////////////
 	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
 	if (lua_isfunction(L, -1) != 1) {
 		luaL_error(L, "test_one_input is not defined");
