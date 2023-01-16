@@ -158,9 +158,9 @@ Examples:
 ```lua
 > luzer = require("luzer")
 > fdp = luzer.FuzzedDataProvider(string.rep("A", 10^9))
-> fdp.consume_boolean()
+> fdp:consume_boolean()
 true
-> fdp.consume_string(2, 10)
+> fdp:consume_string(2, 10)
 AAAAAAAAA
 ```
 
@@ -211,7 +211,7 @@ shown in the examples above.
 
 ## License
 
-Copyright © 2021-2022 [Sergey Bronnikov][bronevichok-url].
+Copyright © 2021-2023 [Sergey Bronnikov][bronevichok-url].
 
 Distributed under the ISC License.
 

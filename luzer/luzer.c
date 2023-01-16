@@ -77,18 +77,22 @@ __sanitizer_set_death_callback(void (*callback)(void))
 	/* cleanup(); */
 }
 
-// Suppress libFuzzer warnings about missing sanitizer methods in non-sanitizer
-// builds.
+/**
+ * Suppress libFuzzer warnings about missing sanitizer methods in non-sanitizer
+ * builds.
+ */
 NO_SANITIZE int
 __sanitizer_acquire_crash_state(void)
 {
 	return 1;
 }
 
-// Print the stack trace leading to this call. Useful for debugging user code.
-// https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
-// http://www.lua.org/manual/5.2/manual.html#luaL_traceback
-// https://www.lua.org/manual/5.3/manual.html#luaL_traceback
+/**
+ * Print the stack trace leading to this call. Useful for debugging user code.
+ * See:
+ * - https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
+ * - http://www.lua.org/manual/5.2/manual.html#luaL_traceback
+ */
 NO_SANITIZE void
 __sanitizer_print_stack_trace(void)
 {
