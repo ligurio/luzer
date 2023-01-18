@@ -100,7 +100,7 @@ __sanitizer_print_stack_trace(void)
 #if LUA_VERSION_NUM < 502
 	luaL_traceback(L);
 #else
-	luaL_traceback(L, NULL, "traceback", 3);
+	luaL_traceback(L, L, "traceback", 3);
 #endif
 }
 #ifdef __cplusplus
