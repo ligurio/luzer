@@ -262,7 +262,8 @@ luaL_fuzzed_data_provider(lua_State *L)
 #if LUA_VERSION_NUM == 501
 	luaL_register(L, NULL, methods);
 #else
-	luaL_newlib(L, methods);
+	/* luaL_newlib(L, methods); */
+	luaL_setfuncs(L, methods, 0);
 #endif
 
 	lua_userdata_t *lfdp;
