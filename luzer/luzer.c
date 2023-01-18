@@ -369,12 +369,15 @@ int luaopen_luzer(lua_State *L)
 	luaL_newlib(L, Module);
 #endif
 	lua_pushliteral(L, "_VERSION");
-	char version[50];
-	snprintf(version, sizeof(version), "luzer %s, LLVM %s, %s",
-			 luzer_version_string(),
-			 llvm_version_string(),
-			 LUA_RELEASE);
-	lua_pushstring(L, version);
+	lua_pushstring(L, luzer_version_string());
+	lua_rawset(L, -3);
+
+	lua_pushliteral(L, "_LLVM_VERSION");
+	lua_pushstring(L, llvm_version_string());
+	lua_rawset(L, -3);
+
+	lua_pushliteral(L, "_LUA_VERSION");
+	lua_pushstring(L, LUA_RELEASE);
 	lua_rawset(L, -3);
 
 	return 1;
