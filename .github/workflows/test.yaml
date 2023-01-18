@@ -25,19 +25,19 @@ jobs:
       - name: Setup common packages
         run: sudo apt install -y clang-14 libclang-common-14-dev
 
-      - name: Setup packages (Lua 5.1)
+      - name: Setup Lua packages (5.1)
         run: sudo apt install -y lua5.1 liblua5.1-0-dev
         if: ${{ matrix.LIBLUA == '5.1' }}
 
-      - name: Setup packages (Lua 5.2)
+      - name: Setup Lua packages (5.2)
         run: sudo apt install -y lua5.2 liblua5.2-dev
         if: ${{ matrix.LIBLUA == '5.2' }}
 
-      - name: Setup packages (Lua 5.3)
+      - name: Setup Lua packages (5.3)
         run: sudo apt install -y lua5.3 liblua5.3-dev
         if: ${{ matrix.LIBLUA == '5.3' }}
 
-      - name: Setup packages (Lua 5.4)
+      - name: Setup Lua packages (5.4)
         run: sudo apt install -y lua5.4 liblua5.4-dev
         if: ${{ matrix.LIBLUA == '5.4' }}
 
