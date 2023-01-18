@@ -7,7 +7,10 @@
 #include "fuzzed_data_provider.h"
 #include "macros.h"
 
-#define FDP_META "fdp_meta"
+/**
+ * Unique name for userdata metatables.
+ */
+#define FDP_LUA_UDATA_NAME	"fdp"
 
 /*
  * A convenience wrapper turning the raw fuzzer input bytes into Lua primitive
@@ -24,7 +27,7 @@ static int
 luaL_consume_string(lua_State *L)
 {
 	lua_userdata_t *lfdp;
-	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	size_t max_length = luaL_checkinteger(L, 2);
 	if (!lfdp)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_string(max_length)");
@@ -41,7 +44,7 @@ static int
 luaL_consume_strings(lua_State *L)
 {
 	lua_userdata_t *lfdp;
-	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	if (!lfdp)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_strings(count, max_length)");
 	size_t count = luaL_checkinteger(L, 2);
@@ -67,7 +70,7 @@ static int
 luaL_consume_boolean(lua_State *L)
 {
 	lua_userdata_t *lfdp;
-	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	if (!lfdp)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_boolean()");
 
@@ -82,7 +85,7 @@ static int
 luaL_consume_booleans(lua_State *L)
 {
 	lua_userdata_t *lfdp;
-	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	if (!lfdp)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_booleans(count)");
 	int count = luaL_checkinteger(L, 2);
@@ -103,7 +106,7 @@ static int
 luaL_consume_number(lua_State *L)
 {
 	lua_userdata_t *lfdp;
-	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	if (!lfdp)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_number(min, max)");
 	double min = luaL_checknumber(L, 2);
@@ -122,7 +125,7 @@ static int
 luaL_consume_numbers(lua_State *L)
 {
 	lua_userdata_t *lfdp;
-	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	if (!lfdp)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_numbers(count, min, max)");
 	int count = luaL_checkinteger(L, 2);
@@ -148,7 +151,7 @@ static int
 luaL_consume_integer(lua_State *L)
 {
 	lua_userdata_t *lfdp;
-	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	if (!lfdp)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_integer(min, max)");
 	int min = luaL_checkinteger(L, 2);
@@ -167,7 +170,7 @@ static int
 luaL_consume_integers(lua_State *L)
 {
 	lua_userdata_t *lfdp;
-	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	if (!lfdp)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_integers(count, min, max)");
 	int count = luaL_checkinteger(L, 2);
@@ -191,7 +194,7 @@ static int
 luaL_consume_probability(lua_State *L)
 {
 	lua_userdata_t *lfdp;
-	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	if (!lfdp)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_probability()");
 
@@ -206,7 +209,7 @@ static int
 luaL_remaining_bytes(lua_State *L)
 {
 	lua_userdata_t *lfdp;
-	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	if (!lfdp)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:remaining_bytes()");
 
@@ -218,7 +221,7 @@ luaL_remaining_bytes(lua_State *L)
 
 static int close(lua_State *L) {
 	lua_userdata_t *lfdp;
-	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_META);
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	delete lfdp->fdp;
 
 	return 0;
@@ -256,7 +259,7 @@ luaL_fuzzed_data_provider(lua_State *L)
 	const char *data = luaL_checkstring(L, 1);
 	size_t size = strlen(data);
 
-	luaL_newmetatable(L, FDP_META);
+	luaL_newmetatable(L, FDP_LUA_UDATA_NAME);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
 #if LUA_VERSION_NUM == 501
@@ -271,7 +274,7 @@ luaL_fuzzed_data_provider(lua_State *L)
 	FuzzedDataProvider *fdp = new FuzzedDataProvider((const unsigned char *)data, size);
 	lfdp->fdp = fdp;
 
-	luaL_getmetatable(L, FDP_META);
+	luaL_getmetatable(L, FDP_LUA_UDATA_NAME);
 	lua_setmetatable(L, -2);
 
 	return 1;
