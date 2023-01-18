@@ -48,23 +48,5 @@ void debug_hook(lua_State *L, lua_Debug *ar)
 		//afl_shm[current_location ^ new_location] += 1;
 		current_location = new_location / 2;
 	}
-
-	// distinquish event type
-	// printf("event %d\n", ar->event);
-
-	// TODO: skip when 'info.what == "C"'
-	// FIXME: call debug "call" hook
-	// FIXME: call debug "line" hook
-
-	//printf("=====================================================\n");
-	//printf("ar->linedefined %d\n", ar->linedefined);
-	//printf("ar->currentline %d\n", ar->currentline);
-	//printf("ar->lastlinedefined %d\n", ar->lastlinedefined);
-	//printf("ar->source %s\n", ar->source);
-	//printf("ar->short_src %s\n", ar->short_src);
-	//printf("ar->what (Lua/C) %s\n", ar->what);
-	//printf("=====================================================\n");
-	//__sanitizer_cov_trace_cmp8(1, 2);
-	//__sanitizer_cov_trace_pc();
 	__sanitizer_cov_trace_basic_block(current_location);
 }
