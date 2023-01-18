@@ -10,7 +10,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup luarocks
         run: sudo apt install -y luarocks
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # https://github.com/luarocks/luarocks/wiki/Types-of-rocks
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup luarocks
         run: sudo apt install -y luarocks
@@ -48,12 +48,9 @@ jobs:
       github.event_name == 'push' ||
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name != github.repository
-    strategy:
-      fail-fast: false
     runs-on: ubuntu-22.04
-
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
 
       - run: sudo apt install -y luarocks lua5.2 liblua5.2-dev libclang-common-14-dev clang-14
 
