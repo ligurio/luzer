@@ -9,9 +9,10 @@ find_package(Lua 5.1 REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 find_library(LIBRT rt)
 
-find_program(LUA_EXECUTABLE luajit)
+set(LUA_NAME "lua${LUA_VERSION_MAJOR}.${LUA_VERSION_MINOR}")
+find_program(LUA_EXECUTABLE "${LUA_NAME}")
 if(NOT EXISTS ${LUA_EXECUTABLE})
-  find_program(LUA_EXECUTABLE lua)
+  message(FATAL_ERROR "${LUA_NAME} is required")
 endif()
 
 message(STATUS "Found Lua ${LUA_VERSION_STRING}")
