@@ -190,10 +190,13 @@ luaL_cleanup(lua_State *L)
 	lua_sethook(L, debug_hook, 0, 0);
 	lua_pushnil(L);
 	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
+	// TODO: luaL_unref
 	lua_pushnil(L);
 	lua_setglobal(L, DEBUG_HOOK_FUNC);
+	// TODO: luaL_unref
 	lua_pushnil(L);
 	lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
+	// TODO: luaL_unref
 
 	return 0;
 }
