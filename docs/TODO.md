@@ -5,7 +5,9 @@
 - см https://github.com/geoffleyland/luatrace
 
 -------------------------------
-
+- автопрохождение игр:
+	https://github.com/Stabyourself/mari0
+	https://simplegametutorials.github.io/love/
 - патч для PUC Rio Lua с поддержкой трейсинга
 - трейсинг для `LUA_LINE`, `LUA_CALL`
 - добавить `fdp:oneof()` для выбора случайного элемента в таблице
