@@ -18,6 +18,10 @@
         "CMAKE_EXPORT_COMPILE_COMMANDS": {
           "type": "BOOL",
           "value": "ON"
+        },
+        "ENABLE_TESTING": {
+          "type": "BOOL",
+          "value": "ON"
         }
       }
     }

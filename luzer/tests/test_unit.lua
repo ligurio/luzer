@@ -1,5 +1,3 @@
-package.cpath = "./?.so"
-
 local luzer = require("luzer")
 
 local function trace(_, line)
