@@ -5,4 +5,4 @@ crash-*
 .luarc.json
 .rocks
 tags
-tests
+./tests
