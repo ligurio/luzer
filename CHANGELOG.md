@@ -13,3 +13,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration with libFuzzer's `LLVMFuzzerCustomMutator()`.
 - Integration with libFuzzer's `FuzzedDataProvider`.
 - libFuzzer custom mutator for Lua.
+- Examples with tests.
