@@ -82,6 +82,10 @@ To gather baseline coverage, the fuzzing engine executes both the seed corpus
 and the generated corpus, to ensure that no errors occurred and to understand
 the code coverage the existing corpus already provides.
 
+## Documentation
+
+See [documentation](docs/index.md).
+
 ## License
 
 Copyright © 2022-2023 [Sergey Bronnikov][bronevichok-url].
