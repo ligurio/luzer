@@ -56,6 +56,16 @@ target_link_libraries(custom_mutator PRIVATE ${LUA_LIBRARIES})
 set_target_properties(custom_mutator PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(custom_mutator PROPERTIES SOVERSION 1)
 
+if (LUA_PATCHED AND USE_LUA)
+    add_dependencies(custom_mutator patched-lua)
+    add_dependencies(${CMAKE_PROJECT_NAME} patched-lua)
+endif ()
+
+if (LUA_PATCHED AND USE_LUAJIT)
+    add_dependencies(custom_mutator patched-luajit)
+    add_dependencies(${CMAKE_PROJECT_NAME} patched-luajit)
+endif ()
+
 if(ENABLE_TESTING)
   add_subdirectory(tests)
 endif()

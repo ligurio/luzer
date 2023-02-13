@@ -12,6 +12,7 @@ jobs:
       github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       matrix:
+        LUA_PATCHED: [ON, OFF]
         LIBLUA:
           - "5.4"
           - "5.3"
@@ -42,7 +43,9 @@ jobs:
         if: ${{ matrix.LIBLUA == '5.4' }}
 
       - name: Running CMake
-        run: cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DENABLE_TESTING=ON -S . -B build
+        run: cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+                   -DENABLE_TESTING=ON -DLUA_PATCHED=${{ matrix.LUA_PATCHED }} \
+                   -DLUA_VERSION=${{ matrix.LIBLUA }} -S . -B build
 
       - name: Building
         run: cmake --build build --parallel $(nproc)
