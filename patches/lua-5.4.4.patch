@@ -1,0 +1,217 @@
+diff --git a/ldblib.c b/ldblib.c
+index 6dcbaa98..e339c610 100644
+--- a/ldblib.c
++++ b/ldblib.c
+@@ -150,7 +150,7 @@ static int db_getinfo (lua_State *L) {
+   lua_Debug ar;
+   int arg;
+   lua_State *L1 = getthread(L, &arg);
+-  const char *options = luaL_optstring(L, arg+2, "flnSrtu");
++  const char *options = luaL_optstring(L, arg+2, "flnSrtuC");
+   checkstack(L, L1, 3);
+   luaL_argcheck(L, options[0] != '>', arg + 2, "invalid option '>'");
+   if (lua_isfunction(L, arg + 1)) {  /* info about a function? */
+@@ -196,6 +196,9 @@ static int db_getinfo (lua_State *L) {
+     treatstackoption(L, L1, "activelines");
+   if (strchr(options, 'f'))
+     treatstackoption(L, L1, "func");
++  if (strchr(options, 'C')) {
++    settabss(L, "str1", ar.str1);
++  }
+   return 1;  /* return table */
+ }
+ 
+@@ -322,7 +325,7 @@ static int db_upvaluejoin (lua_State *L) {
+ */
+ static void hookf (lua_State *L, lua_Debug *ar) {
+   static const char *const hooknames[] =
+-    {"call", "return", "line", "count", "tail call"};
++    {"call", "return", "line", "count", "tail call", "edge", "data"};
+   lua_getfield(L, LUA_REGISTRYINDEX, HOOKKEY);
+   lua_pushthread(L);
+   if (lua_rawget(L, -2) == LUA_TFUNCTION) {  /* is there a hook function? */
+@@ -344,6 +347,8 @@ static int makemask (const char *smask, int count) {
+   if (strchr(smask, 'c')) mask |= LUA_MASKCALL;
+   if (strchr(smask, 'r')) mask |= LUA_MASKRET;
+   if (strchr(smask, 'l')) mask |= LUA_MASKLINE;
++  if (strchr(smask, 'e')) mask |= LUA_MASKEDGE;
++  if (strchr(smask, 'd')) mask |= LUA_MASKDATA;
+   if (count > 0) mask |= LUA_MASKCOUNT;
+   return mask;
+ }
+@@ -357,6 +362,8 @@ static char *unmakemask (int mask, char *smask) {
+   if (mask & LUA_MASKCALL) smask[i++] = 'c';
+   if (mask & LUA_MASKRET) smask[i++] = 'r';
+   if (mask & LUA_MASKLINE) smask[i++] = 'l';
++  if (mask & LUA_MASKEDGE) smask[i++] = 'e';
++  if (mask & LUA_MASKDATA) smask[i++] = 'd';
+   smask[i] = '\0';
+   return smask;
+ }
+diff --git a/ldebug.c b/ldebug.c
+index a716d95e..b8194da0 100644
+--- a/ldebug.c
++++ b/ldebug.c
+@@ -7,7 +7,9 @@
+ #define ldebug_c
+ #define LUA_CORE
+ 
++#include <stdio.h>
+ #include "lprefix.h"
++#include "lopnames.h"
+ 
+ 
+ #include <stdarg.h>
+@@ -370,6 +372,12 @@ static int auxgetinfo (lua_State *L, const char *what, lua_Debug *ar,
+         }
+         break;
+       }
++      case 'C': {
++        if (ci && isLua(ci)) {
++          ar->str1 = trace_cmp(ci);
++        }
++        break;
++      }
+       case 'L':
+       case 'f':  /* handled by lua_getinfo */
+         break;
+@@ -876,7 +884,7 @@ int luaG_traceexec (lua_State *L, const Instruction *pc) {
+   lu_byte mask = L->hookmask;
+   const Proto *p = ci_func(ci)->p;
+   int counthook;
+-  if (!(mask & (LUA_MASKLINE | LUA_MASKCOUNT))) {  /* no hooks? */
++  if (!(mask & (LUA_MASKLINE | LUA_MASKCOUNT | LUA_MASKEDGE | LUA_MASKDATA))) {  /* no hooks? */
+     ci->u.l.trap = 0;  /* don't need to stop again */
+     return 0;  /* turn off 'trap' */
+   }
+@@ -885,7 +893,9 @@ int luaG_traceexec (lua_State *L, const Instruction *pc) {
+   counthook = (--L->hookcount == 0 && (mask & LUA_MASKCOUNT));
+   if (counthook)
+     resethookcount(L);  /* reset count */
+-  else if (!(mask & LUA_MASKLINE))
++  else if (!(mask & LUA_MASKLINE) &&
++		   !(mask & LUA_MASKEDGE) &&
++		   !(mask & LUA_MASKDATA))
+     return 1;  /* no line hook and count != 0; nothing to be done now */
+   if (ci->callstatus & CIST_HOOKYIELD) {  /* called hook last time? */
+     ci->callstatus &= ~CIST_HOOKYIELD;  /* erase mark */
+@@ -906,6 +916,30 @@ int luaG_traceexec (lua_State *L, const Instruction *pc) {
+     }
+     L->oldpc = npci;  /* 'pc' of last call to line hook */
+   }
++
++  int npci, newline;
++  OpCode opcode;
++  p = ci_func(ci)->p;
++  npci = pcRel(pc, p);
++  opcode = GET_OPCODE(*ci->u.l.savedpc);
++  printf("opcode %s\n", opnames[opcode]);
++  newline = luaG_getfuncline(p, npci);
++  if ((mask & LUA_MASKDATA) &&
++      (opcode == OP_JMP)) {
++      luaD_hook(L, LUA_HOOKDATA, newline, 0, 0);  /* call data hook */
++  }
++  if ((mask & LUA_MASKEDGE) &&
++      ((opcode == OP_EQ)        ||
++       (opcode == OP_LT)        ||
++       (opcode == OP_LE)        ||
++       (opcode == OP_TEST)      ||
++       (opcode == OP_TESTSET)   ||
++       (opcode == OP_CALL)      ||
++       (opcode == OP_TAILCALL)  ||
++       (opcode == OP_TFORLOOP)  ||
++       (opcode == OP_FORLOOP))) {
++      luaD_hook(L, LUA_HOOKEDGE, newline, 0, 0);  /* call edge hook */
++  }
+   if (L->status == LUA_YIELD) {  /* did hook yield? */
+     if (counthook)
+       L->hookcount = 1;  /* undo decrement to zero */
+diff --git a/lua.h b/lua.h
+index e6618392..557d55f8 100644
+--- a/lua.h
++++ b/lua.h
+@@ -432,6 +432,8 @@ LUA_API void (lua_closeslot) (lua_State *L, int idx);
+ #define LUA_HOOKLINE	2
+ #define LUA_HOOKCOUNT	3
+ #define LUA_HOOKTAILCALL 4
++#define LUA_HOOKEDGE    5
++#define LUA_HOOKDATA    6
+ 
+ 
+ /*
+@@ -441,6 +443,8 @@ LUA_API void (lua_closeslot) (lua_State *L, int idx);
+ #define LUA_MASKRET	(1 << LUA_HOOKRET)
+ #define LUA_MASKLINE	(1 << LUA_HOOKLINE)
+ #define LUA_MASKCOUNT	(1 << LUA_HOOKCOUNT)
++#define LUA_MASKEDGE	(1 << LUA_HOOKEDGE)
++#define LUA_MASKDATA	(1 << LUA_HOOKDATA)
+ 
+ typedef struct lua_Debug lua_Debug;  /* activation record */
+ 
+@@ -484,6 +488,7 @@ struct lua_Debug {
+   unsigned short ftransfer;   /* (r) index of first value transferred */
+   unsigned short ntransfer;   /* (r) number of transferred values */
+   char short_src[LUA_IDSIZE]; /* (S) */
++  char *str1;	/* (C) */
+   /* private part */
+   struct CallInfo *i_ci;  /* active function */
+ };
+diff --git a/lvm.c b/lvm.c
+index 2ec34400..4baba68b 100644
+--- a/lvm.c
++++ b/lvm.c
+@@ -8,6 +8,7 @@
+ #define LUA_CORE
+ 
+ #include "lprefix.h"
++#include "lopnames.h"
+ 
+ #include <float.h>
+ #include <limits.h>
+@@ -872,6 +873,34 @@ void luaV_finishOp (lua_State *L) {
+ }
+ 
+ 
++char *trace_cmp(CallInfo *ci) {
++  Instruction i;
++  OpCode opcode;
++  TValue *k, *rb;
++  LClosure *cl;
++
++  CallInfo *nci = ci->previous;
++  i = *(nci->u.l.savedpc - 1);
++  opcode = GET_OPCODE(i);
++  /* printf("OPCODE: %s\n", opnames[opcode]); */
++  if ((opcode != OP_EQ)  &&
++      (opcode != OP_LT)  &&
++      (opcode != OP_LE)) {
++    return NULL;
++  }
++
++  i = *(nci->u.l.savedpc - 2);
++  if (!(GET_OPCODE(i) == OP_LOADK))
++    return NULL;
++
++  cl = clLvalue(s2v(ci->func));
++  k = cl->p->k;
++  rb = k + GETARG_Bx(i);
++  if (!ttisstring(rb))
++    return NULL;
++
++  return getstr(tsvalue(rb));
++}
+ 
+ 
+ /*
+diff --git a/lvm.h b/lvm.h
+index 1bc16f3a..94d60e75 100644
+--- a/lvm.h
++++ b/lvm.h
+@@ -111,6 +111,7 @@ typedef enum {
+ 
+ 
+ 
++char *trace_cmp(CallInfo *ci);
+ 
+ LUAI_FUNC int luaV_equalobj (lua_State *L, const TValue *t1, const TValue *t2);
+ LUAI_FUNC int luaV_lessthan (lua_State *L, const TValue *l, const TValue *r);
