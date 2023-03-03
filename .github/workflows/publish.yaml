@@ -31,9 +31,15 @@ jobs:
       - name: Setup luarocks
         run: sudo apt install -y luarocks
 
+      # Create a rockspec for the release.
+      - run: printf '%s=%s\n' TAG "${GITHUB_REF##*/}" >> "${GITHUB_ENV}"
+      - run: sed -E
+          -e "s/branch = '.+'/tag = '${{ env.TAG }}'/g"
+          -e "s/version = '.+'/version = '${{ env.TAG }}-1'/g"
+          luzer-scm-1.rockspec > luzer-${{ env.TAG }}-1.rockspec
+
       # Make a release.
       - run: |
-          echo TAG=${GITHUB_REF##*/} >> $GITHUB_ENV
           luarocks new_version --tag ${{ env.TAG }}
           luarocks install luzer-${{ env.TAG }}-1.rockspec
           luarocks pack luzer-${{ env.TAG }}-1.rockspec
