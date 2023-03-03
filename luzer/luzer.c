@@ -129,7 +129,7 @@ __sanitizer_print_stack_trace(void)
 #endif
 
 NO_SANITIZE const char *
-GetLibFuzzerSymbolsLocation(void) {
+get_libFuzzer_symbols_location(void) {
 	Dl_info dl_info;
 	if (!dladdr((void*)&LLVMFuzzerRunDriver, &dl_info)) {
 		return "<Not a shared object>";
@@ -138,7 +138,7 @@ GetLibFuzzerSymbolsLocation(void) {
 }
 
 NO_SANITIZE const char *
-GetCoverageSymbolsLocation(void) {
+get_coverage_symbols_location(void) {
 	Dl_info dl_info;
 	if (!dladdr((void*)&__sanitizer_cov_8bit_counters_init, &dl_info)) {
 		return "<Not a shared object>";
@@ -156,7 +156,7 @@ init(void)
         assert(NULL);
 	}
 
-	if (strcmp(GetCoverageSymbolsLocation(), GetLibFuzzerSymbolsLocation()) != 0) {
+	if (strcmp(get_coverage_symbols_location(), get_libFuzzer_symbols_location()) != 0) {
         fprintf(stderr,
         "WARNING: Coverage symbols are being provided by a library other than "
         "libFuzzer. This will result in a broken Lua code coverage and "
@@ -164,7 +164,7 @@ init(void)
         "from this library: %s"
         "\nYou can likely resolve this issue by linking libFuzzer into "
         "Lua directly, and using `atheris_no_libfuzzer` instead of "
-        "`atheris`. See documentation for details.", GetCoverageSymbolsLocation());
+        "`atheris`. See documentation for details.", get_coverage_symbols_location());
 	}
 }
 
