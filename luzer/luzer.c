@@ -48,24 +48,27 @@ get_global_lua_state(void)
 	return LL;
 }
 
-#if LUA_VERSION_NUM < 502
-static int
-luaL_traceback(lua_State *L) {
+// FIXME: Set a correct LuaJIT version.
+#if LUA_VERSION_NUM == 501 && LUAJIT_VERSION_NUM != 20100
+void
+luaL_traceback(lua_State *L, lua_State *L1,
+               const char *msg, int level)
+{
 	lua_getfield(L, LUA_GLOBALSINDEX, "debug");
 	if (!lua_istable(L, -1)) {
 		lua_pop(L, 1);
-		return 1;
+		/* FIXME */
 	}
 	lua_getfield(L, -1, "traceback");
 	if (!lua_isfunction(L, -1)) {
 		lua_pop(L, 2);
-		return 1;
+		/* FIXME */
 	}
 	lua_pushvalue(L, 1);
 	lua_pushinteger(L, 2);
 	lua_call(L, 2, 1);
-	fprintf(stderr, "%s\n", lua_tostring(L, -1));
-	return 1;
+
+	/* FIXME */
 }
 #endif
 
@@ -110,19 +113,13 @@ __sanitizer_acquire_crash_state(void)
 
 /**
  * Print the stack trace leading to this call. Useful for debugging user code.
- * See:
- * - https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
- * - http://www.lua.org/manual/5.2/manual.html#luaL_traceback
  */
 NO_SANITIZE void
 __sanitizer_print_stack_trace(void)
 {
 	lua_State *L = get_global_lua_state();
-#if LUA_VERSION_NUM < 502
-	luaL_traceback(L);
-#else
 	luaL_traceback(L, L, "traceback", 3);
-#endif
+	fprintf(stderr, "%s\n", lua_tostring(L, -1));
 }
 #ifdef __cplusplus
 } /* extern "C" */
