@@ -161,10 +161,7 @@ init(void)
         "WARNING: Coverage symbols are being provided by a library other than "
         "libFuzzer. This will result in a broken Lua code coverage and "
         "severely impacted native extension code coverage. Symbols are coming "
-        "from this library: %s"
-        "\nYou can likely resolve this issue by linking libFuzzer into "
-        "Lua directly, and using `atheris_no_libfuzzer` instead of "
-        "`atheris`. See documentation for details.", get_coverage_symbols_location());
+        "from this library: %s", get_coverage_symbols_location());
 	}
 }
 
