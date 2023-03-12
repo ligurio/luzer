@@ -1,0 +1,146 @@
+diff --git a/src/lib_debug.c b/src/lib_debug.c
+index 3af7a353..10cef540 100644
+--- a/src/lib_debug.c
++++ b/src/lib_debug.c
+@@ -112,7 +112,7 @@ LJLIB_CF(debug_getinfo)
+   lj_Debug ar;
+   int arg, opt_f = 0, opt_L = 0;
+   lua_State *L1 = getthread(L, &arg);
+-  const char *options = luaL_optstring(L, arg+2, "flnSu");
++  const char *options = luaL_optstring(L, arg+2, "flnSuC");
+   if (lua_isnumber(L, arg+1)) {
+     if (!lua_getstack(L1, (int)lua_tointeger(L, arg+1), (lua_Debug *)&ar)) {
+       setnilV(L->top-1);
+@@ -148,6 +148,10 @@ LJLIB_CF(debug_getinfo)
+       settabss(L, "name", ar.name);
+       settabss(L, "namewhat", ar.namewhat);
+       break;
++    case 'C':
++      settabss(L, "rkb", ar.rkb);
++      settabss(L, "rkc", ar.rkc);
++      break;
+     case 'f': opt_f = 1; break;
+     case 'L': opt_L = 1; break;
+     default: break;
+@@ -288,7 +292,7 @@ LJLIB_CF(debug_setuservalue)
+ static void hookf(lua_State *L, lua_Debug *ar)
+ {
+   static const char *const hooknames[] =
+-    {"call", "return", "line", "count", "tail return"};
++    {"call", "return", "line", "count", "tail return", "edge", "data"};
+   (L->top++)->u64 = KEY_HOOK;
+   lua_rawget(L, LUA_REGISTRYINDEX);
+   if (lua_isfunction(L, -1)) {
+diff --git a/src/lj_debug.c b/src/lj_debug.c
+index ca893153..e3d1de67 100644
+--- a/src/lj_debug.c
++++ b/src/lj_debug.c
+@@ -498,6 +498,9 @@ int lj_debug_getinfo(lua_State *L, const char *what, lj_Debug *ar, int ext)
+       opt_f = 1;
+     } else if (*what == 'L') {
+       opt_L = 1;
++    } else if (*what == 'C') {
++      ar->rkb = "rkb";
++      ar->rkc = "rkc";
+     } else {
+       return 0;  /* Bad option. */
+     }
+diff --git a/src/lj_debug.h b/src/lj_debug.h
+index 28127ae9..ab121116 100644
+--- a/src/lj_debug.h
++++ b/src/lj_debug.h
+@@ -24,6 +24,8 @@ typedef struct lj_Debug {
+   /* Extended fields. Only valid if lj_debug_getinfo() is called with ext = 1.*/
+   int nparams;
+   int isvararg;
++  char *rkb;
++  char *rkc;
+ } lj_Debug;
+ 
+ LJ_FUNC cTValue *lj_debug_frame(lua_State *L, int level, int *size);
+diff --git a/src/lj_dispatch.c b/src/lj_dispatch.c
+index ded382aa..95f3c105 100644
+--- a/src/lj_dispatch.c
++++ b/src/lj_dispatch.c
+@@ -115,7 +115,7 @@ void lj_dispatch_update(global_State *g)
+ #if LJ_HASPROFILE
+   mode |= (g->hookmask & HOOK_PROFILE) ? (DISPMODE_PROF|DISPMODE_INS) : 0;
+ #endif
+-  mode |= (g->hookmask & (LUA_MASKLINE|LUA_MASKCOUNT)) ? DISPMODE_INS : 0;
++  mode |= (g->hookmask & (LUA_MASKLINE|LUA_MASKCOUNT|LUA_MASKEDGE|LUA_MASKDATA)) ? DISPMODE_INS : 0;
+   mode |= (g->hookmask & LUA_MASKCALL) ? DISPMODE_CALL : 0;
+   mode |= (g->hookmask & LUA_MASKRET) ? DISPMODE_RET : 0;
+   if (oldmode != mode) {  /* Mode changed? */
+@@ -440,6 +440,15 @@ void LJ_FASTCALL lj_dispatch_ins(lua_State *L, const BCIns *pc)
+       L->top = L->base + slots;  /* Fix top again. */
+     }
+   }
++  if ((g->hookmask & LUA_MASKEDGE)) {
++    BCPos npc = proto_bcpos(pt, pc) - 1;
++    BCPos opc = proto_bcpos(pt, oldpc) - 1;
++    BCLine line = lj_debug_line(pt, npc);
++    if (pc <= oldpc || opc >= pt->sizebc || line != lj_debug_line(pt, opc)) {
++      callhook(L, LUA_HOOKEDGE, line);
++      L->top = L->base + slots;  /* Fix top again. */
++    }
++  }
+   if ((g->hookmask & LUA_MASKRET) && bc_isret(bc_op(pc[-1])))
+     callhook(L, LUA_HOOKRET, -1);
+   ERRNO_RESTORE
+diff --git a/src/lj_vm.h b/src/lj_vm.h
+index c66db004..1be9902c 100644
+--- a/src/lj_vm.h
++++ b/src/lj_vm.h
+@@ -51,6 +51,8 @@ LJ_ASMF void lj_vm_inshook(void);
+ LJ_ASMF void lj_vm_rethook(void);
+ LJ_ASMF void lj_vm_callhook(void);
+ LJ_ASMF void lj_vm_profhook(void);
++LJ_ASMF void lj_vm_edgehook(void);
++LJ_ASMF void lj_vm_datahook(void);
+ LJ_ASMF void lj_vm_IITERN(void);
+ 
+ /* Trace exit handling. */
+diff --git a/src/lua.h b/src/lua.h
+index 6d1634d1..f712d5a2 100644
+--- a/src/lua.h
++++ b/src/lua.h
+@@ -315,6 +315,8 @@ LUA_API void lua_setlevel	(lua_State *from, lua_State *to);
+ #define LUA_HOOKLINE	2
+ #define LUA_HOOKCOUNT	3
+ #define LUA_HOOKTAILRET 4
++#define LUA_HOOKEDGE    5
++#define LUA_HOOKDATA    6
+ 
+ 
+ /*
+@@ -324,6 +326,8 @@ LUA_API void lua_setlevel	(lua_State *from, lua_State *to);
+ #define LUA_MASKRET	(1 << LUA_HOOKRET)
+ #define LUA_MASKLINE	(1 << LUA_HOOKLINE)
+ #define LUA_MASKCOUNT	(1 << LUA_HOOKCOUNT)
++#define LUA_MASKEDGE	(1 << LUA_HOOKEDGE)
++#define LUA_MASKDATA	(1 << LUA_HOOKDATA)
+ 
+ typedef struct lua_Debug lua_Debug;  /* activation record */
+ 
+@@ -368,6 +372,8 @@ struct lua_Debug {
+   int linedefined;	/* (S) */
+   int lastlinedefined;	/* (S) */
+   char short_src[LUA_IDSIZE]; /* (S) */
++  char *rkb;	/* C */
++  char *rkc;	/* C */
+   /* private part */
+   int i_ci;  /* active function */
+ };
+diff --git a/src/vm_arm64.dasc b/src/vm_arm64.dasc
+index 36a036ae..24f75bfa 100644
+--- a/src/vm_arm64.dasc
++++ b/src/vm_arm64.dasc
+@@ -1787,7 +1787,7 @@ static void build_subroutines(BuildCtx *ctx)
+   |  ldrb TMP2w, GL->hookmask
+   |   ldr TMP3w, GL->hookcount
+   |  tbnz TMP2w, #HOOK_ACTIVE_SHIFT, <5	// Hook already active?
+-  |  tst TMP2w, #LUA_MASKLINE|LUA_MASKCOUNT
++  |  tst TMP2w, #LUA_MASKLINE|LUA_MASKCOUNT|LUA_MASKEDGE
+   |  beq <5
+   |   sub TMP3w, TMP3w, #1
+   |   str TMP3w, GL->hookcount

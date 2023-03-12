@@ -16,3 +16,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Examples with tests.
 - Documentation with usecases, API etc.
 - Add patches for PUC Rio Lua with enhanced edge and data tracking.
+- Add patches for LuaJIT with enhanced edge and data tracking.

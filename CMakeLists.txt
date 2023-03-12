@@ -6,16 +6,21 @@ project(luzer
 )
 
 option(USE_LUA "Use PUC Rio Lua" OFF)
+option(USE_LUAJIT "Use LuaJIT" OFF)
 option(LUA_PATCHED "Patch Lua runtime" OFF)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 set(CMAKE_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_INCLUDE_PATH})
 
 include(BuildLua)
+include(BuildLuaJIT)
 
 if (USE_LUA AND LUA_VERSION)
   build_lua(${LUA_VERSION})
   set(LUA_RUNTIME "PUC Rio Lua")
+elseif (USE_LUAJIT AND LUA_VERSION)
+  build_luajit(${LUA_VERSION})
+  set(LUA_RUNTIME "LuaJIT")
 else ()
   include(FindLua)
   find_package(Lua ${LUA_VERSION} REQUIRED)
