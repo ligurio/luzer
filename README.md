@@ -82,6 +82,12 @@ To gather baseline coverage, the fuzzing engine executes both the seed corpus
 and the generated corpus, to ensure that no errors occurred and to understand
 the code coverage the existing corpus already provides.
 
+See tests that uses luzer library in:
+
+- Tarantool Lua API tests, https://github.com/ligurio/tarantool-lua-api-tests
+- Lua standard library tests, https://github.com/ligurio/lua-stdlib-tests
+- https://github.com/ligurio/snippets/tree/master/luzer-tests
+
 ## Documentation
 
 See [documentation](docs/index.md).
