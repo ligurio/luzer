@@ -1,5 +1,7 @@
 include(MakeLuaPath)
 
+find_program(AFL_FUZZ_BIN "afl-fuzz")
+
 make_lua_path(LUA_CPATH
   PATHS
   ${PROJECT_BINARY_DIR}/luzer/?.so
@@ -10,6 +12,19 @@ make_lua_path(LUA_PATH
   ${PROJECT_SOURCE_DIR}/?/?.lua
   ${PROJECT_SOURCE_DIR}/?/init.lua
 )
+# set(LUA_CPATH "\;${PROJECT_BINARY_DIR}/luzer/?.so\;")
+set(AFL_LUA_BIN $<TARGET_FILE:${AFL_LUA}>)
+
+set(AFL_IN_DIR ${CMAKE_CURRENT_BINARY_DIR}/afl_input_dir)
+set(AFL_OUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/afl_output_dir)
+set(AFL_FUZZ_AVAILABLE FALSE)
+if(EXISTS ${AFL_FUZZ_BIN})
+  set(AFL_FUZZ_AVAILABLE TRUE)
+  make_directory(${AFL_IN_DIR})
+  make_directory(${AFL_OUT_DIR})
+  file(WRITE ${AFL_IN_DIR}/sample "0")
+  file(WRITE ${AFL_OUT_DIR}/sample "0")
+endif()
 
 add_test(
   NAME luzer_unit_test
@@ -255,4 +270,30 @@ if (LUA_HAS_JIT)
     "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};FFI_LIB_NAME=testlib_ubsan.so;ERR_INJECTION=NULL_POINTER_DEREF"
     "runtime error: load of null pointer of type"
   )
+endif()
+
+# AFL environment variables,
+# see https://aflplus.plus/docs/env_variables/.
+# TODO: AFL_NO_FORKSRV
+string(JOIN ";" AFL_ENV_VARIABLES
+  AFL_BENCH_UNTIL_CRASH=1
+  AFL_DEBUG=1
+  AFL_DEBUG_CHILD=1
+  AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1
+  AFL_NO_UI=1
+  AFL_SKIP_CPUFREQ=1
+)
+add_test(
+  NAME luzer_e2e_test_afl
+  COMMAND ${AFL_FUZZ_BIN} -D -i ${AFL_IN_DIR}
+          -o ${AFL_OUT_DIR} ${AFL_LUA_BIN}
+          "${CMAKE_CURRENT_SOURCE_DIR}/test_e2e.lua"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_e2e_test_afl PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH};${AFL_ENV_VARIABLES};__AFL_SHM_ID=${RANDOM_SEED}"
+  PASS_REGULAR_EXPRESSION "assert has triggered"
+)
+if(${AFL_FUZZ_BIN} STREQUAL "AFL_FUZZ_BIN-NOTFOUND")
+  set_tests_properties(luzer_e2e_test_afl PROPERTIES DISABLED TRUE)
 endif()
