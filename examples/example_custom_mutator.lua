@@ -5,6 +5,7 @@ local function custom_mutator(buf)
 end
 
 local function TestOneInput(buf)
+    buf = buf or io.read("*a")
     local fdp = luzer.FuzzedDataProvider(buf)
     local str = fdp:consume_string(3)
 

@@ -61,6 +61,14 @@ target_compile_options(custom_mutator PRIVATE
 set_target_properties(custom_mutator PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(custom_mutator PROPERTIES SOVERSION 1)
 
+set(AFL_LUA afl-lua)
+add_executable(${AFL_LUA} afl-lua.c)
+target_include_directories(${AFL_LUA} PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(${AFL_LUA} PRIVATE ${LUA_LIBRARIES})
+target_compile_options(${AFL_LUA} PRIVATE
+	${CFLAGS}
+)
+
 if(ENABLE_TESTING)
   add_subdirectory(tests)
 endif()
@@ -81,4 +89,9 @@ install(
 install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/init.lua
   DESTINATION "${CMAKE_LUADIR}/${PROJECT_NAME}"
+)
+
+install(
+  TARGETS ${AFL_LUA}
+  DESTINATION "${CMAKE_BINDIR}/"
 )

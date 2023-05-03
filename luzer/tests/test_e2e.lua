@@ -1,6 +1,7 @@
 local luzer = require("luzer")
 
 local function TestOneInput(buf)
+    buf = buf or io.read("*a")
     local fdp = luzer.FuzzedDataProvider(buf)
     local str = fdp:consume_string(1)
     if str == "c" then
