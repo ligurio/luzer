@@ -38,6 +38,7 @@ set(LUZER_SOURCES luzer.c
                   fuzzed_data_provider.cc
                   tracer.c
                   counters.c
+                  afl.c
                   ${CMAKE_CURRENT_BINARY_DIR}/config.c)
 
 add_library(luzer_impl SHARED ${LUZER_SOURCES})
@@ -70,6 +71,14 @@ target_link_libraries(custom_mutator PRIVATE
   luzer_impl
 )
 
+set(AFL_LUA afl-lua)
+add_executable(${AFL_LUA} afl-lua.c)
+target_include_directories(${AFL_LUA} PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(${AFL_LUA} PRIVATE ${LUA_LIBRARIES})
+target_compile_options(${AFL_LUA} PRIVATE
+  ${CFLAGS}
+)
+
 if(ENABLE_TESTING)
   add_subdirectory(tests)
 endif()
@@ -90,4 +99,9 @@ install(
 install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/init.lua
   DESTINATION "${CMAKE_LUADIR}/${PROJECT_NAME}"
+)
+
+install(
+  TARGETS ${AFL_LUA}
+  DESTINATION "${CMAKE_BINARY_DIR}/"
 )
