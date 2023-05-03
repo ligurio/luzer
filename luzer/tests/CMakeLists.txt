@@ -1,4 +1,10 @@
 set(LUA_CPATH "\;${PROJECT_BINARY_DIR}/luzer/?.so\;")
+set(LUZER_BIN $<TARGET_FILE:${BIN_NAME}>)
+
+find_program(AFL_FUZZ "afl-fuzz")
+if(NOT EXISTS ${AFL_FUZZ})
+  message(WARNING "${AFL_FUZZ} is not found.")
+endif()
 
 add_test(
   NAME luzer_unit_test
@@ -48,4 +54,14 @@ set_tests_properties(luzer_basic_example PROPERTIES
   ENVIRONMENT "LUA_CPATH='${LUA_CPATH}'"
   PASS_REGULAR_EXPRESSION "example_custom_mutator.lua:19: assert has triggered"
   DISABLED True
+)
+
+# __AFL_SHM_ID=$RANDOM afl-fuzz -D -i in/ -o out/ afl-lua example.lua
+add_test(
+  NAME luzer_e2e_test_afl
+  COMMAND ${AFL_FUZZ} -D -i in/ -o out/ ${LUZER_BIN} "${CMAKE_CURRENT_SOURCE_DIR}/test_e2e.lua"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_e2e_test_afl PROPERTIES
+  PASS_REGULAR_EXPRESSION "test_e2e.lua:7: assert has triggered"
 )
