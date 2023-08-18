@@ -18,3 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Disable coverage instrumentation of internal functions (#11).
+
+### Fixed
+
+- Fix searching Clang RT.

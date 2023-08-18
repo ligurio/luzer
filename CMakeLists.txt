@@ -5,9 +5,11 @@ project(luzer
   VERSION "1.0.0"
 )
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(SetClangRTLib)
+
 find_package(Lua 5.1 REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
-find_library(LIBRT rt)
 
 set(LUA_NAME "lua${LUA_VERSION_MAJOR}.${LUA_VERSION_MINOR}")
 find_program(LUA_EXECUTABLE "${LUA_NAME}")
