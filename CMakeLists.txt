@@ -41,7 +41,6 @@ else()
   enable_testing()
 endif()
 
-add_subdirectory(mutator)
 add_subdirectory(luzer)
 
 ## Install ####################################################################

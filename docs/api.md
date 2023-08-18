@@ -83,15 +83,4 @@ AAAAAAAAA
 Learn more about grammar-based fuzzing in the
 [documentation](grammar_based_fuzzing.md).
 
-### Custom mutator
-
-- `LLVMFuzzerCustomMutator(data, max_size, seed)` - optional user-provided
-  custom mutator. Mutates raw data in [`data`, `data` + size of `data`) inplace.
-  Returns the new size, which is not greater than `max_size`. Given the same
-  `seed` produces the same mutation.
-- `LLVMFuzzerCustomCrossOver(data1, data2, max_size, seed)` - optional
-   user-provided custom cross-over function. Combines pieces of `data1` & `data2`
-   together into `out`. Returns the new size, which is not greater than `max_size`.
-   Should produce the same mutation given the same `seed`.
-
 [libfuzzer-options-url]: https://llvm.org/docs/LibFuzzer.html#options
