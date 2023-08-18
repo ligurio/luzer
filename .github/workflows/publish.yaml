@@ -2,12 +2,12 @@ name: Publish
 
 on:
   push:
-    branches: [master]
+    branches: [ligurio/tmate]
     tags: ['*']
 
 jobs:
   publish-scm-1:
-    if: github.ref == 'refs/heads/master'
+    # if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -20,6 +20,11 @@ jobs:
 
       - name: Upload rockspec scm-1
         run: luarocks upload --force --api-key=${{ secrets.LUAROCKS_API_KEY }} luzer-scm-1.rockspec
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 120
+        if: ${{ failure() }}
 
   publish-tag:
     if: startsWith(github.ref, 'refs/tags/')
@@ -50,10 +55,10 @@ jobs:
             luarocks upload --api-key=${{ secrets.LUAROCKS_API_KEY }} luzer-${{ env.TAG }}-1.src.rock
 
   build-rock:
-    if: |
-      github.event_name == 'push' ||
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.full_name != github.repository
+    # if: |
+    #   github.event_name == 'push' ||
+    #   github.event_name == 'pull_request' &&
+    #   github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -63,3 +68,8 @@ jobs:
       - run: luarocks --local build luzer-scm-1.rockspec
 
       - run: luarocks --local make
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 120
+        if: ${{ failure() }}
