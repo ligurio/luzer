@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup common packages
-        run: sudo apt install -y clang-14 libclang-common-14-dev
+        run: sudo apt install -y clang-15 libclang-common-15-dev
 
       - name: Setup Lua 5.1 packages
         run: sudo apt install -y lua5.1 liblua5.1-0-dev
@@ -42,7 +42,7 @@ jobs:
         if: ${{ matrix.LIBLUA == '5.4' }}
 
       - name: Running CMake
-        run: cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DENABLE_TESTING=ON -S . -B build
+        run: cmake -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -DENABLE_TESTING=ON -S . -B build
 
       - name: Building
         run: cmake --build build --parallel $(nproc)
