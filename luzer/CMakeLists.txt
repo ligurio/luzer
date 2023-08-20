@@ -25,20 +25,21 @@ set(LUZER_SOURCES luzer.c
                   counters.c
                   ${CMAKE_CURRENT_BINARY_DIR}/version.c)
 
-add_library(${CMAKE_PROJECT_NAME} SHARED ${LUZER_SOURCES})
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+set(LIB_NAME luzer-lib)
+add_library(${LIB_NAME} SHARED ${LUZER_SOURCES})
+target_include_directories(${LIB_NAME} PRIVATE
 	${LUA_INCLUDE_DIR}
 )
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
+target_link_libraries(${LIB_NAME} PRIVATE
 	${LUA_LIBRARIES}
 	-fsanitize=fuzzer-no-link
 	${FUZZER_NO_MAIN_LIBRARY}
 )
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
+target_compile_options(${LIB_NAME} PRIVATE
 	${CFLAGS}
 	-fsanitize=fuzzer-no-link
 )
-set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
+set_target_properties(${LIB_NAME} PROPERTIES PREFIX "")
 
 set(custom_mutator_lib_source ${CMAKE_CURRENT_SOURCE_DIR}/custom_mutator_lib.c)
 add_library(custom_mutator SHARED ${custom_mutator_lib_source})
@@ -55,7 +56,7 @@ if(ENABLE_TESTING)
 endif()
 
 install(
-  TARGETS ${CMAKE_PROJECT_NAME}
+  TARGETS ${LIB_NAME}
   LIBRARY
   DESTINATION "${CMAKE_LIBDIR}/"
   RENAME luzer.so
