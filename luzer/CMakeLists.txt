@@ -6,6 +6,18 @@ configure_file(
   @ONLY
 )
 
+set(CFLAGS
+    -D_FORTIFY_SOURCE=2
+    -fpie
+    -fPIC
+    -Wall
+    -Wextra
+    -Werror
+    -Wpedantic
+    -Wno-unused-parameter
+    -pedantic
+)
+
 set(LUZER_SOURCES luzer.c
                   compat.c
                   fuzzed_data_provider.cc
@@ -23,15 +35,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 	${FUZZER_NO_MAIN_LIBRARY}
 )
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
-	-D_FORTIFY_SOURCE=2
-	-fpie
-	-fPIC
-	-Wall
-	-Wextra
-	-Werror
-	-Wpedantic
-	-Wno-unused-parameter
-	-pedantic
+	${CFLAGS}
 	-fsanitize=fuzzer-no-link
 )
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
@@ -40,6 +44,9 @@ set(custom_mutator_lib_source ${CMAKE_CURRENT_SOURCE_DIR}/custom_mutator_lib.c)
 add_library(custom_mutator SHARED ${custom_mutator_lib_source})
 target_include_directories(custom_mutator PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(custom_mutator PRIVATE ${LUA_LIBRARIES})
+target_compile_options(custom_mutator PRIVATE
+	${CFLAGS}
+)
 set_target_properties(custom_mutator PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(custom_mutator PROPERTIES SOVERSION 1)
 
