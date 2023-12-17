@@ -36,6 +36,37 @@
 #define NO_SANITIZE_MEMORY
 #endif  // __has_attribute
 
-#define NO_SANITIZE NO_SANITIZE_ADDRESS NO_SANITIZE_MEMORY
+/*
+ * NO_SANITIZE_COVERAGE disables coverage instrumentation for
+ * selected functions via the function attribute
+ * __attribute__((no_sanitize("coverage"))).
+ * This attribute may not be supported by other compilers,
+ * so it is used together with __has_feature(coverage_sanitizer).
+ * See:
+ *  - https://clang.llvm.org/docs/SanitizerCoverage.html#disabling-instrumentation-with-attribute-no-sanitize-coverage
+ *  - https://clang.llvm.org/docs/LanguageExtensions.html#has-feature-and-has-extension
+ *
+ * Support of __has_feature(coverage_sanitizer) was added
+ * in Clang 13 together with no_sanitize("coverage").
+ * Prior versions of Clang support coverage instrumentation,
+ * but cannot be queried for support by the preprocessor.
+ */
+#ifdef __has_feature
+#if __has_feature(coverage_sanitizer)
+#define NO_SANITIZE_COVERAGE __attribute__((no_sanitize("coverage")))
+#else // __has_feature(coverage_sanitizer)
+#warning "compiler does not support 'coverage_sanitizer' feature"
+#warning "it still may have instrumentation, but no way to exclude
+#warning "certain functions found"
+#warning "if you proceed, your coverage may be polluted or broken"
+#define NO_SANITIZE_COVERAGE
+#endif // __has_feature(coverage_sanitizer)
+
+#else // __has_feature
+#warning "compiler does not provide __has_feature,"
+#warning "can't check presence of 'coverage_sanitizer' feature"
+#endif // __has_feature
+
+#define NO_SANITIZE NO_SANITIZE_ADDRESS NO_SANITIZE_MEMORY NO_SANITIZE_COVERAGE
 
 #endif  // LUZER_MACROS_H_
