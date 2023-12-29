@@ -151,7 +151,7 @@ init(void)
 {
 	if (!&LLVMFuzzerRunDriver) {
 		printf("LLVMFuzzerRunDriver symbol not found. This means "
-        "you had an old version of Clang installed when you built luzer.");
+        "you had an old version of Clang installed when you built luzer.\n");
         /* TODO: exit */
         assert(NULL);
 	}
@@ -161,7 +161,7 @@ init(void)
         "WARNING: Coverage symbols are being provided by a library other than "
         "libFuzzer. This will result in a broken Lua code coverage and "
         "severely impacted native extension code coverage. Symbols are coming "
-        "from this library: %s", get_coverage_symbols_location());
+        "from this library: %s\n", get_coverage_symbols_location());
 	}
 }
 
