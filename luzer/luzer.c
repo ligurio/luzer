@@ -43,8 +43,10 @@ set_global_lua_state(lua_State *L)
 lua_State *
 get_global_lua_state(void)
 {
-	if (!LL)
-		luaL_error(LL, "Lua state is not initialized.");
+	if (!LL) {
+		fprintf(stderr, "Lua state is not initialized.\n");
+		abort();
+	}
 
 	return LL;
 }
