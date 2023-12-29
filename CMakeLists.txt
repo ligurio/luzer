@@ -6,7 +6,7 @@ project(luzer
 )
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(SetClangRTLibDir)
+include(SetClangRTLib)
 
 find_package(Lua 5.1 REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
