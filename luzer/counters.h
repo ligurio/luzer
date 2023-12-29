@@ -1,5 +1,6 @@
 #ifndef LUZER_COUNTERS_H_
 #define LUZER_COUNTERS_H_
+#include <stddef.h>
 
 struct PCTableEntry {
 	void* pc;
@@ -8,21 +9,21 @@ struct PCTableEntry {
 
 // Sets the global number of counters.
 // Must not be called after InitializeCountersWithLLVM is called.
-void set_max_counters(int max);
+void set_max_counters(size_t max);
 
 // Returns the maximum number of allocatable luzer counters. If more than this
 // many counters are reserved, luzer reuses counters, lowering fuzz quality.
-int get_max_counters(void);
+size_t get_max_counters(void);
 
 // Returns a new counter index.
-int reserve_counter(void);
+size_t reserve_counter(void);
 // Reserves a number of counters with contiguous indices, and returns the first
 // index.
-int reserve_counters(int counters);
+size_t reserve_counters(size_t amount);
 
 // Increments a counter at the given index. If more than the maximum number of
 // counters has been reserved, reuse counters.
-void increment_counter(int counter_index);
+void increment_counter(size_t index);
 
 typedef struct counter_and_pc_table_range {
 	unsigned char* counters_start;

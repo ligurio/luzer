@@ -22,15 +22,15 @@ void __sanitizer_cov_pcs_init(uint8_t* pcs_beg, uint8_t* pcs_end);
 } /* extern "C" */
 #endif
 
-static const int kDefaultNumCounters = 1 << 20;
+static const size_t kDefaultNumCounters = 1 << 20;
 
 // Number of counters requested by Lua instrumentation.
-int counter_index = 0;
+size_t counter_index = 0;
 // Number of counters given to Libfuzzer.
-int counter_index_registered = 0;
+size_t counter_index_registered = 0;
 // Maximum number of counters and pctable entries that may be reserved and also
 // the number that are allocated.
-int max_counters = 0;
+size_t max_counters = 0;
 // Counter Allocations. These are allocated once, before __sanitize_... are
 // called and can only be deallocated by test_only_reset_counters.
 unsigned char* counters = NULL;
@@ -51,32 +51,34 @@ test_only_reset_counters(void) {
 	counter_index_registered = 0;
 }
 
-NO_SANITIZE int
-reserve_counters(int counters) {
+NO_SANITIZE size_t
+reserve_counters(size_t amount) {
 	int ret = counter_index;
-	counter_index += counters;
+	counter_index += amount;
 	return ret;
 }
 
-NO_SANITIZE int
+NO_SANITIZE size_t
 reserve_counter(void)
 {
 	return counter_index++;
 }
 
 NO_SANITIZE void
-increment_counter(int counter_index)
+increment_counter(size_t index)
 {
-	if (counters != NULL && pctable != NULL) {
-		// `counters` is an allocation of length `max_counters`. If we reserve more
-		// than the allocated number of counters, we'll wrap around and overload
-		// old counters, trading away fuzzing quality for limits on memory usage.
-		counters[counter_index % max_counters]++;
+	if (counters != NULL) {
+		// Global array `counters` is an allocation of length `max_counters`.
+                // But we use only registered amount of them.
+                // If we reserve more than the allocated number of counters, we'll wrap
+                // around and overload old counters, trading away fuzzing quality
+                // for limits on memory usage.
+		counters[index % counter_index_registered]++;
 	}
 }
 
 NO_SANITIZE void
-set_max_counters(int max)
+set_max_counters(size_t max)
 {
 	if (counters != NULL && pctable != NULL) {
 		fprintf(stderr, "Internal error: attempt to set max number of counters after "
@@ -89,7 +91,7 @@ set_max_counters(int max)
 	max_counters = max;
 }
 
-NO_SANITIZE int
+NO_SANITIZE size_t
 get_max_counters(void)
 {
 	return max_counters;
@@ -122,7 +124,7 @@ allocate_counters_and_pcs(void) {
 		}
 	}
 
-	const int next_index = MIN(counter_index, max_counters);
+	const size_t next_index = MIN(counter_index, max_counters);
 	if (counter_index_registered >= next_index) {
 		// There are no counters to pass. Perhaps because we've reserved more than
 		// max_counters, or because no counters have been reserved since this was

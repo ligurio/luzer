@@ -14,3 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration with libFuzzer's `FuzzedDataProvider`.
 - Examples with tests.
 - Documentation with usecases, API etc.
+- Two ways to approximate amount of counters for interpreted code.
+
+### Fixed
+- Interpreted code counter never handed to libfuzzer. (#12)
+- Bad lifetime and initization of struct sigaction.
