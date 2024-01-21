@@ -53,7 +53,7 @@ local function TestOneInput(buf)
     end
 end
 
-luzer.Fuzz(TestOneInput)
+luzer.Fuzz(TestOneInput, nil, {})
 ```
 
 3. Start the fuzzer using the fuzz target

@@ -20,14 +20,54 @@ set_tests_properties(luzer_e2e_test PROPERTIES
 )
 
 add_test(
-  NAME luzer_options_test
+  NAME luzer_options_table_flag_corpus_test
   COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options.lua
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
-set_tests_properties(luzer_options_test PROPERTIES
+set_tests_properties(luzer_options_table_flag_corpus_test PROPERTIES
   ENVIRONMENT "LUA_CPATH='${LUA_CPATH}'"
   PASS_REGULAR_EXPRESSION "ERROR: The required directory \"undefined\" does not exist"
 )
+
+add_test(
+  NAME luzer_options_cli_seed_path_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options.lua cli_arg_seed_path
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_options_cli_seed_path_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH='${LUA_CPATH}'"
+  PASS_REGULAR_EXPRESSION "ERROR: The required directory \"cli_arg_seed_path\" does not exist"
+)
+
+add_test(
+  NAME luzer_options_cli_not_use_env_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options.lua cli_arg_seed_path -help=1
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_options_cli_not_use_env_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH='${LUA_CPATH}';LUZER_NOT_USE_CLI_ARGS=1"
+  PASS_REGULAR_EXPRESSION "ERROR: The required directory \"undefined\" does not exist"
+)
+
+add_test(
+  NAME luzer_options_combine_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options.lua -test_cli=1 -test_flag=2
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+string(
+  JOIN
+  ".*"
+  COMBINE_TEST_REGEXPR
+  "WARNING: unrecognized flag '-test_table=1'"
+  "WARNING: unrecognized flag '-test_cli=1'"
+  "WARNING: unrecognized flag '-test_flag=2'"
+  "ERROR: The required directory \"undefined\" does not exist"
+)
+set_tests_properties(luzer_options_combine_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH='${LUA_CPATH}'"
+  PASS_REGULAR_EXPRESSION ${COMBINE_TEST_REGEXPR}
+)
+unset(COMBINE_TEST_REGEXPR)
 
 add_test(
   NAME luzer_custom_mutator_example
