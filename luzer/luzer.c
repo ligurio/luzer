@@ -150,7 +150,6 @@ sig_handler(int sig)
 	switch (sig) {
 	case SIGINT:
 		exit(0);
-		break;
 	case SIGSEGV:
 		__sanitizer_print_stack_trace();
 		break;
