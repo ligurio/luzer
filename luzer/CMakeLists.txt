@@ -7,6 +7,7 @@ configure_file(
 )
 
 set(LUZER_SOURCES luzer.c
+                  compat.c
                   fuzzed_data_provider.cc
                   tracer.c
                   counters.c

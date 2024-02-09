@@ -21,6 +21,7 @@
 
 #include "fuzzed_data_provider.h"
 #include "counters.h"
+#include "compat.h"
 #include "macros.h"
 #include "tracer.h"
 #include "version.h"
@@ -47,17 +48,6 @@ get_global_lua_state(void)
 
 	return LL;
 }
-
-#if LUA_VERSION_NUM < 502
-void
-luaL_traceback(lua_State *L, lua_State *L1,
-			   const char *msg, int level) {
-	(void)L;
-	(void)L1;
-	(void)msg;
-	fprintf(stderr, "WARNING: Lua traceback is unsupported.\n");
-}
-#endif
 
 #ifdef __cplusplus
 extern "C" {
