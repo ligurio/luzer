@@ -219,6 +219,18 @@ TestOneInput(const uint8_t* data, size_t size) {
 	}
 
 	lua_State *L = get_global_lua_state();
+
+	/**
+	 * Enable debug hook.
+	 *
+	 * Hook is called when the Lua interpreter calls a function
+	 * and when the interpreter is about to start the execution
+	 * of a new line of code, or when it jumps back in the code
+	 * (even to the same line).
+	 * https://www.lua.org/pil/23.2.html
+	 */
+	lua_sethook(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
+
 	char *buf = calloc(size + 1, sizeof(char));
 	memcpy(buf, data, size);
 	buf[size] = '\0';
@@ -226,13 +238,15 @@ TestOneInput(const uint8_t* data, size_t size) {
 	int rc = luaL_test_one_input(L);
 	free(buf);
 
+	/* Disable debug hook. */
+	lua_sethook(L, debug_hook, 0, 0);
+
 	return rc;
 }
 
 NO_SANITIZE static int
 luaL_cleanup(lua_State *L)
 {
-	lua_sethook(L, debug_hook, 0, 0);
 	lua_pushnil(L);
 	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
 	lua_pushnil(L);
@@ -373,13 +387,6 @@ luaL_fuzz(lua_State *L)
 	}
 	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
 
-	/**
-	 * Hook is called when the Lua interpreter calls a function and when the
-	 * interpreter is about to start the execution of a new line of code, or
-	 * when it jumps back in the code (even to the same line).
-	 * https://www.lua.org/pil/23.2.html
-	 */
-	lua_sethook(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
 	lua_pushboolean(L, 1);
 
 	struct sigaction act;
