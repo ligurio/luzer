@@ -38,7 +38,7 @@
       "name": "default",
       "configurePreset": "default",
       "output": {"outputOnFailure": true},
-      "execution": {"noTestsAction": "error", "stopOnFailure": true}
+      "execution": {"noTestsAction": "error", "stopOnFailure": true, "timeout": 10}
     }
   ],
   "workflowPresets": [

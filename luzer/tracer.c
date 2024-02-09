@@ -41,14 +41,14 @@ _trace_branch(uint64_t idx)
 	increment_counter(idx);
 }
 
-static inline unsigned int lhash(const char *key, size_t offset)
-{
-	const char *const last = &key[strlen(key) - 1];
-	uint32_t h = LHASH_INIT;
-	while (key <= last)               LHASH_NEXT(*key++);
-	for (; offset != 0; offset >>= 8) LHASH_NEXT(offset);
-	return h;
-}
+/* static inline unsigned int lhash(const char *key, size_t offset) */
+/* { */
+/* 	const char *const last = &key[strlen(key) - 1]; */
+/* 	uint32_t h = LHASH_INIT; */
+/* 	while (key <= last)               LHASH_NEXT(*key++); */
+/* 	for (; offset != 0; offset >>= 8) LHASH_NEXT(offset); */
+/* 	return h; */
+/* } */
 
 /**
  * luzer gathers coverage using a debug hook, and patches coroutine
@@ -63,9 +63,13 @@ static inline unsigned int lhash(const char *key, size_t offset)
  */
 void debug_hook(lua_State *L, lua_Debug *ar)
 {
-	lua_getinfo(L, "Sln", ar);
-	if (ar && ar->source && ar->currentline) {
-		const unsigned int new_location = lhash(ar->source, ar->currentline);
-		_trace_branch(new_location);
+	/* Function returns 0 on error. */
+	if (lua_getinfo(L, "Sln", ar) == 0)
+		return;
+
+	if (strcmp(ar->what, "C") != 0) {
+		DEBUG_PRINT("DEBUG: current location is %s:%d\n", ar->source, ar->currentline);
+		/* const unsigned int new_location = lhash(ar->source, ar->currentline); */
+		/* _trace_branch(new_location); */
 	}
 }

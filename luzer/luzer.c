@@ -21,6 +21,7 @@
 
 #include "fuzzed_data_provider.h"
 #include "counters.h"
+#include "compat.h"
 #include "macros.h"
 #include "tracer.h"
 #include "version.h"
@@ -42,32 +43,13 @@ set_global_lua_state(lua_State *L)
 lua_State *
 get_global_lua_state(void)
 {
-	if (!LL)
-		luaL_error(LL, "Lua state is not initialized.");
+	if (!LL) {
+		fprintf(stderr, "Lua state is not initialized.\n");
+		abort();
+	}
 
 	return LL;
 }
-
-#if LUA_VERSION_NUM < 502
-static int
-luaL_traceback(lua_State *L) {
-	lua_getfield(L, LUA_GLOBALSINDEX, "debug");
-	if (!lua_istable(L, -1)) {
-		lua_pop(L, 1);
-		return 1;
-	}
-	lua_getfield(L, -1, "traceback");
-	if (!lua_isfunction(L, -1)) {
-		lua_pop(L, 2);
-		return 1;
-	}
-	lua_pushvalue(L, 1);
-	lua_pushinteger(L, 2);
-	lua_call(L, 2, 1);
-	fprintf(stderr, "%s\n", lua_tostring(L, -1));
-	return 1;
-}
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -109,20 +91,17 @@ __sanitizer_acquire_crash_state(void)
 }
 
 /**
- * Print the stack trace leading to this call. Useful for debugging user code.
- * See:
- * - https://github.com/keplerproject/lua-compat-5.2/blob/master/c-api/compat-5.2.c#L229
- * - http://www.lua.org/manual/5.2/manual.html#luaL_traceback
+ * Print a Lua stack trace leading to this call.
+ * Useful for debugging user code.
+ * See http://www.lua.org/manual/5.2/manual.html#luaL_traceback
  */
 NO_SANITIZE void
 __sanitizer_print_stack_trace(void)
 {
 	lua_State *L = get_global_lua_state();
-#if LUA_VERSION_NUM < 502
-	luaL_traceback(L);
-#else
-	luaL_traceback(L, L, "traceback", 3);
-#endif
+	lua_State *L1 = luaL_newstate();
+	luaL_traceback(L, L1, "traceback", 3);
+	lua_close(L1);
 }
 #ifdef __cplusplus
 } /* extern "C" */
@@ -151,7 +130,7 @@ init(void)
 {
 	if (!&LLVMFuzzerRunDriver) {
 		printf("LLVMFuzzerRunDriver symbol not found. This means "
-        "you had an old version of Clang installed when you built luzer.");
+        "you had an old version of Clang installed when you built luzer.\n");
         /* TODO: exit */
         assert(NULL);
 	}
@@ -161,7 +140,7 @@ init(void)
         "WARNING: Coverage symbols are being provided by a library other than "
         "libFuzzer. This will result in a broken Lua code coverage and "
         "severely impacted native extension code coverage. Symbols are coming "
-        "from this library: %s", get_coverage_symbols_location());
+        "from this library: %s\n", get_coverage_symbols_location());
 	}
 }
 
@@ -171,7 +150,6 @@ sig_handler(int sig)
 	switch (sig) {
 	case SIGINT:
 		exit(0);
-		break;
 	case SIGSEGV:
 		__sanitizer_print_stack_trace();
 		break;
@@ -240,6 +218,18 @@ TestOneInput(const uint8_t* data, size_t size) {
 	}
 
 	lua_State *L = get_global_lua_state();
+
+	/**
+	 * Enable debug hook.
+	 *
+	 * Hook is called when the Lua interpreter calls a function
+	 * and when the interpreter is about to start the execution
+	 * of a new line of code, or when it jumps back in the code
+	 * (even to the same line).
+	 * https://www.lua.org/pil/23.2.html
+	 */
+	lua_sethook(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
+
 	char *buf = calloc(size + 1, sizeof(char));
 	memcpy(buf, data, size);
 	buf[size] = '\0';
@@ -247,13 +237,15 @@ TestOneInput(const uint8_t* data, size_t size) {
 	int rc = luaL_test_one_input(L);
 	free(buf);
 
+	/* Disable debug hook. */
+	lua_sethook(L, debug_hook, 0, 0);
+
 	return rc;
 }
 
 NO_SANITIZE static int
 luaL_cleanup(lua_State *L)
 {
-	lua_sethook(L, debug_hook, 0, 0);
 	lua_pushnil(L);
 	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
 	lua_pushnil(L);
@@ -394,13 +386,6 @@ luaL_fuzz(lua_State *L)
 	}
 	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
 
-	/**
-	 * Hook is called when the Lua interpreter calls a function and when the
-	 * interpreter is about to start the execution of a new line of code, or
-	 * when it jumps back in the code (even to the same line).
-	 * https://www.lua.org/pil/23.2.html
-	 */
-	lua_sethook(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
 	lua_pushboolean(L, 1);
 
 	struct sigaction act;
