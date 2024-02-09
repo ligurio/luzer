@@ -8,13 +8,16 @@ static int
 countlevels (lua_State *L) {
 	lua_Debug ar;
 	int li = 1, le = 1;
-	/* find an upper bound */
-	while (lua_getstack(L, le, &ar)) { li = le; le *= 2; }
-	/* do a binary search */
+	/* Find an upper bound. */
+	while (lua_getstack(L, le, &ar))
+		{ li = le; le *= 2; }
+	/* Do a binary search. */
 	while (li < le) {
-		int m = (li + le)/2;
-		if (lua_getstack(L, m, &ar)) li = m + 1;
-		else le = m;
+		int m = (li + le) / 2;
+		if (lua_getstack(L, m, &ar))
+			li = m + 1;
+		else
+			le = m;
 	}
 	return le - 1;
 }
@@ -22,25 +25,37 @@ countlevels (lua_State *L) {
 static int
 findfield (lua_State *L, int objidx, int level) {
 	if (level == 0 || !lua_istable(L, -1))
-		return 0;  /* not found */
-	lua_pushnil(L);  /* start 'next' loop */
-	while (lua_next(L, -2)) {  /* for each pair in table */
-		if (lua_type(L, -2) == LUA_TSTRING) {  /* ignore non-string keys */
-			if (lua_rawequal(L, objidx, -1)) {  /* found object? */
-				lua_pop(L, 1);  /* remove value (but keep name) */
+		/* Not found. */
+		return 0;
+
+	/* Start 'next' loop. */
+	lua_pushnil(L);
+	/* For each pair in table. */
+	while (lua_next(L, -2)) {
+		/* Ignore non-string keys. */
+		if (lua_type(L, -2) == LUA_TSTRING) {
+			/* Found an object? */
+			if (lua_rawequal(L, objidx, -1)) {
+				/* Remove value (but keep name). */
+				lua_pop(L, 1);
 				return 1;
 			}
-			else if (findfield(L, objidx, level - 1)) {  /* try recursively */
-				lua_remove(L, -2);  /* remove table (but keep name) */
+			/* Try recursively. */
+			else if (findfield(L, objidx, level - 1)) {
+				/* Remove table (but keep name). */
+				lua_remove(L, -2);
 				lua_pushliteral(L, ".");
-				lua_insert(L, -2);  /* place '.' between the two names */
+				/* Place '.' between the two names. */
+				lua_insert(L, -2);
 				lua_concat(L, 3);
 				return 1;
 			}
 		}
-		lua_pop(L, 1);  /* remove value */
+		/* Remove value. */
+		lua_pop(L, 1);
 	}
-	return 0;  /* not found */
+	/* Not found. */
+	return 0;
 }
 
 int
@@ -61,29 +76,35 @@ lua_copy (lua_State *L, int from, int to) {
 static int
 pushglobalfuncname (lua_State *L, lua_Debug *ar) {
 	int top = lua_gettop(L);
-	lua_getinfo(L, "f", ar);  /* push function */
+	/* Push function. */
+	lua_getinfo(L, "f", ar);
 	lua_pushvalue(L, LUA_GLOBALSINDEX);
 	if (findfield(L, top + 1, 2)) {
-		lua_copy(L, -1, top + 1);  /* move name to proper place */
-		lua_pop(L, 2);  /* remove pushed values */
+		/* Move name to proper place. */
+		lua_copy(L, -1, top + 1);
+		/* Remove pushed values. */
+		lua_pop(L, 2);
 		return 1;
 	}
 	else {
-		lua_settop(L, top);  /* remove function and global table */
+		/* Remove function and global table. */
+		lua_settop(L, top);
 		return 0;
 	}
 }
 
 static void
 pushfuncname (lua_State *L, lua_Debug *ar) {
-	if (*ar->namewhat != '\0')  /* is there a name? */
+	/* Is there a name? */
+	if (*ar->namewhat != '\0')
 		lua_pushfstring(L, "function " LUA_QS, ar->name);
-	else if (*ar->what == 'm')  /* main? */
+	else if (*ar->what == 'm')  /* Main? */
 		lua_pushliteral(L, "main chunk");
 	else if (*ar->what == 'C') {
 		if (pushglobalfuncname(L, ar)) {
 			lua_pushfstring(L, "function " LUA_QS, lua_tostring(L, -1));
-			lua_remove(L, -2);  /* remove name */
+			/* Remove name. */
+			lua_remove(L, -2);
 		}
 		else
 			lua_pushliteral(L, "?");
@@ -92,8 +113,10 @@ pushfuncname (lua_State *L, lua_Debug *ar) {
 		lua_pushfstring(L, "function <%s:%d>", ar->short_src, ar->linedefined);
 }
 
-#define LEVELS1 12  /* size of the first part of the stack */
-#define LEVELS2 10  /* size of the second part of the stack */
+/* Size of the first part of the stack. */
+#define LEVELS1 12
+/* Size of the second part of the stack. */
+#define LEVELS2 10
 
 void
 luaL_traceback (lua_State *L, lua_State *L1,
@@ -105,9 +128,12 @@ luaL_traceback (lua_State *L, lua_State *L1,
 	if (msg) lua_pushfstring(L, "%s\n", msg);
 	lua_pushliteral(L, "stack traceback:");
 	while (lua_getstack(L1, level++, &ar)) {
-		if (level == mark) {  /* too many levels? */
-			lua_pushliteral(L, "\n\t...");  /* add a '...' */
-			level = numlevels - LEVELS2;  /* and skip to last ones */
+		/* Too many levels? */
+		if (level == mark) {
+			/* Add a '...'. */
+			lua_pushliteral(L, "\n\t...");
+			/* And skip to last ones. */
+			level = numlevels - LEVELS2;
 		}
 		else {
 			lua_getinfo(L1, "Slnt", &ar);
