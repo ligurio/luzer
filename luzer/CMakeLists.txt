@@ -6,6 +6,18 @@ configure_file(
   @ONLY
 )
 
+set(CFLAGS
+    -D_FORTIFY_SOURCE=2
+    -fpie
+    -fPIC
+    -Wall
+    -Wextra
+    -Werror
+    -Wpedantic
+    -Wno-unused-parameter
+    -pedantic
+)
+
 set(LUZER_SOURCES luzer.c
                   compat.c
                   fuzzed_data_provider.cc
@@ -13,42 +25,46 @@ set(LUZER_SOURCES luzer.c
                   counters.c
                   ${CMAKE_CURRENT_BINARY_DIR}/version.c)
 
-add_library(${CMAKE_PROJECT_NAME} SHARED ${LUZER_SOURCES})
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+set(LIB_NAME luzer-lib)
+add_library(${LIB_NAME} SHARED ${LUZER_SOURCES})
+target_include_directories(${LIB_NAME} PRIVATE
 	${LUA_INCLUDE_DIR}
 )
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
+target_link_libraries(${LIB_NAME} PRIVATE
 	${LUA_LIBRARIES}
 	-fsanitize=fuzzer-no-link
 	${FUZZER_NO_MAIN_LIBRARY}
 )
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
-	-D_FORTIFY_SOURCE=2
-	-fpie
-	-fPIC
-	-Wall
-	-Wextra
-	-Werror
-	-Wpedantic
-	-Wno-unused-parameter
-	-pedantic
+target_compile_options(${LIB_NAME} PRIVATE
+	${CFLAGS}
 	-fsanitize=fuzzer-no-link
 )
-set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
+set_target_properties(${LIB_NAME} PROPERTIES PREFIX "")
 
 set(custom_mutator_lib_source ${CMAKE_CURRENT_SOURCE_DIR}/custom_mutator_lib.c)
 add_library(custom_mutator SHARED ${custom_mutator_lib_source})
 target_include_directories(custom_mutator PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(custom_mutator PRIVATE ${LUA_LIBRARIES})
+target_compile_options(custom_mutator PRIVATE
+	${CFLAGS}
+)
 set_target_properties(custom_mutator PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(custom_mutator PROPERTIES SOVERSION 1)
+
+set(BIN_NAME ${CMAKE_PROJECT_NAME})
+add_executable(${BIN_NAME} afl-lua.c)
+target_include_directories(${BIN_NAME} PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(${BIN_NAME} PRIVATE ${LUA_LIBRARIES})
+target_compile_options(${BIN_NAME} PRIVATE
+	${CFLAGS}
+)
 
 if(ENABLE_TESTING)
   add_subdirectory(tests)
 endif()
 
 install(
-  TARGETS ${PROJECT_NAME}
+  TARGETS ${LIB_NAME}
   LIBRARY
   DESTINATION "${CMAKE_LIBDIR}/"
   RENAME luzer.so
@@ -61,4 +77,9 @@ install(
   LIBRARY
   NAMELINK_SKIP
   DESTINATION "${CMAKE_LIBDIR}/"
+)
+
+install(
+  TARGETS ${BIN_NAME}
+  DESTINATION "${CMAKE_BINDIR}/"
 )

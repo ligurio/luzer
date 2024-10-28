@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration with libFuzzer's `FuzzedDataProvider`.
 - Examples with tests.
 - Documentation with usecases, API etc.
+- Integration with an AFL (American Fuzzy Lop) fuzzing engine.
 
 ### Changed
 
