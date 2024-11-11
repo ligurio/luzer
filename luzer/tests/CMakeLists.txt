@@ -141,12 +141,23 @@ set_tests_properties(luzer_basic_example PROPERTIES
   DISABLED True
 )
 
+# AFL environment variables,
+# see https://aflplus.plus/docs/env_variables/.
+# TODO: AFL_NO_FORKSRV
+string(JOIN ";" AFL_ENV_VARIABLES
+  AFL_BENCH_UNTIL_CRASH=1
+  AFL_DEBUG=1
+  AFL_DEBUG_CHILD=1
+  AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1
+  AFL_NO_UI=1
+  AFL_SKIP_CPUFREQ=1
+)
 add_test(
   NAME luzer_e2e_test_afl
   COMMAND ${AFL_FUZZ_BIN} -D -i ${AFL_IN_DIR} -o ${AFL_OUT_DIR} ${AFL_LUA_BIN} "${CMAKE_CURRENT_SOURCE_DIR}/test_e2e.lua"
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 set_tests_properties(luzer_e2e_test_afl PROPERTIES
-  ENVIRONMENT "LUA_CPATH='${LUA_CPATH}';AFL_NO_UI=1;AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1;AFL_SKIP_CPUFREQ=1;AFL_DEBUG=1;__AFL_SHM_ID=${RANDOM_SEED};"
-  PASS_REGULAR_EXPRESSION "test_e2e.lua:7: assert has triggered"
+  ENVIRONMENT "LUA_CPATH='${LUA_CPATH};'${AFL_ENV_VARIABLES};__AFL_SHM_ID=${RANDOM_SEED}"
+  PASS_REGULAR_EXPRESSION "test_e2e.lua:8: assert has triggered"
 )

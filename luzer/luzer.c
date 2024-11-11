@@ -29,6 +29,7 @@
 #include "tracer.h"
 #include "version.h"
 #include "luzer.h"
+#include "afl.h"
 
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
 #define CUSTOM_MUTATOR_FUNC "luzer_custom_mutator"
@@ -464,6 +465,12 @@ luaL_fuzz(lua_State *L)
 
 	jit_status = luajit_has_enabled_jit(L);
 	set_global_lua_state(L);
+	if (is_afl_running() == 0) {
+		int rc = 0;
+		rc = luaL_run_afl(LL);
+		return rc;
+	}
+
 	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 
 	free_argv(argc, argv);
