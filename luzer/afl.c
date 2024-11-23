@@ -15,9 +15,6 @@
 
 #include <lua.h>
 
-/* debug_hook */
-#include "tracer.h"
-
 #define AFL_LUA_FUNCTION_NAME "TestOneInput"
 
 /*
@@ -32,7 +29,6 @@
  * The presence of this string is enough to allow AFL fuzz to run
  * without using the environment variable AFL_SKIP_BIN_CHECK.
  */
-/* const char *SHM_ENV = "__AFL_SHM_ID"; */
 const char *NOFORK = "AFL_NO_FORKSRV";
 
 const int afl_read_fd = FORKSRV_FD;
@@ -53,8 +49,6 @@ is_afl_running(void)
 
 int
 luaL_run_afl(lua_State *L) {
-	/* luaL_openlibs? */
-	lua_sethook(L, debug_hook, LUA_MASKLINE, 0);
 	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
 	assert(lua_isfunction(L, -1) == 1);
 

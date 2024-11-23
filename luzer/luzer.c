@@ -465,15 +465,13 @@ luaL_fuzz(lua_State *L)
 
 	jit_status = luajit_has_enabled_jit(L);
 	set_global_lua_state(L);
+	int rc = 0;
 	if (is_afl_running() == 0) {
-		int rc = 0;
 		rc = luaL_run_afl(LL);
 		return rc;
 	}
-
-	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
-
 	free_argv(argc, argv);
+	rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 	luaL_cleanup(L);
 
 	lua_pushnumber(L, rc);
