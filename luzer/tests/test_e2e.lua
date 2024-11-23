@@ -1,11 +1,10 @@
 local luzer = require("luzer")
 
 local function TestOneInput(buf)
-    buf = io.read("*a")
     local fdp = luzer.FuzzedDataProvider(buf)
     local str = fdp:consume_string(1)
     if str == "c" then
-		assert(nil, "assert has triggered")
+        assert(nil, "assert has triggered")
     end
     return
 end

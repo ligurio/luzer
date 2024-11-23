@@ -21,7 +21,7 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
-#define AFL_LUA_ENV "AFL_LUA_IS_RUNNING"
+#include "afl.h"
 
 /*
  * We will communicate with the AFL forkserver over two pipes with
