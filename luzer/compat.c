@@ -2,7 +2,17 @@
 #include "lualib.h"
 #include "lauxlib.h"
 
-#if !defined(LUA_VERSION_NUM) || LUA_VERSION_NUM == 501
+/*
+ * PUC-Rio Lua uses `lconfig_h` as include guard for `luaconf.h`,
+ * LuaJIT uses `luaconf_h`. If you use PUC-Rio's include files
+ * but LuaJIT's library, you will need to define the macro
+ * IS_LUAJIT yourself!
+ */
+#if !defined(IS_LUAJIT) && defined(luaconf_h)
+#define IS_LUAJIT
+#endif
+
+#if !defined(LUA_VERSION_NUM) || (LUA_VERSION_NUM == 501 && !defined(IS_LUAJIT))
 
 static int
 countlevels(lua_State *L) {
