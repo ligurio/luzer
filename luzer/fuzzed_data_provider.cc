@@ -7,9 +7,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include "lua.h"
+#include "lauxlib.h"
+#include "lualib.h"
 #include <float.h>
 #ifdef __cplusplus
 } /* extern "C" */

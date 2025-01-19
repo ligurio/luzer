@@ -20,7 +20,7 @@
  * atheris/src/native/counters.cc
  */
 
-#include <lua.h>
+#include "lua.h"
 #include <stdint.h>
 #include <string.h> /* strlen */
 
