@@ -8,17 +8,27 @@ project(luzer
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(SetClangRTLib)
 
-find_package(Lua 5.1 REQUIRED)
-find_package(LLVM REQUIRED CONFIG)
-
-set(LUA_NAME "lua${LUA_VERSION_MAJOR}.${LUA_VERSION_MINOR}")
-find_program(LUA_EXECUTABLE "${LUA_NAME}")
-if(NOT EXISTS ${LUA_EXECUTABLE})
-  message(FATAL_ERROR "${LUA_NAME} is required")
+if(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
+  # When a path to a Lua library is passed outside, we should
+  # mimic a real CMake library to don't break code that depends on
+  # LUA_LIBRARIES.
+  add_library(liblua STATIC IMPORTED GLOBAL)
+  set_target_properties(liblua PROPERTIES
+    IMPORTED_LOCATION ${LUA_LIBRARIES})
+  set(LUA_LIBRARIES liblua)
+else()
+  find_package(Lua 5.1 REQUIRED)
+  set(LUA_NAME "lua${LUA_VERSION_MAJOR}.${LUA_VERSION_MINOR}")
+  find_program(LUA_EXECUTABLE "${LUA_NAME}")
+  if(NOT EXISTS ${LUA_EXECUTABLE})
+    message(FATAL_ERROR "${LUA_NAME} is required")
+  endif()
+  message(STATUS "Found Lua ${LUA_VERSION_STRING}")
+  message(STATUS "Found Lua interpreter ${LUA_EXECUTABLE}")
 endif()
 
-message(STATUS "Found Lua ${LUA_VERSION_STRING}")
-message(STATUS "Found Lua interpreter ${LUA_EXECUTABLE}")
+find_package(LLVM REQUIRED CONFIG)
+
 message(STATUS "Found LLVM ${LLVM_VERSION}")
 
 if(${LLVM_PACKAGE_VERSION} VERSION_LESS 5.0.0)
