@@ -7,8 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <lua.h>
-#include <lauxlib.h>
+#include "lua.h"
+#include "lauxlib.h"
 
 #include "luzer.h"
 

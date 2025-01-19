@@ -5,9 +5,9 @@
  */
 
 #define _GNU_SOURCE
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
