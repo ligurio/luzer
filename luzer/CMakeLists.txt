@@ -41,6 +41,7 @@ set(custom_mutator_lib_source ${CMAKE_CURRENT_SOURCE_DIR}/custom_mutator_lib.c)
 add_library(custom_mutator SHARED ${custom_mutator_lib_source})
 target_include_directories(custom_mutator PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(custom_mutator PRIVATE ${LUA_LIBRARIES})
+target_link_libraries(custom_mutator PRIVATE luzer_impl)
 set_target_properties(custom_mutator PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(custom_mutator PROPERTIES SOVERSION 1)
 
