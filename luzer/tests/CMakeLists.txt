@@ -31,13 +31,47 @@ set_tests_properties(luzer_e2e_test PROPERTIES
 )
 
 add_test(
-  NAME luzer_options_test
-  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options.lua
+  NAME luzer_options_corpus_path_via_table_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_1.lua
+          -max_total_time=1
+)
+set_tests_properties(luzer_options_corpus_path_via_table_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH='${LUA_PATH}'"
+  PASS_REGULAR_EXPRESSION
+    "ERROR: The required directory \"undefined\" does not exist"
+)
+
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/seed_corpus)
+add_test(
+  NAME luzer_options_corpus_path_via_option_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_1.lua
+          -runs=1 seed_corpus
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
-set_tests_properties(luzer_options_test PROPERTIES
-  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH='${LUA_PATH}'"
-  PASS_REGULAR_EXPRESSION "ERROR: The required directory \"undefined\" does not exist"
+set_tests_properties(luzer_options_corpus_path_via_option_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "0 files found in seed_corpus"
+)
+
+add_test(
+  NAME luzer_options_seed_via_option_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_2.lua
+          -runs=1 -seed=50
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_options_seed_via_option_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "Seed: 50"
+)
+
+add_test(
+  NAME luzer_options_help_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_2.lua
+          -help=1
+)
+set_tests_properties(luzer_options_help_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "Usage:"
 )
 
 add_test(
