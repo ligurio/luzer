@@ -110,30 +110,6 @@ Run fuzzing target:
 $ lua examples/example_zlib.lua
 ```
 
-### Using custom mutators written in Lua
-
-`luzer` allows [custom mutators][libfuzzer-mutators-url] to be written in Lua 5.1
-(including LuaJIT), 5.2, 5.3 or 5.4.
-
-The environment variable `LIBFUZZER_LUA_SCRIPT` can be set to the path to the
-Lua mutator script. The default path is `./mutator.lua`.
-
-To run the Lua example, use
-
-```sh
-LIBFUZZER_LUA_SCRIPT=./mutator.lua example_compressed
-```
-
-All you need to do on the C/C++ side is adding `mutator.c` or `crossover.c`
-file as a compilation unit.
-
-Then write a Lua script that does what you would like the fuzzer to do, you
-might want to use the `mutator.lua` script. The environment variable
-`LIBFUZZER_LUA_SCRIPT` can be set to the path to the Lua mutator
-script. The default path is `./mutator.lua`. Then just run your fuzzing as
-shown in the examples above.
-
-[libfuzzer-mutators-url]: https://github.com/google/fuzzing/blob/master/docs/structure-aware-fuzzing.md
 [ffi-library-url]: https://luajit.org/ext_ffi.html
 [programming-in-lua-8]: https://www.lua.org/pil/8.html
 [programming-in-lua-24]: https://www.lua.org/pil/24.html
