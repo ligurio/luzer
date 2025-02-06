@@ -230,7 +230,7 @@ TestOneInput(const uint8_t* data, size_t size) {
 	 */
 	lua_sethook(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
 
-	char *buf = calloc(size + 1, sizeof(char));
+	char *buf = malloc(size + 1 * sizeof(*buf));
 	memcpy(buf, data, size);
 	buf[size] = '\0';
 	lua_pushlstring(L, buf, size);
@@ -314,49 +314,70 @@ load_custom_mutator_lib(void) {
 	return 0;
 }
 
+/* Find amount of fields in the table on the top of the stack. */
+NO_SANITIZE static int
+table_nkeys(lua_State *L)
+{
+	int len = 0;
+	/* Push starting `nil` for iterations. */
+	lua_pushnil(L);
+	while (lua_next(L, -2) != 0) {
+		/*
+		 * Remove `value` from the stack. Keeps `key` for
+		 * the next iteration.
+		 */
+		lua_pop(L, 1);
+		len++;
+	}
+	return len;
+}
+
+NO_SANITIZE static void
+free_argv(int argc, char **argv)
+{
+	/* Free allocated argv strings and the buffer. */
+	for (int i = 1; i < argc; i++)
+		free(argv[i]);
+	free(argv);
+}
+
 NO_SANITIZE static int
 luaL_fuzz(lua_State *L)
 {
 	if (lua_istable(L, -1) == 0) {
 		luaL_error(L, "opts is not a table");
 	}
-	lua_pushnil(L);
-
-	/* Processing a table with options. */
-	int argc = 0;
-	char **argv = malloc(1 * sizeof(char*));
+	/* 0 element -- test name. Last -- ending NULL. */
+	int argc = table_nkeys(L) + 1;
+	char **argv = malloc((argc + 1) * sizeof(*argv));
 	if (!argv)
 		luaL_error(L, "not enough memory");
+
+	argv[0] = "<test name>";
 	const char *corpus_path = NULL;
+
+	/* First key to start iteration. */
+	lua_pushnil(L);
+	int n_arg = 1;
 	while (lua_next(L, -2) != 0) {
-		char **argvp = realloc(argv, sizeof(char*) * (argc + 1));
-		if (argvp == NULL) {
-			free(argv);
-			luaL_error(L, "not enough memory");
-		}
 		const char *key = lua_tostring(L, -2);
 		const char *value = lua_tostring(L, -1);
-		if (strcmp(key, "corpus") != 0) {
-			size_t arg_len = strlen(key) + strlen(value) + 3;
-			char *arg = calloc(arg_len, sizeof(char));
-			if (!arg)
-				luaL_error(L, "not enough memory");
-			snprintf(arg, arg_len, "-%s=%s", key, value);
-			argvp[argc] = arg;
-			argc++;
-		} else {
+		if (strcmp(key, "corpus") == 0) {
 			corpus_path = strdup(value);
+			lua_pop(L, 1);
+			continue;
 		}
+		size_t arg_len = strlen(key) + strlen(value) + 3;
+		char *arg = malloc(arg_len * sizeof(*arg));
+		if (!arg)
+			luaL_error(L, "not enough memory");
+		snprintf(arg, arg_len, "-%s=%s", key, value);
+		argv[n_arg++] = arg;
 		lua_pop(L, 1);
-		argv = argvp;
 	}
+
 	if (corpus_path) {
-		argv[argc] = (char*)corpus_path;
-		argc++;
-	}
-	if (argc == 0) {
-		argv[argc] = "";
-		argc++;
+		argv[argc-1] = (char*)corpus_path;
 	}
 	argv[argc] = NULL;
 	lua_pop(L, 1);
@@ -371,8 +392,10 @@ luaL_fuzz(lua_State *L)
 
 	/* Processing a function with custom mutator. */
 	if (!lua_isnil(L, -1) && (lua_isfunction(L, -1) == 1)) {
-			if (load_custom_mutator_lib())
+			if (load_custom_mutator_lib()) {
+				free_argv(argc, argv);
 				luaL_error(L, "function LLVMFuzzerCustomMutator is not available");
+			}
 			luaL_set_custom_mutator(L);
 	} else {
 		lua_pop(L, 1);
@@ -380,6 +403,7 @@ luaL_fuzz(lua_State *L)
 
 	/* Processing a function LLVMFuzzerTestOneInput. */
 	if (lua_isfunction(L, -1) != 1) {
+		free_argv(argc, argv);
 		luaL_error(L, "test_one_input is not a Lua function");
 	}
 	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
@@ -393,12 +417,15 @@ luaL_fuzz(lua_State *L)
 
 	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
 	if (lua_isfunction(L, -1) != 1) {
+		free_argv(argc, argv);
 		luaL_error(L, "test_one_input is not defined");
 	}
 	lua_pop(L, -1);
 
 	set_global_lua_state(L);
 	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
+
+	free_argv(argc, argv);
 	luaL_cleanup(L);
 
 	lua_pushnumber(L, rc);
