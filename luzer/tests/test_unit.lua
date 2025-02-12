@@ -7,8 +7,8 @@ end
 
 debug.sethook(trace, "l")
 
--- luzer._VERSION
-assert(type(luzer._VERSION) == "string")
+-- luzer._LUZER_VERSION
+assert(type(luzer._LUZER_VERSION) == "string")
 assert(type(luzer._LLVM_VERSION) == "string")
 assert(type(luzer._LUA_VERSION) == "string")
 
