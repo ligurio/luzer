@@ -425,7 +425,7 @@ int luaopen_luzer(lua_State *L)
 #else
 	luaL_newlib(L, Module);
 #endif
-	lua_pushliteral(L, "_VERSION");
+	lua_pushliteral(L, "_LUZER_VERSION");
 	lua_pushstring(L, luzer_version_string());
 	lua_rawset(L, -3);
 
