@@ -290,15 +290,13 @@ search_module_path(char *so_path, size_t len) {
  */
 NO_SANITIZE static int
 load_custom_mutator_lib(void) {
-	char *so_path = calloc(PATH_MAX, sizeof(char));
+	char so_path[PATH_MAX];
 	int rc = search_module_path(so_path, PATH_MAX);
 	if (rc) {
-		free(so_path);
 		DEBUG_PRINT("search_module_path");
 		return -1;
 	}
 	void *custom_mutator_lib = dlopen(so_path, RTLD_LAZY);
-	free(so_path);
 	if (!custom_mutator_lib) {
 		DEBUG_PRINT("dlopen");
 		return -1;
