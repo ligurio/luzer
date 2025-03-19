@@ -208,15 +208,6 @@ luaL_test_one_input(lua_State *L)
 
 NO_SANITIZE int
 TestOneInput(const uint8_t* data, size_t size) {
-	const counter_and_pc_table_range alloc = allocate_counters_and_pcs();
-	if (alloc.counters_start && alloc.counters_end) {
-		__sanitizer_cov_8bit_counters_init(alloc.counters_start,
-										   alloc.counters_end);
-	}
-	if (alloc.pctable_start && alloc.pctable_end) {
-		__sanitizer_cov_pcs_init(alloc.pctable_start, alloc.pctable_end);
-	}
-
 	lua_State *L = get_global_lua_state();
 
 	/**
