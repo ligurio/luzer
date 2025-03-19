@@ -35,7 +35,7 @@ typedef struct {
 } lua_userdata_t;
 
 /* Consumes a string from the fuzzer input. */
-static int
+NO_SANITIZE static int
 luaL_consume_string(lua_State *L)
 {
 	lua_userdata_t *lfdp;
@@ -52,7 +52,7 @@ luaL_consume_string(lua_State *L)
 }
 
 /* Consumes a table with specified number of strings from the fuzzer input. */
-static int
+NO_SANITIZE static int
 luaL_consume_strings(lua_State *L)
 {
 	lua_userdata_t *lfdp;
@@ -78,7 +78,7 @@ luaL_consume_strings(lua_State *L)
 }
 
 /* Consumes a boolean from the fuzzer input. */
-static int
+NO_SANITIZE static int
 luaL_consume_boolean(lua_State *L)
 {
 	lua_userdata_t *lfdp;
@@ -93,7 +93,7 @@ luaL_consume_boolean(lua_State *L)
 }
 
 /* Consumes a table with specified number of booleans from the fuzzer input. */
-static int
+NO_SANITIZE static int
 luaL_consume_booleans(lua_State *L)
 {
 	lua_userdata_t *lfdp;
@@ -114,7 +114,7 @@ luaL_consume_booleans(lua_State *L)
 }
 
 /* Consumes a float from the fuzzer input. */
-static int
+NO_SANITIZE static int
 luaL_consume_number(lua_State *L)
 {
 	lua_userdata_t *lfdp;
@@ -133,7 +133,7 @@ luaL_consume_number(lua_State *L)
 }
 
 /* Consumes a table with specified number of numbers from the fuzzer input. */
-static int
+NO_SANITIZE static int
 luaL_consume_numbers(lua_State *L)
 {
 	lua_userdata_t *lfdp;
@@ -159,7 +159,7 @@ luaL_consume_numbers(lua_State *L)
 
 /* Consumes an arbitrary int or an int between min and max from the fuzzer
    input. */
-static int
+NO_SANITIZE static int
 luaL_consume_integer(lua_State *L)
 {
 	lua_userdata_t *lfdp;
@@ -178,7 +178,7 @@ luaL_consume_integer(lua_State *L)
 }
 
 /* Consumes an int array from the fuzzer input. */
-static int
+NO_SANITIZE static int
 luaL_consume_integers(lua_State *L)
 {
 	lua_userdata_t *lfdp;
@@ -202,7 +202,7 @@ luaL_consume_integers(lua_State *L)
 	return 1;
 }
 
-static int
+NO_SANITIZE static int
 luaL_consume_probability(lua_State *L)
 {
 	lua_userdata_t *lfdp;
@@ -217,7 +217,7 @@ luaL_consume_probability(lua_State *L)
 }
 
 /* Returns the number of unconsumed bytes in the fuzzer input. */
-static int
+NO_SANITIZE static int
 luaL_remaining_bytes(lua_State *L)
 {
 	lua_userdata_t *lfdp;
@@ -231,7 +231,7 @@ luaL_remaining_bytes(lua_State *L)
 	return 1;
 }
 
-static int close(lua_State *L) {
+NO_SANITIZE static int close(lua_State *L) {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	delete lfdp->fdp;
@@ -239,7 +239,7 @@ static int close(lua_State *L) {
 	return 0;
 }
 
-static int tostring(lua_State *L) {
+NO_SANITIZE static int tostring(lua_State *L) {
 	lua_pushstring(L, "FuzzedDataProvider");
 	return 1;
 }
@@ -266,7 +266,7 @@ const luaL_Reg methods[] =
  * friendly. `luaL_fuzzed_data_provider()` is called in the loop inside
  * `LLVMFuzzerRunDriver()`.
  */
-void
+NO_SANITIZE void
 fdp_metatable_init(lua_State *L)
 {
 	luaL_newmetatable(L, FDP_LUA_UDATA_NAME);
@@ -280,7 +280,7 @@ fdp_metatable_init(lua_State *L)
 	lua_pop(L, 1); /* Remove the metatable from the stack. */
 }
 
-int
+NO_SANITIZE int
 luaL_fuzzed_data_provider(lua_State *L)
 {
 	int index = lua_gettop(L);

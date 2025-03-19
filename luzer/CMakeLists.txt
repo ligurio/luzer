@@ -16,6 +16,7 @@ set(LUZER_SOURCES luzer.c
 add_library(luzer_impl SHARED ${LUZER_SOURCES})
 target_include_directories(luzer_impl PRIVATE
     ${LUA_INCLUDE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_link_libraries(luzer_impl PRIVATE

@@ -43,7 +43,8 @@ _trace_branch(uint64_t idx)
 	increment_counter(idx);
 }
 
-static inline unsigned int lhash(const char *key, size_t offset)
+NO_SANITIZE static inline unsigned int
+lhash(const char *key, size_t offset)
 {
 	const char *const last = &key[strlen(key) - 1];
 	uint32_t h = LHASH_INIT;
@@ -63,7 +64,8 @@ static inline unsigned int lhash(const char *key, size_t offset)
  * https://github.com/lunarmodules/luacov/blob/master/src/luacov/runner.lua#L102-L117
  * https://github.com/lunarmodules/luacov/blob/78f3d5058c65f9712e6c50a0072ad8160db4d00e/src/luacov/runner.lua#L439-L450
  */
-void debug_hook(lua_State *L, lua_Debug *ar)
+NO_SANITIZE void
+debug_hook(lua_State *L, lua_Debug *ar)
 {
 	lua_getinfo(L, "Sln", ar);
 	if (ar && ar->source && ar->currentline) {

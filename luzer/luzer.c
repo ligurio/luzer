@@ -34,13 +34,13 @@
 
 static lua_State *LL;
 
-static void
+NO_SANITIZE static void
 set_global_lua_state(lua_State *L)
 {
 	LL = L;
 }
 
-lua_State *
+NO_SANITIZE lua_State *
 get_global_lua_state(void)
 {
 	if (!LL) {
@@ -125,7 +125,7 @@ get_coverage_symbols_location(void) {
 	return (dl_info.dli_fname);
 }
 
-void
+NO_SANITIZE void
 init(void)
 {
 	if (!&LLVMFuzzerRunDriver) {
@@ -144,7 +144,7 @@ init(void)
 	}
 }
 
-static void
+NO_SANITIZE static void
 sig_handler(int sig)
 {
 	switch (sig) {
@@ -441,7 +441,8 @@ static const struct luaL_Reg Module[] = {
 	{ NULL, NULL }
 };
 
-int luaopen_luzer_impl(lua_State *L)
+NO_SANITIZE int
+luaopen_luzer_impl(lua_State *L)
 {
 	init();
 

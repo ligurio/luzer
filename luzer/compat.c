@@ -1,6 +1,7 @@
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
+#include "macros.h"
 
 /*
  * PUC-Rio Lua uses `lconfig_h` as include guard for `luaconf.h`,
@@ -14,7 +15,7 @@
 
 #if !defined(LUA_VERSION_NUM) || (LUA_VERSION_NUM == 501 && !defined(IS_LUAJIT))
 
-static int
+NO_SANITIZE static int
 countlevels(lua_State *L) {
 	lua_Debug ar;
 	int li = 1, le = 1;
@@ -32,7 +33,7 @@ countlevels(lua_State *L) {
 	return le - 1;
 }
 
-static int
+NO_SANITIZE static int
 findfield(lua_State *L, int objidx, int level) {
 	if (level == 0 || !lua_istable(L, -1))
 		/* Not found. */
@@ -68,14 +69,14 @@ findfield(lua_State *L, int objidx, int level) {
 	return 0;
 }
 
-int
+NO_SANITIZE int
 lua_absindex(lua_State *L, int i) {
 	if (i < 0 && i > LUA_REGISTRYINDEX)
 		i += lua_gettop(L) + 1;
 	return i;
 }
 
-void
+NO_SANITIZE void
 lua_copy(lua_State *L, int from, int to) {
 	int abs_to = lua_absindex(L, to);
 	luaL_checkstack(L, 1, "not enough stack slots");
@@ -83,7 +84,7 @@ lua_copy(lua_State *L, int from, int to) {
 	lua_replace(L, abs_to);
 }
 
-static int
+NO_SANITIZE static int
 pushglobalfuncname(lua_State *L, lua_Debug *ar) {
 	int top = lua_gettop(L);
 	/* Push function. */
@@ -103,7 +104,7 @@ pushglobalfuncname(lua_State *L, lua_Debug *ar) {
 	}
 }
 
-static void
+NO_SANITIZE static void
 pushfuncname(lua_State *L, lua_Debug *ar) {
 	/* Is there a name? */
 	if (*ar->namewhat != '\0')
@@ -128,7 +129,7 @@ pushfuncname(lua_State *L, lua_Debug *ar) {
 /* Size of the second part of the stack. */
 #define LEVELS2 10
 
-void
+NO_SANITIZE void
 luaL_traceback(lua_State *L, lua_State *L1,
 			   const char *msg, int level) {
 	lua_Debug ar;
