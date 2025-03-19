@@ -410,7 +410,9 @@ luaL_fuzz(lua_State *L)
 
 	lua_pushboolean(L, 1);
 
-	struct sigaction act;
+	/* Use a proper lifetime and at least zero-initialization. */
+	static struct sigaction act;
+	memset(&act, 0, sizeof(act));
 	act.sa_handler = sig_handler;
 	sigaction(SIGINT, &act, NULL);
 	sigaction(SIGSEGV, &act, NULL);
