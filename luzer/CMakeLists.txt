@@ -49,6 +49,8 @@ if(ENABLE_TESTING)
   add_subdirectory(tests)
 endif()
 
+include(GNUInstallDirs)
+
 install(
   TARGETS luzer_impl
   LIBRARY
