@@ -49,7 +49,11 @@ if(ENABLE_TESTING)
   add_subdirectory(tests)
 endif()
 
-include(GNUInstallDirs)
+# include(GNUInstallDirs)
+
+# SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+# Disable the RPATH stripping during installation.
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 install(
   TARGETS luzer_impl
