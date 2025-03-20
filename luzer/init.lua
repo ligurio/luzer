@@ -52,10 +52,12 @@ return {
     Fuzz = Fuzz,
     FuzzedDataProvider = luzer_impl.FuzzedDataProvider,
 
-    _LLVM_VERSION = luzer_impl._LLVM_VERSION,
-    _LUA_VERSION = luzer_impl._LUA_VERSION,
-    _LUZER_VERSION = luzer_impl._LUZER_VERSION,
+    _internal = {
+        LLVM_VERSION = luzer_impl._LLVM_VERSION,
+        LUA_VERSION = luzer_impl._LUA_VERSION,
+        LUZER_VERSION = luzer_impl._LUZER_VERSION,
 
-    _set_custom_mutator = luzer_impl._set_custom_mutator,
-    _mutate = luzer_impl._mutate,
+        set_custom_mutator = luzer_impl._set_custom_mutator,
+        mutate = luzer_impl._mutate,
+    }
 }
