@@ -68,6 +68,7 @@ The `FuzzedDataProvider` then supports the following functions:
   If there's no input data left, always returns 0.
 - `remaining_bytes()` - returns the number of unconsumed bytes in the fuzzer
   input.
+- `oneof()` - returns a random element in specified Lua array.
 
 Examples:
 

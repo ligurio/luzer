@@ -208,6 +208,33 @@ luaL_remaining_bytes(lua_State *L)
 	return 1;
 }
 
+/* Returns a random element of specified array. */
+static int
+luaL_oneof(lua_State *L)
+{
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
+	luaL_checktype(L, 2, LUA_TTABLE);
+
+	int len = 0;
+	/* Push starting `nil` for iterations. */
+	lua_pushnil(L);
+	while (lua_next(L, 2) != 0) {
+		/*
+		 * Remove `value` from the stack. Keeps `key` for
+		 * the next iteration.
+		 */
+		lua_pop(L, 1);
+		len++;
+	}
+
+	int idx = lfdp->fdp->ConsumeIntegralInRange(1, len);
+	lua_pushinteger(L, idx);
+	lua_gettable(L, -2);
+
+	return 1;
+}
+
 static int close(lua_State *L) {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
@@ -233,6 +260,7 @@ const luaL_Reg methods[] =
 	{ "consume_integers", luaL_consume_integers },
 	{ "consume_probability", luaL_consume_probability },
 	{ "remaining_bytes", luaL_remaining_bytes },
+	{ "oneof", luaL_oneof },
 	{ "__gc", close },
 	{ "__tostring", tostring },
 	{ NULL, NULL }
