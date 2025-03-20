@@ -11,6 +11,9 @@ extern "C" {
 #include "lauxlib.h"
 #include "lualib.h"
 #include <float.h>
+
+int table_nkeys(lua_State *L, int idx);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
@@ -208,6 +211,31 @@ luaL_remaining_bytes(lua_State *L)
 	return 1;
 }
 
+/* Returns a random element of the specified array. */
+NO_SANITIZE static int
+luaL_oneof(lua_State *L)
+{
+	lua_userdata_t *lfdp;
+	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
+	luaL_checktype(L, 2, LUA_TTABLE);
+
+	int len = 0;
+#if LUA_VERSION_NUM == 501
+	len = table_nkeys(L, 2);
+#else
+	len = lua_rawlen(L, 2);
+#endif
+	if (len == 0) {
+		lua_pushnil(L);
+		return 1;
+	}
+	int idx = lfdp->fdp->ConsumeIntegralInRange(1, len);
+	lua_pushinteger(L, idx);
+	lua_gettable(L, -2);
+
+	return 1;
+}
+
 NO_SANITIZE static int close(lua_State *L) {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
@@ -233,6 +261,7 @@ const luaL_Reg methods[] =
 	{ "consume_integers", luaL_consume_integers },
 	{ "consume_probability", luaL_consume_probability },
 	{ "remaining_bytes", luaL_remaining_bytes },
+	{ "oneof", luaL_oneof },
 	{ "__gc", close },
 	{ "__tostring", tostring },
 	{ NULL, NULL }
