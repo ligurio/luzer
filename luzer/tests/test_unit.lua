@@ -174,6 +174,32 @@ assert(p1 >= 0 and p2 >= 0)
 assert(p1 <= 1 and p2 <= 1)
 assert(p1 ~= p2)
 
+-- luzer.FuzzedDataProvider.oneof()
+fdp = luzer.FuzzedDataProvider("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+assert(type(fdp.oneof) == "function")
+
+-- Call `oneof()` with no values should raise an error.
+ok, err = pcall(fdp.oneof, fdp)
+assert(ok == false)
+assert(err:match("table expected, got no value"), err)
+
+-- Call `oneof()` with empty table returns a `nil`.
+local n = fdp:oneof({})
+assert(n == nil)
+
+-- Call `oneof()` with numbers.
+local a = 3
+local b = 4
+n = fdp:oneof({a, b})
+assert(type(n) == "number" and (n == a or n == b))
+
+-- Call `oneof()` with strings.
+local str1 = "Python"
+local str2 = "Lua"
+local str = fdp:oneof({str1, str2})
+print(("'%s'"):format(str))
+assert(type(str) == "string" and (str == str1 or str == str2))
+
 local function custom_mutator(data, size, max_size, seed)
     assert(type(data) == "string")
     assert(type(size) == "number")

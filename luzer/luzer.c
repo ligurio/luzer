@@ -315,7 +315,7 @@ load_custom_mutator_lib(void) {
 }
 
 /* Find amount of fields in the table on the top of the stack. */
-NO_SANITIZE static int
+NO_SANITIZE int
 table_nkeys(lua_State *L, int idx)
 {
 	int len = 0;
