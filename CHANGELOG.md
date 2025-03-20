@@ -27,3 +27,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix searching Clang RT.
 - Stack overflow due to recursive traceback calls.
 - Fix a crash due to incorrect `argv` building (#13).
+- Fix parsing command-line flags (#23).

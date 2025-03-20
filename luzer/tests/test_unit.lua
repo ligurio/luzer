@@ -199,4 +199,22 @@ assert(luzer_custom_mutator ~= nil)
 -- luzer._internal.mutate(buf, #buf, #buf, math.random(1, 10)) -- TODO
 luzer_custom_mutator = nil -- Clean up.
 
+-- luzer._internal.parse_flag()
+local flag_testcases = {
+    { "dict", "/tmp/lua.dict" },
+    { "help", "1" },
+    { "rss_limit_mb", "2048" },
+    { "runs", "-1" },
+}
+for _, testcase in ipairs(flag_testcases) do
+    local name = testcase[1]
+    local val = testcase[2]
+    -- libFuzzer flags are strictly in form `-flag=value`.
+    local flag = ("-%s=%s"):format(name, val)
+    -- Expected a table with `name` and `value`.
+    res = { luzer._internal.parse_flag(flag) }
+    assert(name == res[1], ("expected %s"):format(name))
+    assert(val == res[2], ("expected %s"):format(val))
+end
+
 print("Success!")

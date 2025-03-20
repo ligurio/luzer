@@ -14,7 +14,7 @@ end
 --
 -- 1. https://llvm.org/docs/LibFuzzer.html#options
 local function parse_flag(str)
-    local flag_name, flag_val = string.match(str, "-([%l%p]+)=(%w+)")
+    local flag_name, flag_val = string.match(str, "-([%w_]+)=(.+)")
     if not flag_name or
        not flag_val then
         error(("bad flag: %s"):format(str))
@@ -59,5 +59,6 @@ return {
 
         set_custom_mutator = luzer_impl._set_custom_mutator,
         mutate = luzer_impl._mutate,
+        parse_flag = parse_flag,
     }
 }
