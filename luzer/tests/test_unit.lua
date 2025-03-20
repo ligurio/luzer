@@ -7,10 +7,9 @@ end
 
 debug.sethook(trace, "l")
 
--- luzer._LUZER_VERSION
-assert(type(luzer._LUZER_VERSION) == "string")
-assert(type(luzer._LLVM_VERSION) == "string")
-assert(type(luzer._LUA_VERSION) == "string")
+assert(type(luzer._internal.LUZER_VERSION) == "string")
+assert(type(luzer._internal.LLVM_VERSION) == "string")
+assert(type(luzer._internal.LUA_VERSION) == "string")
 
 local ok
 local err
@@ -185,19 +184,19 @@ local function custom_mutator(data, size, max_size, seed)
     return data
 end
 
--- luzer._set_custom_mutator()
+-- luzer._internal.set_custom_mutator()
 assert(luzer_custom_mutator == nil)
-luzer._set_custom_mutator(custom_mutator)
+luzer._internal.set_custom_mutator(custom_mutator)
 assert(luzer_custom_mutator ~= nil)
 assert(type(luzer_custom_mutator) == "function")
 local buf = "data"
 assert(luzer_custom_mutator(buf, #buf, #buf, math.random(1, 10)) == buf)
 luzer_custom_mutator = nil -- Clean up.
 
--- luzer._mutate()
-luzer._set_custom_mutator(custom_mutator)
+-- luzer._internal.mutate()
+luzer._internal.set_custom_mutator(custom_mutator)
 assert(luzer_custom_mutator ~= nil)
--- luzer._mutate(buf, #buf, #buf, math.random(1, 10)) -- TODO
+-- luzer._internal.mutate(buf, #buf, #buf, math.random(1, 10)) -- TODO
 luzer_custom_mutator = nil -- Clean up.
 
 print("Success!")
