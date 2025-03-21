@@ -172,7 +172,28 @@ add_library(testlib SHARED test_lib.c)
 target_include_directories(testlib PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(testlib PRIVATE
   ${FUZZER_NO_MAIN_LIBRARY}
+  -lstdc++
 )
 target_compile_options(testlib PRIVATE
   -fsanitize=fuzzer-no-link
 )
+
+macro(generate_ffi_test name env_vars pass_regex)
+  add_test(
+    NAME ${name}
+    COMMAND ${LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test_ffi.lua"
+            -runs=10
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
+  set_tests_properties(${name} PROPERTIES
+    ENVIRONMENT "${env_vars}"
+    PASS_REGULAR_EXPRESSION ${pass_regex}
+  )
+endmacro()
+
+list(APPEND TEST_ENV
+  "LD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};"
+)
+if (LUA_HAS_JIT)
+  generate_ffi_test(luzer_ffi "${TEST_ENV}" "Done 10 runs in 0 second")
+endif()
