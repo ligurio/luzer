@@ -3,6 +3,7 @@ include(MakeLuaPath)
 make_lua_path(LUA_CPATH
   PATHS
   ${PROJECT_BINARY_DIR}/luzer/?.so
+  ${CMAKE_CURRENT_BINARY_DIR}/?.${CMAKE_SHARED_LIBRARY_SUFFIX}
 )
 
 make_lua_path(LUA_PATH
@@ -93,4 +94,28 @@ set_tests_properties(luzer_basic_example PROPERTIES
   ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
   PASS_REGULAR_EXPRESSION "example_custom_mutator.lua:19: assert has triggered"
   DISABLED True
+)
+
+add_library(hello SHARED test_hello.c)
+target_include_directories(hello PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(hello PRIVATE
+    ${LUA_LIBRARIES}
+    ${FUZZER_NO_MAIN_LIBRARY}
+)
+set_target_properties(hello PROPERTIES PREFIX "")
+target_compile_options(hello PRIVATE
+    # FIXME: ./hello.so: undefined symbol: _ZNSt6thread6_StateD2Ev
+    # -fsanitize=fuzzer-no-link
+    -fprofile-instr-generate
+    -fcoverage-mapping
+)
+
+add_test(
+  NAME luzer_lua_capi_hello
+  COMMAND ${LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test_hello.lua"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_lua_capi_hello PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "Crash!"
 )
