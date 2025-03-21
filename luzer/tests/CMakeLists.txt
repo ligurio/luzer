@@ -153,3 +153,27 @@ list(APPEND TEST_ENV
 set_tests_properties(luzer_luac PROPERTIES
   ENVIRONMENT "${TEST_ENV}"
 )
+
+add_library(testlib SHARED test_lib.c)
+target_include_directories(testlib PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(testlib PRIVATE
+    ${FUZZER_NO_MAIN_LIBRARY}
+)
+target_compile_options(testlib PRIVATE
+  -fsanitize=fuzzer-no-link
+)
+
+add_test(
+  NAME luzer_ffi
+  COMMAND ${LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test_ffi.lua"
+          -runs=10
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+list(APPEND TEST_ENV
+  "LD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};"
+  "LUA_CPATH=${LUA_CPATH};"
+  "LUA_PATH=${LUA_PATH}"
+)
+set_tests_properties(luzer_ffi PROPERTIES
+  ENVIRONMENT "${TEST_ENV}"
+)
