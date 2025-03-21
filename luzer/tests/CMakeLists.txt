@@ -119,3 +119,23 @@ set_tests_properties(luzer_lua_capi_hello PROPERTIES
   ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
   PASS_REGULAR_EXPRESSION "Crash!"
 )
+
+add_library(goodbye SHARED test_goodbye.c)
+target_include_directories(goodbye PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(goodbye PRIVATE
+    ${FUZZER_NO_MAIN_LIBRARY}
+)
+target_compile_options(goodbye PRIVATE
+    -fsanitize=fuzzer-no-link
+    -fprofile-instr-generate
+)
+
+add_test(
+  NAME luzer_lua_ffi_goodbye
+  COMMAND ${LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test_goodbye.lua"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_lua_ffi_goodbye PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "Crash!"
+)
