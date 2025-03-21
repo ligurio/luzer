@@ -136,3 +136,43 @@ set_tests_properties(luzer_hook_test PROPERTIES
   ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
   PASS_REGULAR_EXPRESSION "test_hook.lua:19"
 )
+
+add_library(luac SHARED luac.c test_lib.c)
+target_include_directories(luac PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(luac PRIVATE
+  ${LUA_LIBRARIES}
+  ${FUZZER_NO_MAIN_LIBRARY}
+  -lstdc++
+)
+set_target_properties(luac PROPERTIES PREFIX "")
+target_compile_options(luac PRIVATE
+  -fsanitize=fuzzer-no-link
+)
+
+macro(generate_luac_test name env_vars pass_regex)
+  add_test(NAME ${name}
+    COMMAND ${LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test_luac.lua"
+            -runs=10
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
+  set_tests_properties(${name} PROPERTIES
+    ENVIRONMENT "${env_vars}"
+    PASS_REGULAR_EXPRESSION ${pass_regex}
+  )
+endmacro()
+
+list(APPEND TEST_ENV
+  "LUA_CPATH=${LUA_CPATH};"
+  "LUA_PATH=${LUA_PATH};"
+)
+
+generate_luac_test(luzer_luac "${TEST_ENV}" "Hello, Lua!")
+
+add_library(testlib SHARED test_lib.c)
+target_include_directories(testlib PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(testlib PRIVATE
+  ${FUZZER_NO_MAIN_LIBRARY}
+)
+target_compile_options(testlib PRIVATE
+  -fsanitize=fuzzer-no-link
+)
