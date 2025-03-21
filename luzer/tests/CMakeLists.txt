@@ -127,3 +127,37 @@ set_tests_properties(luzer_basic_example PROPERTIES
   PASS_REGULAR_EXPRESSION "example_custom_mutator.lua:19: assert has triggered"
   DISABLED True
 )
+
+add_library(luac SHARED luac.c test_lib.c)
+target_include_directories(luac PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(luac PRIVATE
+  ${LUA_LIBRARIES}
+  ${FUZZER_NO_MAIN_LIBRARY}
+  -lstdc++
+)
+set_target_properties(luac PROPERTIES PREFIX "")
+target_compile_options(luac PRIVATE
+  -fsanitize=fuzzer-no-link
+)
+
+add_test(NAME luzer_luac
+  COMMAND ${LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test_luac.lua"
+          -runs=10
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+list(APPEND TEST_ENV
+  "LUA_CPATH=${LUA_CPATH};"
+  "LUA_PATH=${LUA_PATH};"
+)
+set_tests_properties(luzer_luac PROPERTIES
+  ENVIRONMENT "${TEST_ENV}"
+)
+
+add_library(testlib SHARED test_lib.c)
+target_include_directories(testlib PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(testlib PRIVATE
+  ${FUZZER_NO_MAIN_LIBRARY}
+)
+target_compile_options(testlib PRIVATE
+  -fsanitize=fuzzer-no-link
+)
