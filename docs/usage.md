@@ -6,14 +6,13 @@ In general, `luzer` has an ability to write fuzzing tests for a Lua functions.
 However, steps may depend on implementation of function under test. Let's
 consider a three cases:
 
-- Fuzzing a Lua function implemented in Lua
-- Fuzzing a Lua function implemented in Lua C
-- Fuzzing a shared library via FFI
+- Fuzzing a native Lua source code.
+- Fuzzing a native C source code via Lua API.
 
-#### Fuzzing a module written in Lua
+#### Fuzzing a native Lua source code
 
-Let's create a fuzzing test for a parser of Lua source code used in `luacheck`
-module.
+Let's create a fuzzing test for a parser of Lua source code used
+in `luacheck` module.
 
 Setup a target module using `luarocks`:
 
@@ -41,17 +40,21 @@ Execute test with PUC Rio Lua:
 $ lua luacheck_parser_parse.lua
 ```
 
-#### Fuzzing a function implemented in Lua C
+#### Fuzzing a native C source code with Lua API
 
-Lua functions could be implemented using so called Lua C API. Functions built
-in Lua runtime, external modules written in C/C++ are such examples. Learn more
-about Lua C API in chapter ["24 – An Overview of the C API
+TODO:
+- https://github.com/google/atheris/blob/master/native_extension_fuzzing.md
+- https://blog.trailofbits.com/2024/02/23/continuously-fuzzing-python-c-extensions/
+
+Lua libraries can be implemented in C and C++  using so called Lua C API.
+Functions built in Lua runtime, external modules written in C/C++ are such examples.
+Learn more about Lua C API in chapter ["24 – An Overview of the C API
 "][programming-in-lua-24] of "Programming in Lua" book.
 
 Setup module using `luarocks`:
 
 ```sh
-$ luarocks install --tree modules --lua-version 5.1 lua-cjson CC="clang" CFLAGS="-ggdb -fPIC -fsanitize=address" LDFLAGS="-fsanitize=address"
+$ luarocks install --tree modules --lua-version 5.1 lua-cjson CC=clang CFLAGS="-ggdb -fPIC -fsanitize=address -fsanitize=address,fuzzer-no-link" LDFLAGS="-fsanitize=address"
 
 Installing https://luarocks.org/lua-cjson-2.1.0.6-1.src.rock
 
