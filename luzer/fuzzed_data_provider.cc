@@ -41,8 +41,6 @@ luaL_consume_string(lua_State *L)
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	size_t max_length = luaL_checkinteger(L, 2);
-	if (!lfdp)
-		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_string(max_length)");
 
 	std::string str = lfdp->fdp->ConsumeRandomLengthString(max_length);
 	const char *cstr = str.c_str();
@@ -57,8 +55,6 @@ luaL_consume_strings(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	if (!lfdp)
-		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_strings(count, max_length)");
 	size_t count = luaL_checkinteger(L, 2);
 	size_t max_length = luaL_checkinteger(L, 3);
 
@@ -83,9 +79,6 @@ luaL_consume_boolean(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	if (!lfdp)
-		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_boolean()");
-
 	bool b = lfdp->fdp->ConsumeBool();
 	lua_pushboolean(L, (int)b);
 
@@ -98,8 +91,6 @@ luaL_consume_booleans(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	if (!lfdp)
-		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_booleans(count)");
 	int count = luaL_checkinteger(L, 2);
 
 	lua_newtable(L);
@@ -119,8 +110,6 @@ luaL_consume_number(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	if (!lfdp)
-		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_number(min, max)");
 	double min = luaL_checknumber(L, 2);
 	double max = luaL_checknumber(L, 3);
 	if (min > max)
@@ -138,8 +127,6 @@ luaL_consume_numbers(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	if (!lfdp)
-		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_numbers(count, min, max)");
 	int count = luaL_checkinteger(L, 2);
 	double min = luaL_checkinteger(L, 3);
 	double max = luaL_checkinteger(L, 4);
@@ -164,8 +151,6 @@ luaL_consume_integer(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	if (!lfdp)
-		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_integer(min, max)");
 	int min = luaL_checkinteger(L, 2);
 	int max = luaL_checkinteger(L, 3);
 	if (min > max)
@@ -183,8 +168,6 @@ luaL_consume_integers(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	if (!lfdp)
-		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_integers(count, min, max)");
 	int count = luaL_checkinteger(L, 2);
 	int min = luaL_checkinteger(L, 3);
 	int max = luaL_checkinteger(L, 4);
@@ -207,9 +190,6 @@ luaL_consume_probability(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	if (!lfdp)
-		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_probability()");
-
 	auto probability = lfdp->fdp->ConsumeFloatingPointInRange(0.0, 1.0);
 	lua_pushnumber(L, probability);
 
@@ -222,9 +202,6 @@ luaL_remaining_bytes(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	if (!lfdp)
-		luaL_error(L, "Usage: <FuzzedDataProvider>:remaining_bytes()");
-
 	size_t sz = lfdp->fdp->remaining_bytes();
 	lua_pushnumber(L, sz);
 
