@@ -316,12 +316,12 @@ load_custom_mutator_lib(void) {
 
 /* Find amount of fields in the table on the top of the stack. */
 NO_SANITIZE static int
-table_nkeys(lua_State *L)
+table_nkeys(lua_State *L, int idx)
 {
 	int len = 0;
 	/* Push starting `nil` for iterations. */
 	lua_pushnil(L);
-	while (lua_next(L, -2) != 0) {
+	while (lua_next(L, idx) != 0) {
 		/*
 		 * Remove `value` from the stack. Keeps `key` for
 		 * the next iteration.
@@ -348,7 +348,7 @@ luaL_fuzz(lua_State *L)
 		luaL_error(L, "opts is not a table");
 	}
 	/* 0 element -- test name. Last -- ending NULL. */
-	int argc = table_nkeys(L) + 1;
+	int argc = table_nkeys(L, -2) + 1;
 	char **argv = malloc((argc + 1) * sizeof(*argv));
 	if (!argv)
 		luaL_error(L, "not enough memory");

@@ -174,6 +174,13 @@ assert(p1 >= 0 and p2 >= 0)
 assert(p1 <= 1 and p2 <= 1)
 assert(p1 ~= p2)
 
+-- luzer.FuzzedDataProvider.oneof()
+fdp = luzer.FuzzedDataProvider("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+assert(type(fdp.oneof) == "function")
+
+local n = fdp:oneof({1, 2})
+assert(type(n) == "number" and (n == 1 or n == 2))
+
 local function custom_mutator(data, size, max_size, seed)
     assert(type(data) == "string")
     assert(type(size) == "number")
