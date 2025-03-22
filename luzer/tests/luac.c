@@ -26,7 +26,11 @@ static const struct luaL_Reg functions [] = {
 	{ NULL, NULL }
 };
 
-int luaopen_luac(lua_State *L) {
+#define _lib_name_cat(name) luaopen_ ## name
+#define build_lib_name(name) _lib_name_cat(name)
+#define lib_name build_lib_name(LIB_NAME)
+
+int lib_name(lua_State *L) {
 #if LUA_VERSION_NUM == 501
 	luaL_register(L, "luac", functions);
 #else

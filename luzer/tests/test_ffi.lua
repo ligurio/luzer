@@ -9,7 +9,8 @@ ffi.cdef[[
 int say_hello(const char *buf, size_t len);
 ]]
 
-local testlib = ffi.load("testlib.so")
+local lib_name = os.getenv("FFI_LIB_NAME")
+local testlib = ffi.load(lib_name)
 
 local function TestOneInput(buf)
     local fdp = luzer.FuzzedDataProvider(buf)

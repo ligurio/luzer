@@ -164,7 +164,7 @@ sig_handler(int sig)
 		exit(0);
 	case SIGSEGV:
 		__sanitizer_print_stack_trace();
-		break;
+		_exit(139);
 	}
 }
 

@@ -137,17 +137,25 @@ set_tests_properties(luzer_hook_test PROPERTIES
   PASS_REGULAR_EXPRESSION "test_hook.lua:19"
 )
 
-add_library(luac SHARED luac.c test_lib.c)
-target_include_directories(luac PRIVATE ${LUA_INCLUDE_DIR})
-target_link_libraries(luac PRIVATE
-  ${LUA_LIBRARIES}
-  ${FUZZER_NO_MAIN_LIBRARY}
-  -lstdc++
-)
-set_target_properties(luac PROPERTIES PREFIX "")
-target_compile_options(luac PRIVATE
-  -fsanitize=fuzzer-no-link
-)
+macro(generate_luac_lib name cflags)
+  add_library(${name} SHARED luac.c test_lib.c)
+  target_include_directories(${name} PRIVATE ${LUA_INCLUDE_DIR})
+  target_link_libraries(${name} PRIVATE
+    ${LUA_LIBRARIES}
+    ${FUZZER_NO_MAIN_LIBRARY}
+    -lstdc++
+  )
+  set_target_properties(${name} PROPERTIES PREFIX "")
+  target_compile_options(${name} PRIVATE
+    -fsanitize=fuzzer-no-link
+    -DLIB_NAME=${name}
+    "${cflags}"
+  )
+endmacro()
+
+generate_luac_lib(luac "")
+generate_luac_lib(luac_asan "-fsanitize=address;-O0")
+generate_luac_lib(luac_ubsan "-fsanitize=undefined;-O0")
 
 macro(generate_luac_test name env_vars pass_regex)
   add_test(NAME ${name}
@@ -166,17 +174,47 @@ list(APPEND TEST_ENV
   "LUA_PATH=${LUA_PATH};"
 )
 
-generate_luac_test(luzer_luac "${TEST_ENV}" "Hello, Lua!")
+set(ASAN_DSO_PATH ${PROJECT_BINARY_DIR}/luzer/${ASAN_DSO})
+set(UBSAN_DSO_PATH ${PROJECT_BINARY_DIR}/luzer/${UBSAN_DSO})
+set(UBSAN_CXX_DSO_PATH ${PROJECT_BINARY_DIR}/luzer/${UBSAN_CXX_DSO})
 
-add_library(testlib SHARED test_lib.c)
-target_include_directories(testlib PRIVATE ${LUA_INCLUDE_DIR})
-target_link_libraries(testlib PRIVATE
-  ${FUZZER_NO_MAIN_LIBRARY}
-  -lstdc++
+generate_luac_test(luzer_luac
+  "${TEST_ENV};LIB_NAME=luac"
+  "Hello, Lua!"
 )
-target_compile_options(testlib PRIVATE
-  -fsanitize=fuzzer-no-link
+generate_luac_test(luzer_luac_asan
+  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan"
+  "Hello, Lua!"
 )
+generate_luac_test(luzer_luac_ubsan
+  "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};LIB_NAME=luac_ubsan"
+  "Hello, Lua!"
+)
+generate_luac_test(luzer_luac_asan_failure
+  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=BUFFER_OVERFLOW"
+  "AddressSanitizer: dynamic-stack-buffer-overflow"
+)
+generate_luac_test(luzer_luac_ubsan_failure
+  "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};LIB_NAME=luac_ubsan;ERR_INJECTION=NULL_POINTER_DEREF"
+  "runtime error: load of null pointer of type"
+)
+
+macro(generate_testlib name cflags)
+  add_library(${name} SHARED test_lib.c)
+  target_include_directories(${name} PRIVATE ${LUA_INCLUDE_DIR})
+  target_link_libraries(${name} PRIVATE
+    ${FUZZER_NO_MAIN_LIBRARY}
+    -lstdc++
+  )
+  target_compile_options(${name} PRIVATE
+    -fsanitize=fuzzer-no-link
+    "${cflags}"
+  )
+endmacro()
+
+generate_testlib(testlib "")
+generate_testlib(testlib_asan "-fsanitize=address;-O0")
+generate_testlib(testlib_ubsan "-fsanitize=undefined;-O0")
 
 macro(generate_ffi_test name env_vars pass_regex)
   add_test(
@@ -195,5 +233,26 @@ list(APPEND TEST_ENV
   "LD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};"
 )
 if (LUA_HAS_JIT)
-  generate_ffi_test(luzer_ffi "${TEST_ENV}" "Done 10 runs in 0 second")
+  generate_ffi_test(luzer_ffi
+    "${TEST_ENV};FFI_LIB_NAME=testlib.so"
+    "Done 10 runs in 0 second"
+  )
+  # XXX: Memory leak in FDP is expected, should be fixed in [1].
+  # 1. https://github.com/ligurio/luzer/issues/52
+  generate_ffi_test(luzer_ffi_asan
+    "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};FFI_LIB_NAME=testlib_asan.so"
+    "LeakSanitizer: detected memory leaks"
+  )
+  generate_ffi_test(luzer_ffi_ubsan
+    "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};FFI_LIB_NAME=testlib_ubsan.so"
+    "Done 10 runs in 0 second"
+  )
+  generate_ffi_test(luzer_ffi_asan_failure
+    "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};FFI_LIB_NAME=testlib_asan.so;ERR_INJECTION=BUFFER_OVERFLOW"
+    "AddressSanitizer: dynamic-stack-buffer-overflow"
+  )
+  generate_ffi_test(luzer_ffi_ubsan_failure
+    "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};FFI_LIB_NAME=testlib_ubsan.so;ERR_INJECTION=NULL_POINTER_DEREF"
+    "runtime error: load of null pointer of type"
+  )
 endif()
