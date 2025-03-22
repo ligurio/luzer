@@ -1,4 +1,5 @@
-local luac = require("luac")
+local lib_name = os.getenv("LIB_NAME")
+local luac = require(lib_name)
 local luzer = require("luzer")
 
 local function TestOneInput(buf)
