@@ -138,7 +138,10 @@ target_link_libraries(luac PRIVATE
 set_target_properties(luac PROPERTIES PREFIX "")
 target_compile_options(luac PRIVATE
   -fsanitize=fuzzer-no-link
+  -fsanitize=address
 )
+
+set(ASAN_DSO_PATH ${PROJECT_BINARY_DIR}/luzer/${ASAN_DSO})
 
 add_test(NAME luzer_luac
   COMMAND ${LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test_luac.lua"
@@ -148,9 +151,18 @@ add_test(NAME luzer_luac
 list(APPEND TEST_ENV
   "LUA_CPATH=${LUA_CPATH};"
   "LUA_PATH=${LUA_PATH};"
+  "LD_PRELOAD=${ASAN_DSO_PATH}"
+  # FIXME:
+  # Direct leak of 96 byte(s) in 6 object(s) allocated from:
+  #    #0 0x7f6e2710d0a3 in malloc
+  #    #1 0x7f6e268bb903 in operator new(unsigned long)
+  #    #2 0x7f6e26e40415 in luaL_fuzzed_data_provider
+  #    #3 0x5606d5d845d5  (/usr/bin/luajit+0x785d5)
+  "ASAN_OPTIONS=detect_leaks=0"
 )
 set_tests_properties(luzer_luac PROPERTIES
   ENVIRONMENT "${TEST_ENV}"
+  PASS_REGULAR_EXPRESSION "ERROR: libFuzzer: deadly signal;say_hello"
 )
 add_library(testlib SHARED test_lib.c)
 target_include_directories(testlib PRIVATE ${LUA_INCLUDE_DIR})
@@ -159,6 +171,7 @@ target_link_libraries(testlib PRIVATE
 )
 target_compile_options(testlib PRIVATE
   -fsanitize=fuzzer-no-link
+  -fsanitize=undefined
 )
 
 add_test(
