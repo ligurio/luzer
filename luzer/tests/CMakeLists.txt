@@ -138,7 +138,10 @@ target_link_libraries(luac PRIVATE
 set_target_properties(luac PROPERTIES PREFIX "")
 target_compile_options(luac PRIVATE
   -fsanitize=fuzzer-no-link
+  -fsanitize=undefined
 )
+
+set(UBSAN_DSO_PATH ${PROJECT_BINARY_DIR}/luzer/${UBSAN_DSO})
 
 add_test(NAME luzer_luac
   COMMAND ${LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test_luac.lua"
@@ -149,6 +152,7 @@ list(APPEND TEST_ENV
   "LD_DYNAMIC_WEAK=1;"
   "LUA_CPATH=${LUA_CPATH};"
   "LUA_PATH=${LUA_PATH};"
+  "LD_PRELOAD=${UBSAN_DSO_PATH}"
 )
 set_tests_properties(luzer_luac PROPERTIES
   ENVIRONMENT "${TEST_ENV}"
@@ -161,6 +165,7 @@ target_link_libraries(testlib PRIVATE
 )
 target_compile_options(testlib PRIVATE
   -fsanitize=fuzzer-no-link
+  -fsanitize=undefined
 )
 
 add_test(
@@ -172,7 +177,8 @@ add_test(
 list(APPEND TEST_ENV
   "LD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};"
   "LUA_CPATH=${LUA_CPATH};"
-  "LUA_PATH=${LUA_PATH}"
+  "LUA_PATH=${LUA_PATH};"
+  "LD_PRELOAD=${UBSAN_DSO_PATH}"
 )
 set_tests_properties(luzer_ffi PROPERTIES
   ENVIRONMENT "${TEST_ENV}"
