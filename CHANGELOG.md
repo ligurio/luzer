@@ -30,3 +30,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix parsing command-line flags (#23).
 - Multiple initialization of the FDP metatable.
 - Building the project using luarocks (#4).
+- Installation using luarocks (#27).
