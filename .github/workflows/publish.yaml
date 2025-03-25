@@ -2,7 +2,7 @@ name: Publish
 
 on:
   push:
-    branches: [master]
+    branches: [ligurio/gh-xxxx-fix-luarocks]
     tags: ['*']
 
 jobs:
@@ -63,3 +63,8 @@ jobs:
       - run: luarocks --local build luzer-scm-1.rockspec
 
       - run: luarocks --local make
+
+      - run: |
+          luarocks --local install luzer-scm-1.rockspec
+          eval $(luarocks path)
+          lua -l luzer
