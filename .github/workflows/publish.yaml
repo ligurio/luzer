@@ -65,8 +65,6 @@ jobs:
 
       - run: sudo apt install -y luarocks lua5.2 liblua5.2-dev libclang-common-14-dev clang-14
 
-      - run: luarocks --local build luzer-scm-1.rockspec
-
       - run: luarocks --local make
 
       - name: Setup tmate session
