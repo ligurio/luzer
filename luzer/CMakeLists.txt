@@ -46,8 +46,8 @@ target_link_libraries(custom_mutator PRIVATE
 )
 set_target_properties(custom_mutator PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  VERSION ${PROJECT_VERSION}
-  SOVERSION 1
+  # VERSION ${PROJECT_VERSION}
+  # SOVERSION 1
 )
 
 if(ENABLE_TESTING)
