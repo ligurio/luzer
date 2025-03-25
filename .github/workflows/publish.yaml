@@ -65,7 +65,16 @@ jobs:
 
       - run: sudo apt install -y luarocks lua5.2 liblua5.2-dev libclang-common-14-dev clang-14
 
+      - run: sed -i -E
+          -e 's#branch = "master"#branch = "${{ github.head_ref || github.ref_name }}"#g'
+          luzer-scm-1.rockspec
+
       - run: luarocks --local build luzer-scm-1.rockspec
+
+      - run: |
+          luarocks --local install luzer-scm-1.rockspec
+          eval $(luarocks path)
+          lua -l luzer
 
       - run: luarocks --local make
 
