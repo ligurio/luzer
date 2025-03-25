@@ -29,7 +29,7 @@
 
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
 #define CUSTOM_MUTATOR_FUNC "luzer_custom_mutator"
-#define CUSTOM_MUTATOR_LIB "libcustom_mutator.so.1"
+#define CUSTOM_MUTATOR_LIB "libcustom_mutator.so"
 #define DEBUG_HOOK_FUNC "luzer_custom_hook"
 
 static lua_State *LL;
