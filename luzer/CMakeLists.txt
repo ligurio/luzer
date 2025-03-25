@@ -70,5 +70,5 @@ install(
 
 install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/init.lua
-  DESTINATION "${CMAKE_LIBDIR}/"
+  DESTINATION "${CMAKE_LUADIR}/"
 )
