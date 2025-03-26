@@ -261,6 +261,25 @@ const luaL_Reg methods[] =
 	{ NULL, NULL }
 };
 
+/*
+ * Create the metatable once on the luzer loading to be more GC and JIT
+ * friendly. `luaL_fuzzed_data_provider()` is called in the loop inside
+ * `LLVMFuzzerRunDriver()`.
+ */
+void
+fdp_metatable_init(lua_State *L)
+{
+	luaL_newmetatable(L, FDP_LUA_UDATA_NAME);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+#if LUA_VERSION_NUM == 501
+	luaL_register(L, NULL, methods);
+#else
+	luaL_setfuncs(L, methods, 0);
+#endif
+	lua_pop(L, 1); /* Remove the metatable from the stack. */
+}
+
 int
 luaL_fuzzed_data_provider(lua_State *L)
 {
@@ -270,15 +289,6 @@ luaL_fuzzed_data_provider(lua_State *L)
 
 	const char *data = luaL_checkstring(L, 1);
 	size_t size = strlen(data);
-
-	luaL_newmetatable(L, FDP_LUA_UDATA_NAME);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-#if LUA_VERSION_NUM == 501
-	luaL_register(L, NULL, methods);
-#else
-	luaL_setfuncs(L, methods, 0);
-#endif
 
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t*)lua_newuserdata(L, sizeof(*lfdp));
