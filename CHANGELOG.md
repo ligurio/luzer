@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Examples with tests.
 - Documentation with usecases, API etc.
 - Support command-line options.
+- Method `oneof()` in FuzzedDataProvider.
 
 ### Changed
 
