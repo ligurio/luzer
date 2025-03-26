@@ -462,5 +462,7 @@ int luaopen_luzer_impl(lua_State *L)
 	lua_pushstring(L, LUA_RELEASE);
 	lua_rawset(L, -3);
 
+	fdp_metatable_init(L);
+
 	return 1;
 }
