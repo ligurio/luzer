@@ -29,3 +29,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix a crash due to incorrect `argv` building (#13).
 - Fix parsing command-line flags (#23).
 - Multiple initialization of the FDP metatable.
+- Integer overflow in `consume_integer()` and `consume_integers()`
+  functions (#26).

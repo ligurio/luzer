@@ -166,12 +166,12 @@ luaL_consume_integer(lua_State *L)
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	if (!lfdp)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_integer(min, max)");
-	int min = luaL_checkinteger(L, 2);
-	int max = luaL_checkinteger(L, 3);
+	lua_Integer min = luaL_checkinteger(L, 2);
+	lua_Integer max = luaL_checkinteger(L, 3);
 	if (min > max)
 		luaL_error(L, "min must be less than or equal to max");
 
-	auto number = lfdp->fdp->ConsumeIntegralInRange(min, max);
+	lua_Integer number = lfdp->fdp->ConsumeIntegralInRange(min, max);
 	lua_pushnumber(L, number);
 
 	return 1;
@@ -185,14 +185,14 @@ luaL_consume_integers(lua_State *L)
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
 	if (!lfdp)
 		luaL_error(L, "Usage: <FuzzedDataProvider>:consume_integers(count, min, max)");
-	int count = luaL_checkinteger(L, 2);
-	int min = luaL_checkinteger(L, 3);
-	int max = luaL_checkinteger(L, 4);
+	lua_Integer count = luaL_checkinteger(L, 2);
+	lua_Integer min = luaL_checkinteger(L, 3);
+	lua_Integer max = luaL_checkinteger(L, 4);
 	if (min > max)
 		luaL_error(L, "min must be less than or equal to max");
 
 	lua_newtable(L);
-	for (int i = 1; i <= (int)count; i++) {
+	for (lua_Integer i = 1; i <= (lua_Integer)count; i++) {
 		auto number = lfdp->fdp->ConsumeIntegralInRange(min, max);
 		lua_pushnumber(L, i);
 		lua_pushinteger(L, number);

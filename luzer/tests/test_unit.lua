@@ -16,6 +16,8 @@ local err
 local fdp
 local res
 
+local MAX_INT = 2^51
+
 -- luzer.FuzzedDataProvider()
 assert(type(luzer.FuzzedDataProvider) == "function")
 ok, err = pcall(luzer.FuzzedDataProvider)
@@ -144,6 +146,9 @@ assert(res <= 20)
 ok, err = pcall(fdp.consume_integer)
 assert(ok == false)
 assert(err ~= nil)
+
+local i = fdp:consume_integer(1, MAX_INT)
+assert(type(i) == "number")
 
 -- luzer.FuzzedDataProvider.consume_integers()
 fdp = luzer.FuzzedDataProvider("AB")
