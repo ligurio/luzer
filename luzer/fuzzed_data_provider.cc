@@ -61,13 +61,10 @@ luaL_consume_strings(lua_State *L)
 	size_t count = luaL_checkinteger(L, 2);
 	size_t max_length = luaL_checkinteger(L, 3);
 
-	std::string str;
-	const char *cstr;
-
 	lua_newtable(L);
 	for (int i = 1; i <= (int)count; i++) {
-		str = lfdp->fdp->ConsumeRandomLengthString(max_length);
-		cstr = str.c_str();
+		std::string str = lfdp->fdp->ConsumeRandomLengthString(max_length);
+		const char *cstr = str.c_str();
 		lua_pushnumber(L, i);
 		lua_pushlstring(L, cstr, str.length());
 		lua_settable(L, -3);
