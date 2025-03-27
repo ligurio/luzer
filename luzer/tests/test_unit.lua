@@ -120,6 +120,9 @@ ok, err = pcall(fdp.consume_number)
 assert(ok == false)
 assert(err ~= nil)
 
+local n = fdp:consume_number(1, MAX_INT)
+assert(type(n) == "number")
+
 -- luzer.FuzzedDataProvider.consume_numbers()
 fdp = luzer.FuzzedDataProvider("ABCDEF")
 assert(type(fdp.consume_numbers) == "function")
