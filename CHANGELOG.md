@@ -33,3 +33,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Building the project using luarocks (#4).
 - Installation using luarocks (#27).
 - Running with libFuzzer option `-jobs` (#32).
+- Integer overflow in `consume_integer()` and `consume_integers()`
+  functions (#29).

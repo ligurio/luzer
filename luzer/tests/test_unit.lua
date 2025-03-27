@@ -16,6 +16,30 @@ local err
 local fdp
 local res
 
+-- By default `lua_Integer` is ptrdiff_t in Lua 5.1 and Lua 5.2
+-- and `long long` in Lua 5.3+, (usually a 64-bit two-complement
+-- integer), but that can be changed to `long` or `int` (usually a
+-- 32-bit two-complement integer), see LUA_INT_TYPE in
+-- <luaconf.h>. Lua 5.3+ has two functions: `math.maxinteger` and
+-- `math.mininteger` that returns an integer with the maximum
+-- value for an integer and an integer with the minimum value for
+-- an integer, see [1] and [2].
+
+-- `0x7ffffffffffff` is a maximum integer in `long long`, however
+-- this number is not representable in `double` and the nearest
+-- number representable in `double` is `0x7ffffffffffffc00`.
+--
+-- 1. https://www.lua.org/manual/5.1/manual.html#lua_Integer
+-- 2. https://www.lua.org/manual/5.3/manual.html#lua_Integer
+local MAX_REPRESENTABLE_INT = 0x7fffffffffffffff
+local MIN_REPRESENTABLE_INT = MAX_REPRESENTABLE_INT
+if _VERSION == "Lua 5.1" or _VERSION == "Lua 5.2" then
+    MAX_REPRESENTABLE_INT = 0x7ffffffffffffc00
+    MIN_REPRESENTABLE_INT = 0x8000000000000000
+end
+local MAX_INT = math.maxinteger or MAX_REPRESENTABLE_INT
+local MIN_INT = math.mininteger or -MIN_REPRESENTABLE_INT
+
 -- luzer.FuzzedDataProvider()
 assert(type(luzer.FuzzedDataProvider) == "function")
 ok, err = pcall(luzer.FuzzedDataProvider)
@@ -133,7 +157,7 @@ assert(ok == false)
 assert(err ~= nil)
 
 -- luzer.FuzzedDataProvider.consume_integer()
-fdp = luzer.FuzzedDataProvider("AB")
+fdp = luzer.FuzzedDataProvider(string.rep("ABC", 1000))
 assert(type(fdp.consume_integer) == "function")
 
 res = fdp:consume_integer(10, 20)
@@ -144,6 +168,17 @@ assert(res <= 20)
 ok, err = pcall(fdp.consume_integer)
 assert(ok == false)
 assert(err ~= nil)
+
+local max_int = fdp:consume_integer(MAX_INT, MAX_INT)
+assert(type(max_int) == "number")
+assert(max_int == MAX_INT)
+
+local min_int = fdp:consume_integer(MIN_INT, MIN_INT)
+assert(type(min_int) == "number")
+assert(min_int == MIN_INT)
+
+local i = fdp:consume_integer(MIN_INT, MAX_INT)
+assert(type(i) == "number")
 
 -- luzer.FuzzedDataProvider.consume_integers()
 fdp = luzer.FuzzedDataProvider("AB")
