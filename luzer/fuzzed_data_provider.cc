@@ -110,12 +110,12 @@ luaL_consume_number(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	double min = luaL_checknumber(L, 2);
-	double max = luaL_checknumber(L, 3);
+	lua_Number min = luaL_checknumber(L, 2);
+	lua_Number max = luaL_checknumber(L, 3);
 	if (min > max)
 		luaL_error(L, "min must be less than or equal to max");
 
-	auto number = lfdp->fdp->ConsumeFloatingPointInRange(min, max);
+	lua_Number number = lfdp->fdp->ConsumeFloatingPointInRange(min, max);
 	lua_pushnumber(L, number);
 
 	return 1;
@@ -127,15 +127,15 @@ luaL_consume_numbers(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	int count = luaL_checkinteger(L, 2);
-	double min = luaL_checkinteger(L, 3);
-	double max = luaL_checkinteger(L, 4);
+	lua_Integer count = luaL_checkinteger(L, 2);
+	lua_Number min = luaL_checkinteger(L, 3);
+	lua_Number max = luaL_checkinteger(L, 4);
 	if (min > max)
 		luaL_error(L, "min must be less than or equal to max");
 
 	lua_newtable(L);
-	for (int i = 1; i <= count; i++) {
-		auto number = lfdp->fdp->ConsumeFloatingPointInRange(min, max);
+	for (lua_Integer i = 1; i <= count; i++) {
+		lua_Number number = lfdp->fdp->ConsumeFloatingPointInRange(min, max);
 		lua_pushnumber(L, i);
 		lua_pushnumber(L, number);
 		lua_settable(L, -3);
