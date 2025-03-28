@@ -129,6 +129,36 @@ get_coverage_symbols_location(void) {
 	return (dl_info.dli_fname);
 }
 
+struct paths {
+	const char *dso_path_lf_asan;
+	const char *dso_path_lf_ubsan;
+	const char *dso_path_lf_ubsan_cxx;
+	const char *dso_path_libcustom_mutator;
+};
+
+struct paths luzer_paths;
+
+NO_SANITIZE static int
+search_module_path(char *so_path, const char *so_name, size_t len) {
+	/* Create a copy, because `strsep()` below mutates a string. */
+	char *lua_cpath = strdup(getenv("LUA_CPATH"));
+	if (!lua_cpath)
+		lua_cpath = "./";
+	int rc = -1;
+	char *cpath = NULL;
+	while ((cpath = strsep(&lua_cpath, ";")) != NULL) {
+		const char *dir = dirname(cpath);
+		snprintf(so_path, len, "%s/%s", dir, so_name);
+		if (access(so_path, F_OK) == 0) {
+			rc = 0;
+			strcpy(so_path, cpath);
+			break;
+		}
+	}
+
+	return rc;
+}
+
 NO_SANITIZE void
 init(void)
 {
@@ -146,6 +176,29 @@ init(void)
         "severely impacted native extension code coverage. Symbols are coming "
         "from this library: %s\n", get_coverage_symbols_location());
 	}
+
+	char base_so_path[PATH_MAX], so_path[PATH_MAX];
+	int rc = search_module_path(base_so_path, CUSTOM_MUTATOR_LIB, PATH_MAX);
+	if (rc) {
+		fprintf(stderr, "not found\n");
+		return;
+	}
+
+	snprintf(so_path, PATH_MAX, "%s/%s", base_so_path, CUSTOM_MUTATOR_LIB);
+	luzer_paths.dso_path_libcustom_mutator = strdup(so_path);
+	assert(access(so_path, F_OK) == 0);
+
+	snprintf(so_path, PATH_MAX, "%s/%s", base_so_path, dso_asan_string());
+	luzer_paths.dso_path_lf_asan = strdup(so_path);
+	assert(access(so_path, F_OK) == 0);
+
+	snprintf(so_path, PATH_MAX, "%s/%s", base_so_path, dso_ubsan_string());
+	luzer_paths.dso_path_lf_ubsan_cxx = strdup(so_path);
+	assert(access(so_path, F_OK) == 0);
+
+	snprintf(so_path, PATH_MAX, "%s/%s", base_so_path, dso_ubsan_cxx_string());
+	luzer_paths.dso_path_lf_ubsan = strdup(so_path);
+	assert(access(so_path, F_OK) == 0);
 }
 
 NO_SANITIZE static void
@@ -293,22 +346,22 @@ luaL_cleanup(lua_State *L)
 }
 
 NO_SANITIZE static int
-search_module_path(char *so_path, size_t len) {
-	char *lua_cpath = getenv("LUA_CPATH");
-	if (!lua_cpath)
-		lua_cpath = "./";
-	int rc = -1;
-	char *cpath = NULL;
-	while ((cpath = strsep(&lua_cpath, ";")) != NULL) {
-		const char *dir = dirname(cpath);
-		snprintf(so_path, len, "%s/%s", dir, CUSTOM_MUTATOR_LIB);
-		if (access(so_path, F_OK) == 0) {
-			rc = 0;
-			break;
-		}
-	}
+luaL_path(lua_State *L) {
+	lua_createtable(L, 0, 3);
 
-	return rc;
+	lua_pushstring(L, "asan");
+	lua_pushstring(L, luzer_paths.dso_path_lf_asan);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "ubsan_cxx");
+	lua_pushstring(L, luzer_paths.dso_path_lf_ubsan_cxx);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "ubsan");
+	lua_pushstring(L, luzer_paths.dso_path_lf_ubsan);
+	lua_settable(L, -3);
+
+	return 1;
 }
 
 /**
@@ -326,19 +379,14 @@ search_module_path(char *so_path, size_t len) {
  * environment variable LUA_CPATH.
  */
 NO_SANITIZE static int
-load_custom_mutator_lib(void) {
-	char so_path[PATH_MAX];
-	int rc = search_module_path(so_path, PATH_MAX);
-	if (rc) {
-		DEBUG_PRINT("search_module_path");
-		return -1;
-	}
+load_custom_mutator_lib(const char *so_path) {
+	int rc;
 	void *custom_mutator_lib = dlopen(so_path, RTLD_LAZY);
 	if (!custom_mutator_lib) {
 		DEBUG_PRINT("dlopen");
 		return -1;
 	}
-	void *custom_mutator = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
+	const void *custom_mutator = dlsym(custom_mutator_lib, "LLVMFuzzerCustomMutator");
 	if (!custom_mutator) {
 		DEBUG_PRINT("dlsym");
 		return -1;
@@ -432,7 +480,7 @@ luaL_fuzz(lua_State *L)
 
 	/* Processing a function with custom mutator. */
 	if (!lua_isnil(L, -1) && (lua_isfunction(L, -1) == 1)) {
-			if (load_custom_mutator_lib()) {
+			if (load_custom_mutator_lib(luzer_paths.dso_path_libcustom_mutator)) {
 				free_argv(argc, argv);
 				luaL_error(L, "function LLVMFuzzerCustomMutator is not available");
 			}
@@ -502,6 +550,10 @@ luaopen_luzer_impl(lua_State *L)
 
 	lua_pushliteral(L, "_LUA_VERSION");
 	lua_pushstring(L, LUA_RELEASE);
+	lua_rawset(L, -3);
+
+	lua_pushliteral(L, "path");
+	luaL_path(L);
 	lua_rawset(L, -3);
 
 	fdp_metatable_init(L);
