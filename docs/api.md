@@ -25,6 +25,38 @@ want to allow only those inputs into the corpus that parse successfully. If the
 fuzz target returns `-1` on a given input, `luzer` will not add that input top
 the corpus, regardless of what coverage it triggers.
 
+The `luzer` module provides a function `path()` that returns a table with paths
+to shared libraries with libFuzzer and sanitizers.
+
+```
+> luzer.path
+---
+- ubsan: <path>/libfuzzer_with_ubsan.so
+  asan: <path>/libfuzzer_with_asan.so
+```
+
+The shared libraries whose paths are provided by `luzer.path` are required for
+running tests for C libraries instrumented by sanitizers. These shared
+libraries must be loaded using `LD_PRELOAD`:
+
+```
+LD_PRELOAD=$(luajit -e "print(require('luzer').path.asan)") luajit examples/example_basic.lua
+```
+
+The reason is the following: certain code coverage symbols exported by
+libFuzzer are also exported by ASan and UBSan. Normally, this isn't a problem,
+because ASan/UBSan export them as weak symbols - libFuzzer's symbols take
+precedence. However, when ASan/UBSan are preloaded and libFuzzer is loaded as
+part of a shared library, the weak symbols are loaded first. This causes code
+coverage information to be sent to ASan/UBSan, not libFuzzer.
+
+Beware, source code in C libraries may have known flaws that will trigger
+sanitizers. And it is sometimes useful to tell sanitizers to instrument only
+a subset of the functions in your target without modifying source files. With
+`-fsanitize-coverage-allowlist=allowlist.txt` and
+`-fsanitize-coverage-ignorelist=blocklist.txt`, you can specify
+such a subset through the combination of an allowlist and a blocklist.
+
 ### Structure-Aware Fuzzing
 
 `luzer` is based on a coverage-guided mutation-based fuzzer (LibFuzzer). It has
