@@ -22,7 +22,9 @@ dependencies = {
 
 build = {
     type = "cmake",
-    -- https://github.com/luarocks/luarocks/wiki/Config-file-format#variables
+    -- luacheck: push no max_comment_line_length
+    -- https://github.com/luarocks/luarocks/blob/7ed653f010671b3a7245be9adcc70068c049ef68/docs/config_file_format.md#config-file-format
+    -- luacheck: pop
     variables = {
         CMAKE_LUADIR = "$(LUADIR)",
         CMAKE_LIBDIR = "$(LIBDIR)",
