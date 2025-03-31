@@ -40,12 +40,13 @@ set_target_properties(luzer_impl PROPERTIES PREFIX "")
 set(custom_mutator_lib_source ${CMAKE_CURRENT_SOURCE_DIR}/custom_mutator_lib.c)
 add_library(custom_mutator SHARED ${custom_mutator_lib_source})
 target_include_directories(custom_mutator PRIVATE ${LUA_INCLUDE_DIR})
-set_target_properties(custom_mutator PROPERTIES VERSION ${PROJECT_VERSION})
-set_target_properties(custom_mutator PROPERTIES SOVERSION 1)
 target_link_libraries(custom_mutator PRIVATE
   ${LUA_LIBRARIES}
   luzer_impl
 )
+# set_target_properties(custom_mutator PROPERTIES
+#   LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+# )
 
 if(ENABLE_TESTING)
   add_subdirectory(tests)
