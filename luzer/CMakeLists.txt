@@ -59,16 +59,13 @@ install(
   RENAME luzer.so
 )
 
-# See description of NAMELINK_SKIP in
-# https://cmake.org/cmake/help/latest/command/install.html
 install(
   TARGETS custom_mutator
   LIBRARY
-  NAMELINK_SKIP
-  DESTINATION "${CMAKE_LIBDIR}/"
+  DESTINATION "${CMAKE_LIBDIR}/${PROJECT_NAME}"
 )
 
 install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/init.lua
-  DESTINATION "${CMAKE_LUADIR}/"
+  DESTINATION "${CMAKE_LUADIR}/${PROJECT_NAME}"
 )
