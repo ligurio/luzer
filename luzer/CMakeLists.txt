@@ -1,4 +1,6 @@
-SetFuzzerNoMainLibPath(FUZZER_NO_MAIN_LIBRARY)
+SetHwArchString(ARCH)
+set(LIBFUZZER_NO_MAIN_LIB_NAME "libclang_rt.fuzzer_no_main-${ARCH}.a")
+SetClangLibPath(${LIBFUZZER_NO_MAIN_LIB_NAME} FUZZER_NO_MAIN_LIBRARY)
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/version.c
