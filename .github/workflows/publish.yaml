@@ -25,7 +25,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
-      # https://github.com/luarocks/luarocks/wiki/Types-of-rocks
+      # https://github.com/luarocks/luarocks/blob/7ed653f010671b3a7245be9adcc70068c049ef68/docs/types_of_rocks.md
       - uses: actions/checkout@v3
 
       - name: Setup luarocks
@@ -34,8 +34,8 @@ jobs:
       # Create a rockspec for the release.
       - run: printf '%s=%s\n' TAG "${GITHUB_REF##*/}" >> "${GITHUB_ENV}"
       - run: sed -E
-          -e "s/branch = '.+'/tag = '${{ env.TAG }}'/g"
-          -e "s/version = '.+'/version = '${{ env.TAG }}-1'/g"
+          -e 's/branch = ".+"/tag = "${{ env.TAG }}"/g'
+          -e 's/version = ".+"/version = "${{ env.TAG }}-1"/g'
           luzer-scm-1.rockspec > luzer-${{ env.TAG }}-1.rockspec
 
       # Make a release.
@@ -60,6 +60,15 @@ jobs:
 
       - run: sudo apt install -y luarocks lua5.2 liblua5.2-dev libclang-common-14-dev clang-14
 
+      - run: sed -i -E
+          -e 's#branch = "master"#branch = "${{ github.head_ref || github.ref_name }}"#g'
+          luzer-scm-1.rockspec
+
       - run: luarocks --local build luzer-scm-1.rockspec
+
+      - run: |
+          luarocks --local install luzer-scm-1.rockspec
+          eval $(luarocks path)
+          lua -l luzer
 
       - run: luarocks --local make
