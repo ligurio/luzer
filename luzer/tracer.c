@@ -27,8 +27,6 @@
 #include "counters.h"
 #include "macros.h"
 
-#define UNUSED(x) (void)(x)
-
 /**
  * From afl-python
  * https://github.com/jwilk/python-afl/blob/8df6bfefac5de78761254bf5d7724e0a52d254f5/afl.pyx#L74-L87
@@ -70,9 +68,6 @@ debug_hook(lua_State *L, lua_Debug *ar)
 	lua_getinfo(L, "Sln", ar);
 	if (ar && ar->source && ar->currentline) {
 		const unsigned int new_location = lhash(ar->source, ar->currentline);
-		UNUSED(new_location);
-		// Lua tracing is temporarily disabled due to segfaults,
-		// see https://github.com/ligurio/luzer/issues/18.
-		/* _trace_branch(new_location); */
+		_trace_branch(new_location);
 	}
 }
