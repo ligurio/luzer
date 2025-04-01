@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <stdbool.h>
 
+#define UNUSED(x) (void)(x)
+
 #ifdef DEBUG
 #define DEBUG_PRINT(...) do{ fprintf( stderr, __VA_ARGS__ ); } while( false )
 #else

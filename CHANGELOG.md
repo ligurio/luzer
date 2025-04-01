@@ -37,3 +37,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Running with libFuzzer option `-jobs` (#32).
 - Integer overflow in `consume_integer()` and `consume_integers()`
   functions (#29).
+- Segmentation fault on tracing Lua source code (#18).
