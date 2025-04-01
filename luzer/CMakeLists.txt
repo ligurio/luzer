@@ -1,4 +1,14 @@
-SetFuzzerNoMainLibPath(FUZZER_NO_MAIN_LIBRARY)
+if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+  set(ARCH "i386")
+elseif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(ARCH "x86_64")
+else ()
+  message(FATAL_ERROR "Unsupported architecture.")
+endif ()
+
+set(LIBFUZZER_NO_MAIN_LIB_NAME "libclang_rt.fuzzer_no_main-${ARCH}.a")
+
+SetClangLibPath(${LIBFUZZER_NO_MAIN_LIB_NAME} FUZZER_NO_MAIN_LIBRARY)
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/version.c
