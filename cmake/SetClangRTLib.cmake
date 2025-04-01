@@ -1,3 +1,14 @@
+function(SetHwArchString outvar)
+  if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    set(hw_arch "i386")
+  elseif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(hw_arch "x86_64")
+  else ()
+    message(FATAL_ERROR "Unsupported architecture.")
+  endif ()
+  set(${outvar} ${hw_arch} PARENT_SCOPE)
+endfunction()
+
 # The function sets the given variable in a parent scope to a
 # value in FUZZER_NO_MAIN_LIBRARY environment variable if it
 # is set. Otherwise the value with path to a directory with
@@ -13,21 +24,12 @@
 #
 # 1. https://llvm.org/docs/LibFuzzer.html#using-libfuzzer-as-a-library
 
-function(SetFuzzerNoMainLibPath outvar)
+function(SetClangLibPath lib_name outvar)
   if (NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
     message(FATAL_ERROR "C compiler is not a Clang")
   endif ()
 
-  if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-    set(ARCH "i386")
-  elseif (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(ARCH "x86_64")
-  else ()
-    message(FATAL_ERROR "Unsupported architecture.")
-  endif ()
-
-  set(LIB_FUZZER_NO_MAIN "libclang_rt.fuzzer_no_main-${ARCH}.a")
-  execute_process(COMMAND ${CMAKE_C_COMPILER} "-print-file-name=${LIB_FUZZER_NO_MAIN}"
+  execute_process(COMMAND ${CMAKE_C_COMPILER} "-print-file-name=${lib_name}"
     RESULT_VARIABLE CMD_ERROR
     OUTPUT_VARIABLE CMD_OUTPUT
     OUTPUT_STRIP_TRAILING_WHITESPACE
