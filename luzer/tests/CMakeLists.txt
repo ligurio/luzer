@@ -183,3 +183,13 @@ list(APPEND TEST_ENV
 set_tests_properties(luzer_ffi PROPERTIES
   ENVIRONMENT "${TEST_ENV}"
 )
+
+add_test(
+  NAME luzer_hook_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_hook.lua -runs=1
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_hook_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "test_hook.lua:18"
+)

@@ -38,6 +38,11 @@
 static lua_State *LL;
 static int jit_status = 0;
 
+int luacov = 0;
+
+#define LUA_SETHOOK(lua_state, hook, mask, count) \
+	if (luacov == 0) lua_sethook(lua_state, hook, mask, count);
+
 NO_SANITIZE static void
 set_global_lua_state(lua_State *L)
 {
@@ -322,13 +327,13 @@ TestOneInput(const uint8_t* data, size_t size) {
 	 * (even to the same line).
 	 * https://www.lua.org/pil/23.2.html
 	 */
-	lua_sethook(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
+	LUA_SETHOOK(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
 
 	lua_pushlstring(L, buf, size);
 	int rc = luaL_test_one_input(L);
 
 	/* Disable debug hook. */
-	lua_sethook(L, debug_hook, 0, 0);
+	LUA_SETHOOK(L, debug_hook, 0, 0);
 
 	return rc;
 }
@@ -454,6 +459,11 @@ luaL_fuzz(lua_State *L)
 			corpus_path = strdup(value);
 			lua_pop(L, 1);
 			continue;
+		}
+		if ((strcmp(key, "runs") == 0) &&
+		    (atoi(value) == 1)) {
+				luacov = 1;
+				fprintf(stderr, "INFO: Lua's debug hook is disabled.\n");
 		}
 		size_t arg_len = strlen(key) + strlen(value) + 3;
 		char *arg = malloc(arg_len * sizeof(*arg));

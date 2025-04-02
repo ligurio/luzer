@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support LuaJIT library in a build system (#46).
 - Support LuaJIT-friendly mode (#22).
 - Support Address and UndefinedBehaviour sanitizers.
+- Support LuaCov.
 
 ### Changed
 
