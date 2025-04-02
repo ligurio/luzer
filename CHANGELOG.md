@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Method `oneof()` in FuzzedDataProvider.
 - Support LuaJIT library in a build system (#46).
 - Support LuaJIT-friendly mode (#22).
+- Support LuaCov.
 
 ### Changed
 
