@@ -197,7 +197,6 @@ assert(type(n) == "number" and (n == a or n == b))
 local str1 = "Python"
 local str2 = "Lua"
 local str = fdp:oneof({str1, str2})
-print(("'%s'"):format(str))
 assert(type(str) == "string" and (str == str1 or str == str2))
 
 local function custom_mutator(data, size, max_size, seed)
