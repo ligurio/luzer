@@ -36,6 +36,12 @@ target_compile_options(luzer_impl PRIVATE
     -pedantic
     -fsanitize=fuzzer-no-link
 )
+if(LUA_HAS_JIT)
+    target_compile_definitions(luzer_impl PUBLIC LUA_HAS_JIT)
+    if(LUAJIT_FRIENDLY_MODE)
+        target_compile_definitions(luzer_impl PUBLIC LUAJIT_FRIENDLY_MODE)
+    endif()
+endif()
 set_target_properties(luzer_impl PROPERTIES PREFIX "")
 
 set(custom_mutator_lib_source ${CMAKE_CURRENT_SOURCE_DIR}/custom_mutator_lib.c)

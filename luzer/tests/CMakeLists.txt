@@ -86,6 +86,27 @@ set_tests_properties(luzer_options_help_test PROPERTIES
   PASS_REGULAR_EXPRESSION "Usage:"
 )
 
+list(APPEND LUAJIT_FRIENDLY_MESSAGES
+  "---- TRACE 3 start test_luajit_friendly.lua:6"
+  "---- TRACE 3 stop -> loop"
+  "---- TRACE 4 start 3/5 test_luajit_friendly.lua:6"
+  "---- TRACE 4 stop -> return"
+)
+add_test(
+  NAME luzer_luajit_friendly_test
+  COMMAND ${LUA_EXECUTABLE} -jdump=is -Ohotloop=1
+          ${CMAKE_CURRENT_SOURCE_DIR}/test_luajit_friendly.lua
+          -runs=100
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_luajit_friendly_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "${LUAJIT_FRIENDLY_MESSAGES}"
+)
+if (NOT LUAJIT_FRIENDLY_MODE)
+  set_tests_properties(luzer_luajit_friendly_test PROPERTIES DISABLED TRUE)
+endif()
+
 add_test(
   NAME luzer_custom_mutator_example
   COMMAND ${LUA_EXECUTABLE} "${PROJECT_SOURCE_DIR}/examples/example_custom_mutator.lua"
