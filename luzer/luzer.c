@@ -8,6 +8,9 @@
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
+#ifdef LUA_HAS_JIT
+#include "luajit.h"
+#endif /* LUA_HAS_JIT */
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -33,6 +36,7 @@
 #define DEBUG_HOOK_FUNC "luzer_custom_hook"
 
 static lua_State *LL;
+static int jit_status = 0;
 
 NO_SANITIZE static void
 set_global_lua_state(lua_State *L)
@@ -156,6 +160,27 @@ sig_handler(int sig)
 	}
 }
 
+/* Returns the current status of the JIT compiler. */
+NO_SANITIZE static int
+luajit_has_enabled_jit(lua_State *L)
+{
+#if defined(LUA_HAS_JIT)
+	lua_getglobal(L, "jit");
+	lua_getfield(L, -1, "status");
+	/*
+	 * `jit.status()` returns the current status of the JIT
+	 * compiler. The first result is either true or false if the
+	 * JIT compiler is turned on or off. The remaining results are
+	 * strings for CPU-specific features and enabled optimizations.
+	 * The remaining results are not interested, we discard them.
+	 */
+	lua_pcall(L, 0, 1, 0);
+	return lua_toboolean(L, -1);
+#else
+	return 0;
+#endif
+}
+
 NO_SANITIZE int
 luaL_mutate(lua_State *L)
 {
@@ -219,6 +244,22 @@ TestOneInput(const uint8_t* data, size_t size) {
 
 	lua_State *L = get_global_lua_state();
 
+	char *buf = malloc(size + 1 * sizeof(*buf));
+	memcpy(buf, data, size);
+	buf[size] = '\0';
+
+#if defined(LUA_HAS_JIT) && defined(LUAJIT_FRIENDLY_MODE)
+	if (jit_status) {
+		if (!luaJIT_setmode(L, 0, LUAJIT_MODE_ON))
+			luaL_error(L, "cannot turn a JIT compiler on");
+		lua_pushlstring(L, buf, size);
+		/* Returned value is not handled. */
+		luaL_test_one_input(L);
+		if (!luaJIT_setmode(L, 0, LUAJIT_MODE_OFF))
+			luaL_error(L, "cannot turn a JIT compiler off");
+	}
+#endif /* LUA_HAS_JIT && LUAJIT_FRIENDLY_MODE */
+
 	/**
 	 * Enable debug hook.
 	 *
@@ -230,12 +271,8 @@ TestOneInput(const uint8_t* data, size_t size) {
 	 */
 	lua_sethook(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
 
-	char *buf = malloc(size + 1 * sizeof(*buf));
-	memcpy(buf, data, size);
-	buf[size] = '\0';
 	lua_pushlstring(L, buf, size);
 	int rc = luaL_test_one_input(L);
-	free(buf);
 
 	/* Disable debug hook. */
 	lua_sethook(L, debug_hook, 0, 0);
@@ -425,6 +462,7 @@ luaL_fuzz(lua_State *L)
 	}
 	lua_pop(L, -1);
 
+	jit_status = luajit_has_enabled_jit(L);
 	set_global_lua_state(L);
 	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 
