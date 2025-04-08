@@ -6,6 +6,7 @@ project(luzer
 )
 
 option(ENABLE_LUAJIT "Use LuaJIT library" OFF)
+option(LUAJIT_FRIENDLY_MODE "Use LuaJIT-friendly mode" OFF)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(SetClangRTLib)
@@ -25,6 +26,7 @@ elseif(ENABLE_LUAJIT)
   if(NOT EXISTS ${LUA_EXECUTABLE})
     message(FATAL_ERROR "`${LUA_NAME}` is required")
   endif()
+  set(LUA_HAS_JIT ON)
   message(STATUS "Found LuaJIT ${LUA_VERSION_STRING}")
   message(STATUS "Found LuaJIT interpreter ${LUA_EXECUTABLE}")
 else()
@@ -36,6 +38,10 @@ else()
   endif()
   message(STATUS "Found Lua ${LUA_VERSION_STRING}")
   message(STATUS "Found Lua interpreter ${LUA_EXECUTABLE}")
+endif()
+
+if(LUAJIT_FRIENDLY_MODE AND NOT LUA_HAS_JIT)
+  message(FATAL_ERROR "LuaJIT-friendly mode requires option ENABLE_LUAJIT")
 endif()
 
 find_package(LLVM REQUIRED CONFIG)
