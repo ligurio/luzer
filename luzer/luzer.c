@@ -336,7 +336,7 @@ NO_SANITIZE static void
 free_argv(int argc, char **argv)
 {
 	/* Free allocated argv strings and the buffer. */
-	for (int i = 1; i < argc; i++)
+	for (int i = 0; i < argc; i++)
 		free(argv[i]);
 	free(argv);
 }
@@ -344,6 +344,9 @@ free_argv(int argc, char **argv)
 NO_SANITIZE static int
 luaL_fuzz(lua_State *L)
 {
+	const char *str = luaL_checkstring(L, -1);
+	lua_pop(L, 1);
+	char *argv_0 = strdup(str);
 	if (lua_istable(L, -1) == 0) {
 		luaL_error(L, "opts is not a table");
 	}
@@ -353,7 +356,7 @@ luaL_fuzz(lua_State *L)
 	if (!argv)
 		luaL_error(L, "not enough memory");
 
-	argv[0] = "<test name>";
+	argv[0] = argv_0;
 	const char *corpus_path = NULL;
 
 	/* First key to start iteration. */

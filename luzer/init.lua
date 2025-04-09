@@ -43,9 +43,21 @@ local function build_flags(arg, func_args)
     return flags
 end
 
+local function progname(argv)
+    -- arg[-1] is guaranteed to be not nil.
+    local idx = -2
+    while argv[idx] do
+        idx = idx - 1
+    end
+    return argv[idx + 1]
+end
+
 local function Fuzz(test_one_input, custom_mutator, func_args)
     local flags = build_flags(arg, func_args)
-    luzer_impl.Fuzz(test_one_input, custom_mutator, flags)
+    local test_path = arg[0]
+    local lua_bin = progname(arg)
+    local test_cmd = ("%s %s"):format(lua_bin, test_path)
+    luzer_impl.Fuzz(test_one_input, custom_mutator, flags, test_cmd)
 end
 
 return {
