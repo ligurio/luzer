@@ -65,6 +65,18 @@ set_tests_properties(luzer_options_seed_via_option_test PROPERTIES
 )
 
 add_test(
+  NAME luzer_options_jobs_test
+  COMMAND ${LUA_EXECUTABLE} -e "a = 1"
+          ${CMAKE_CURRENT_SOURCE_DIR}/test_options_2.lua
+          -runs=10 -jobs=5
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_options_jobs_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "Job 4 exited with exit code 0"
+)
+
+add_test(
   NAME luzer_options_help_test
   COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_2.lua
           -help=1
