@@ -4,19 +4,20 @@
 
 The `luzer` module provides a function `Fuzz()`.
 
-`Fuzz(test_one_input, custom_mutator, args)` starts the fuzzer. This function
-does not return.
+`Fuzz(test_one_input, [custom_mutator, [args]])` starts the fuzzer.
+This function does not return.
 
 Function accepts following arguments:
 
 - `test_one_input` is a fuzzer's entry point (equivalent to `TestOneInput`), it
   is a function that must take a single string argument. This will be repeatedly
   invoked with a single string container.
-- `custom_mutator` defines a custom mutator function (equivalent to
-  `LLVMFuzzerCustomMutator`). Default is `nil`.
-- `args` is a table with arguments: the process arguments to pass to the
+- `custom_mutator` (optional) defines a custom mutator function
+  (equivalent to `LLVMFuzzerCustomMutator`). Default is `nil`.
+- `args` (optional) is a table with arguments: the process arguments to pass to the
   fuzzer. Field `corpus` specifies a path to a directory with seed corpus, see a
   list with other options in the [libFuzzer documentation][libfuzzer-options-url].
+  Default is an empty table.
 
 It may be desirable to reject some inputs, i.e. to not add them to the corpus.
 For example, when fuzzing an API consisting of parsing and other logic, one may
