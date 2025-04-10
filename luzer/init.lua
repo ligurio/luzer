@@ -53,7 +53,11 @@ local function progname(argv)
 end
 
 local function Fuzz(test_one_input, custom_mutator, func_args)
-    local flags = build_flags(arg, func_args)
+    local luzer_args = func_args or {}
+    if type(luzer_args) ~= "table" then
+        error("args is not a table")
+    end
+    local flags = build_flags(arg, luzer_args)
     local test_path = arg[0]
     local lua_bin = progname(arg)
     local test_cmd = ("%s %s"):format(lua_bin, test_path)
