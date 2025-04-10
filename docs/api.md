@@ -24,6 +24,10 @@ want to allow only those inputs into the corpus that parse successfully. If the
 fuzz target returns `-1` on a given input, `luzer` will not add that input top
 the corpus, regardless of what coverage it triggers.
 
+The `luzer` module provides a function `path()` that returns a path
+to shared libraries with sanitizers. These paths are used for running tests
+with C source code instrumented by sanitizers.
+
 ### Structure-Aware Fuzzing
 
 `luzer` is based on a coverage-guided mutation-based fuzzer (LibFuzzer). It has
