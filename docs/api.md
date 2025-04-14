@@ -9,7 +9,7 @@ This function does not return.
 
 Function accepts following arguments:
 
-- `test_one_input` is a fuzzer's entry point (equivalent to `TestOneInput`), it
+- `test_one_input` is a fuzzer's entry point (equivalent to `LLVMFuzzerTestOneInput`), it
   is a function that must take a single string argument. This will be repeatedly
   invoked with a single string container.
 - `custom_mutator` (optional) defines a custom mutator function
@@ -51,20 +51,20 @@ The `FuzzedDataProvider` then supports the following functions:
 
 - `consume_string(max_length)` - consume a string with length in the range `[0,
   max_length]`. When it runs out of input data, returns what remains of the input.
-- `consume_strings(max_length, count)` - consume a list of `count` strings with
+- `consume_strings(max_length, count)` - consume a table with `count` strings with
   length in the range `[0, max_length]`.
 - `consume_integer(min, max)` - consume a signed integer with size in the range
   `[min, max]`.
-- `consume_integers(min, max, count)` - consume a list of `count` integers in the
+- `consume_integers(min, max, count)` - consume a table of `count` integers in the
   range `[min, max]`.
 - `consume_number(min, max)` - consume a floating-point value in the range
   `[min, max]`.
-- `consume_numbers(min, max, count)` - consume a list of `count` floats in the
+- `consume_numbers(min, max, count)` - consume a table of `count` floats in the
   range `[min, max]`. If there's no input data left, returns `min`. Note that
   `min` must be less than or equal to `max`.
 - `consume_boolean()` - consume either `true` or `false`, or `false` when no
   data remains.
-- `consume_booleans(count)` - consume a list of `count` booleans.
+- `consume_booleans(count)` - consume a table of `count` booleans.
 - `consume_probability()` - consume a floating-point value in the range `[0, 1]`.
   If there's no input data left, always returns 0.
 - `remaining_bytes()` - returns the number of unconsumed bytes in the fuzzer
