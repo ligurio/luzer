@@ -127,9 +127,9 @@ luaL_consume_numbers(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	lua_Integer count = luaL_checkinteger(L, 2);
-	lua_Number min = luaL_checkinteger(L, 3);
-	lua_Number max = luaL_checkinteger(L, 4);
+	lua_Number min = luaL_checkinteger(L, 2);
+	lua_Number max = luaL_checkinteger(L, 3);
+	lua_Integer count = luaL_checkinteger(L, 4);
 	if (min > max)
 		luaL_error(L, "min must be less than or equal to max");
 
@@ -168,9 +168,9 @@ luaL_consume_integers(lua_State *L)
 {
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t *)luaL_checkudata(L, 1, FDP_LUA_UDATA_NAME);
-	int count = luaL_checkinteger(L, 2);
-	lua_Integer min = luaL_checkinteger(L, 3);
-	lua_Integer max = luaL_checkinteger(L, 4);
+	lua_Integer min = luaL_checkinteger(L, 2);
+	lua_Integer max = luaL_checkinteger(L, 3);
+	int count = luaL_checkinteger(L, 4);
 	if (min > max)
 		luaL_error(L, "min must be less than or equal to max");
 

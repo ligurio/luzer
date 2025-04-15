@@ -146,14 +146,20 @@ local num = fdp:consume_number(1, MAX_INT)
 assert(type(num) == "number")
 
 -- luzer.FuzzedDataProvider.consume_numbers()
-fdp = luzer.FuzzedDataProvider("ABCDEF")
+fdp = luzer.FuzzedDataProvider(string.rep("XYZ", 100))
 assert(type(fdp.consume_numbers) == "function")
 
-res = fdp:consume_numbers(2, 1, 3)
+local min = 1
+local max = MAX_INT
+local count = 3
+res = fdp:consume_numbers(min, max, count)
 assert(type(res) == "table")
-assert(type(res[1]) == "number")
-assert(type(res[2]) == "number")
-assert(res[3] == nil, res[3])
+assert(#res == count)
+for _, n in ipairs(res) do
+    assert(type(n) == "number")
+    assert(n <= max)
+    assert(n >= min)
+end
 
 ok, err = pcall(fdp.consume_numbers, fdp)
 assert(ok == false)
@@ -184,17 +190,20 @@ local i = fdp:consume_integer(MIN_INT, MAX_INT)
 assert(type(i) == "number")
 
 -- luzer.FuzzedDataProvider.consume_integers()
-fdp = luzer.FuzzedDataProvider("AB")
+fdp = luzer.FuzzedDataProvider(string.rep("XYZ", 100))
 assert(type(fdp.consume_integers) == "function")
 
-local min = 1
-local max = 6
-res = fdp:consume_integers(1, min, max)
+min = 1
+max = MAX_INT
+count = 3
+res = fdp:consume_integers(min, max, count)
+assert(#res == count)
 assert(type(res) == "table")
-assert(type(res[1]) == "number")
-assert(res[1] <= max, res[1])
-assert(res[1] >= min, res[1])
-assert(res[2] == nil)
+for _, n in ipairs(res) do
+    assert(type(n) == "number")
+    assert(n <= max)
+    assert(n >= min)
+end
 
 ok, err = pcall(fdp.consume_integers)
 assert(ok == false)
