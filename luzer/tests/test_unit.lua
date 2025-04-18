@@ -289,4 +289,20 @@ for _, testcase in ipairs(flag_testcases) do
     assert(val == res[2], ("expected %s"):format(val))
 end
 
+-- Call `Fuzz()` without arguments.
+ok, err = pcall(luzer.Fuzz)
+assert(ok == false)
+assert(err:match("test_one_input is not a Lua function") ~= nil)
+
+-- Call `Fuzz()` with a table instead TestOneInput function.
+ok, err = pcall(luzer.Fuzz, {})
+assert(ok == false)
+assert(err:match("test_one_input is not a Lua function") ~= nil)
+
+-- Call `Fuzz()` with a table instead a custom mutator function
+-- and a function instead a table with arguments.
+ok, err = pcall(luzer.Fuzz, function() end, {}, function() end)
+assert(ok == false)
+assert(err:match("`custom_mutator` must be a function") ~= nil)
+
 print("Success!")
