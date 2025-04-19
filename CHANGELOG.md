@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation with usecases, API etc.
 - Support command-line options.
 - Method `oneof()` in FuzzedDataProvider.
+- Support LuaJIT library in a build system (#46).
 
 ### Changed
 
