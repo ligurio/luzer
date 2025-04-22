@@ -8,6 +8,9 @@
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
+#ifdef LUA_HAS_JIT
+#include "luajit.h"
+#endif /* LUA_HAS_JIT */
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -219,6 +222,24 @@ TestOneInput(const uint8_t* data, size_t size) {
 
 	lua_State *L = get_global_lua_state();
 
+	char *buf = malloc(size + 1 * sizeof(*buf));
+	memcpy(buf, data, size);
+	buf[size] = '\0';
+
+#ifdef LUAJIT_FRIENDLY_MODE
+	/*
+	 * TODO: Get a current mode with `jit.status()` and skip below
+	 * if compiler was disabled `jit.off()`.
+	 */
+	if (!luaJIT_setmode(L, 0, LUAJIT_MODE_ON))
+		luaL_error(L, "cannot turn a JIT compiler on");
+	lua_pushlstring(L, buf, size);
+	/* Returned value is not handled. */
+	luaL_test_one_input(L);
+	if (!luaJIT_setmode(L, 0, LUAJIT_MODE_OFF))
+		luaL_error(L, "cannot turn a JIT compiler off");
+#endif /* LUAJIT_FRIENDLY_MODE */
+
 	/**
 	 * Enable debug hook.
 	 *
@@ -230,12 +251,8 @@ TestOneInput(const uint8_t* data, size_t size) {
 	 */
 	lua_sethook(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
 
-	char *buf = malloc(size + 1 * sizeof(*buf));
-	memcpy(buf, data, size);
-	buf[size] = '\0';
 	lua_pushlstring(L, buf, size);
 	int rc = luaL_test_one_input(L);
-	free(buf);
 
 	/* Disable debug hook. */
 	lua_sethook(L, debug_hook, 0, 0);
