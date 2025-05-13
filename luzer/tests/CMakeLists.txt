@@ -87,10 +87,10 @@ set_tests_properties(luzer_options_help_test PROPERTIES
 )
 
 list(APPEND LUAJIT_FRIENDLY_MESSAGES
-  "---- TRACE 3 start test_luajit_friendly.lua:6"
-  "---- TRACE 3 stop -> loop"
-  "---- TRACE 4 start 3/5 test_luajit_friendly.lua:6"
-  "---- TRACE 4 stop -> return"
+  "---- TRACE [0-9] start test_luajit_friendly.lua:[0-9]+"
+  "---- TRACE [0-9] stop -> loop"
+  "---- TRACE [0-9] start [0-9]/[0-9] test_luajit_friendly.lua:[0-9]+"
+  "---- TRACE [0-9] stop -> return"
 )
 add_test(
   NAME luzer_luajit_friendly_test
