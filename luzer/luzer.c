@@ -27,7 +27,7 @@
 #include "compat.h"
 #include "macros.h"
 #include "tracer.h"
-#include "version.h"
+#include "config.h"
 #include "luzer.h"
 
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
