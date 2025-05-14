@@ -14,8 +14,8 @@ SetClangLibPath(${LIBFUZZER_NO_MAIN_LIB_NAME} FUZZER_NO_MAIN_LIBRARY)
 include(BuildLibSanitizers)
 
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/version.c
-  ${CMAKE_CURRENT_BINARY_DIR}/version.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/config.c
+  ${CMAKE_CURRENT_BINARY_DIR}/config.c
   @ONLY
 )
 
@@ -24,7 +24,7 @@ set(LUZER_SOURCES luzer.c
                   fuzzed_data_provider.cc
                   tracer.c
                   counters.c
-                  ${CMAKE_CURRENT_BINARY_DIR}/version.c)
+                  ${CMAKE_CURRENT_BINARY_DIR}/config.c)
 
 add_library(luzer_impl SHARED ${LUZER_SOURCES})
 target_include_directories(luzer_impl PRIVATE
