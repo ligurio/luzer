@@ -310,4 +310,18 @@ ok, err = pcall(luzer.Fuzz, function() end, nil, 42)
 assert(ok == false)
 assert(err:match("args is not a table") ~= nil)
 
+-- `luzer.path`
+assert(luzer.path)
+assert(type(luzer.path) == "table")
+
+local so_paths = {
+    "asan",
+    "ubsan",
+    "ubsan_cxx",
+}
+for _, path in ipairs(so_paths) do
+    assert(path)
+    assert(type(path) == "string")
+end
+
 print("Success!")
