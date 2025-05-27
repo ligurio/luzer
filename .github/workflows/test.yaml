@@ -12,51 +12,42 @@ jobs:
       github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       matrix:
+        BUILDTYPE: [Debug, Release]
         LIBLUA:
           - "5.4"
           - "5.3"
           - "5.2"
           - "5.1"
           - "luajit-v2.1"
+        include:
+          - BUILDTYPE: Debug
+            CMAKEFLAGS: -DCMAKE_BUILD_TYPE=Debug
+          - BUILDTYPE: Release
+            CMAKEFLAGS: -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          - LIBLUA: "5.4"
+            PACKAGES: lua5.4 liblua5.4-dev
+          - LIBLUA: "5.3"
+            PACKAGES: lua5.3 liblua5.3-dev
+          - LIBLUA: "5.2"
+            PACKAGES: lua5.2 liblua5.2-dev
+          - LIBLUA: "5.1"
+            PACKAGES: lua5.1 liblua5.1-0-dev
+          - LIBLUA: "luajit-v2.1"
+            PACKAGES: libluajit-5.1-dev libluajit-5.1-2 luajit
+            FLAVORFLAGS: -DLUAJIT_FRIENDLY_MODE=ON -DENABLE_LUAJIT=ON
       fail-fast: false
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
 
       - name: Setup common packages
-        run: sudo apt install -y clang-15 libclang-common-15-dev
+        run: sudo apt install -y clang-15 libclang-common-15-dev ${{ matrix.PACKAGES }}
 
-      - name: Setup Lua 5.1 packages
-        run: sudo apt install -y lua5.1 liblua5.1-0-dev
-        if: ${{ matrix.LIBLUA == '5.1' }}
-
-      - name: Setup Lua 5.2 packages
-        run: sudo apt install -y lua5.2 liblua5.2-dev
-        if: ${{ matrix.LIBLUA == '5.2' }}
-
-      - name: Setup Lua 5.3 packages
-        run: sudo apt install -y lua5.3 liblua5.3-dev
-        if: ${{ matrix.LIBLUA == '5.3' }}
-
-      - name: Setup Lua 5.4 packages
-        run: sudo apt install -y lua5.4 liblua5.4-dev
-        if: ${{ matrix.LIBLUA == '5.4' }}
-
-      - name: Setup LuaJIT v2.1 packages
-        run: sudo apt install -y libluajit-5.1-dev libluajit-5.1-2 luajit
-        if: ${{ matrix.LIBLUA == 'luajit-v2.1' }}
-
-      - name: Running CMake (PUC Rio Lua)
-        run: cmake -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -DENABLE_TESTING=ON -S . -B build
-        if: ${{ matrix.LIBLUA != 'luajit-v2.1' }}
-
-      - name: Running CMake (LuaJIT)
-        run: |
-          cmake -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 \
-                -DENABLE_TESTING=ON \
-                -DLUAJIT_FRIENDLY_MODE=ON \
-                -DENABLE_LUAJIT=ON -S . -B build
-        if: ${{ matrix.LIBLUA == 'luajit-v2.1' }}
+      - name: Running CMake
+        run: >
+          cmake -S . -B build -G Ninja -DENABLE_TESTING=ON
+          -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15
+          ${{ matrix.CMAKEFLAGS }} ${{ matrix.FLAVORFLAGS }}
 
       - name: Building
         run: cmake --build build --parallel $(nproc)
