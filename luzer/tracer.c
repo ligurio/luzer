@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: ISC
  *
- * Copyright 2022-2023, Sergey Bronnikov
+ * Copyright 2022-2025, Sergey Bronnikov
  */
 
 /**

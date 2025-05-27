@@ -1,3 +1,9 @@
+/*
+ * SPDX-License-Identifier: MIT
+ *
+ * Copyright 1994–2025 Lua.org, PUC-Rio.
+ */
+
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
