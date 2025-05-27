@@ -1,3 +1,9 @@
+/*
+ * SPDX-License-Identifier: ISC
+ *
+ * Copyright 2022-2025, Sergey Bronnikov
+ */
+
 #include "macros.h"
 
 NO_SANITIZE const char *

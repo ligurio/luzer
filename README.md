@@ -94,7 +94,7 @@ See [documentation](docs/index.md).
 
 ## License
 
-Copyright © 2022-2023 [Sergey Bronnikov][bronevichok-url].
+Copyright © 2022-2025 [Sergey Bronnikov][bronevichok-url].
 
 Distributed under the ISC License.
 
