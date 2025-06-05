@@ -72,6 +72,7 @@ end
 return {
     Fuzz = Fuzz,
     FuzzedDataProvider = luzer_impl.FuzzedDataProvider,
+    path = luzer_impl.path,
 
     _internal = {
         LLVM_VERSION = luzer_impl._LLVM_VERSION,
