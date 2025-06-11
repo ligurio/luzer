@@ -44,3 +44,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Segmentation fault on tracing Lua source code (#18).
 - Arguments order in `consume_integers()` and `consume_numbers()` (#44).
 - Arguments checking in `Fuzz()` (#41).
+- A memory leak in a Lua-based implementation of `TestOneInput()`.

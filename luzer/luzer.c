@@ -308,6 +308,10 @@ TestOneInput(const uint8_t* data, size_t size) {
 	lua_State *L = get_global_lua_state();
 
 	char *buf = malloc(size + 1 * sizeof(*buf));
+	if (!buf) {
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
 	memcpy(buf, data, size);
 	buf[size] = '\0';
 
@@ -336,6 +340,7 @@ TestOneInput(const uint8_t* data, size_t size) {
 
 	lua_pushlstring(L, buf, size);
 	int rc = luaL_test_one_input(L);
+	free(buf);
 
 	/* Disable debug hook. */
 	LUA_SETHOOK(L, debug_hook, 0, 0);
