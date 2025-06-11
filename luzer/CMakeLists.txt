@@ -1,8 +1,21 @@
-SetFuzzerNoMainLibPath(FUZZER_NO_MAIN_LIBRARY)
+SetHwArchString(ARCH)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(LIBFUZZER_NO_MAIN_LIB_NAME "libclang_rt.fuzzer_no_main-${ARCH}.a")
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(LIBFUZZER_NO_MAIN_LIB_NAME "libclang_rt.fuzzer_no_main_osx.a")
+else()
+  message(FATAL_ERROR "Unsupported system: ${CMAKE_SYSTEM_NAME}")
+endif()
+
+SetClangLibPath("libclang_rt.asan-${ARCH}.a" LIBCLANG_ASAN_LIB)
+SetClangLibPath("libclang_rt.ubsan_standalone-${ARCH}.a" LIBCLANG_UBSAN_LIB)
+SetClangLibPath(${LIBFUZZER_NO_MAIN_LIB_NAME} FUZZER_NO_MAIN_LIBRARY)
+
+include(BuildLibSanitizers)
 
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/version.c
-  ${CMAKE_CURRENT_BINARY_DIR}/version.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/config.c
+  ${CMAKE_CURRENT_BINARY_DIR}/config.c
   @ONLY
 )
 
@@ -11,7 +24,7 @@ set(LUZER_SOURCES luzer.c
                   fuzzed_data_provider.cc
                   tracer.c
                   counters.c
-                  ${CMAKE_CURRENT_BINARY_DIR}/version.c)
+                  ${CMAKE_CURRENT_BINARY_DIR}/config.c)
 
 add_library(luzer_impl SHARED ${LUZER_SOURCES})
 target_include_directories(luzer_impl PRIVATE

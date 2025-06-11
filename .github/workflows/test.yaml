@@ -41,12 +41,12 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup common packages
-        run: sudo apt install -y clang-15 libclang-common-15-dev ${{ matrix.PACKAGES }}
+        run: sudo apt install -y clang-18 libclang-common-18-dev ${{ matrix.PACKAGES }}
 
       - name: Running CMake
         run: >
           cmake -S . -B build -G Ninja -DENABLE_TESTING=ON
-          -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15
+          -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18
           ${{ matrix.CMAKEFLAGS }} ${{ matrix.FLAVORFLAGS }}
 
       - name: Building

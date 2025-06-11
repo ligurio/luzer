@@ -290,8 +290,13 @@ luaL_fuzzed_data_provider(lua_State *L)
 	if (index != 1)
 		luaL_error(L, "Usage: luzer.FuzzedDataProvider(string)");
 
-	const char *data = luaL_checkstring(L, 1);
-	size_t size = strlen(data);
+	/*
+	 * The function `luaL_checklstring()` uses `lua_tolstring()`
+	 * to get its result, the resulting string can contain zeros
+	 * in its body.
+	 */
+	size_t size;
+	const char *data = luaL_checklstring(L, 1, &size);
 
 	lua_userdata_t *lfdp;
 	lfdp = (lua_userdata_t*)lua_newuserdata(L, sizeof(*lfdp));
