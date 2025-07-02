@@ -35,6 +35,7 @@ local function uncompress(comp, n)
 end
 
 local function TestOneInput(buf)
+    buf = buf or io.read("*a")
     local compressed = compress(buf)
     if compressed ~= nil then
         local raw = uncompress(compressed, #buf)

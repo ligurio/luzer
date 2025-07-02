@@ -6,6 +6,18 @@ configure_file(
   @ONLY
 )
 
+set(CFLAGS
+    -D_FORTIFY_SOURCE=2
+    -fpie
+    -fPIC
+    -Wall
+    -Wextra
+    -Werror
+    -Wpedantic
+    -Wno-unused-parameter
+    -pedantic
+)
+
 set(LUZER_SOURCES luzer.c
                   compat.c
                   fuzzed_data_provider.cc
@@ -25,16 +37,8 @@ target_link_libraries(luzer_impl PRIVATE
     ${FUZZER_NO_MAIN_LIBRARY}
 )
 target_compile_options(luzer_impl PRIVATE
-    -D_FORTIFY_SOURCE=2
-    -fpie
-    -fPIC
-    -Wall
-    -Wextra
-    -Werror
-    -Wpedantic
-    -Wno-unused-parameter
-    -pedantic
-    -fsanitize=fuzzer-no-link
+	${CFLAGS}
+	-fsanitize=fuzzer-no-link
 )
 if(LUA_HAS_JIT)
     target_compile_definitions(luzer_impl PUBLIC LUA_HAS_JIT)
@@ -50,6 +54,19 @@ target_include_directories(custom_mutator PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(custom_mutator PRIVATE
   ${LUA_LIBRARIES}
   luzer_impl
+)
+target_compile_options(custom_mutator PRIVATE
+  ${CFLAGS}
+)
+set_target_properties(custom_mutator PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(custom_mutator PROPERTIES SOVERSION 1)
+
+set(AFL_LUA afl-lua)
+add_executable(${AFL_LUA} afl-lua.c)
+target_include_directories(${AFL_LUA} PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(${AFL_LUA} PRIVATE ${LUA_LIBRARIES})
+target_compile_options(${AFL_LUA} PRIVATE
+	${CFLAGS}
 )
 
 if(ENABLE_TESTING)
@@ -72,4 +89,9 @@ install(
 install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/init.lua
   DESTINATION "${CMAKE_LUADIR}/${PROJECT_NAME}"
+)
+
+install(
+  TARGETS ${AFL_LUA}
+  DESTINATION "${CMAKE_BINDIR}/"
 )
