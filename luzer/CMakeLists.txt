@@ -19,6 +19,20 @@ configure_file(
   @ONLY
 )
 
+add_compile_options(
+  -fpie
+  -fPIC
+  -pedantic
+  -Wall
+  -Werror
+  -Wextra
+  -Wno-unused-parameter
+  -Wpedantic
+)
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+  add_compile_options(-D_FORTIFY_SOURCE=2)
+endif()
+
 set(LUZER_SOURCES luzer.c
                   compat.c
                   fuzzed_data_provider.cc
@@ -38,15 +52,6 @@ target_link_libraries(luzer_impl PRIVATE
     ${FUZZER_NO_MAIN_LIBRARY}
 )
 target_compile_options(luzer_impl PRIVATE
-    -D_FORTIFY_SOURCE=2
-    -fpie
-    -fPIC
-    -Wall
-    -Wextra
-    -Werror
-    -Wpedantic
-    -Wno-unused-parameter
-    -pedantic
     -fsanitize=fuzzer-no-link
 )
 if(LUA_HAS_JIT)

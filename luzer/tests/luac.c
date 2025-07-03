@@ -19,7 +19,7 @@ lua_say_hello(lua_State *L) {
 	say_hello(str, len);
 	lua_pop(L, 1);
 	return 0;
-};
+}
 
 static const struct luaL_Reg functions [] = {
 	{ "say_hello", lua_say_hello },

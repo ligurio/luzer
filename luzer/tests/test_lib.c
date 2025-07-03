@@ -13,6 +13,7 @@ say_hello(const char *buf, size_t len) {
 	} else if (mode && strcmp(mode, "NULL_POINTER_DEREF") == 0) {
 		const int *p1 = NULL;
 		int p2 = *p1;
+		(void)p2;
 	}
 	if (strncmp(buf, MESSAGE, len) == 0) {
 		fprintf(stderr, "%s\n", MESSAGE);
