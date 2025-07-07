@@ -51,48 +51,44 @@ about Lua C API in chapter ["24 – An Overview of the C API
 Setup module using `luarocks`:
 
 ```sh
-$ luarocks install --tree modules --lua-version 5.1 lua-cjson CC="clang" CFLAGS="-ggdb -fPIC -fsanitize=address" LDFLAGS="-fsanitize=address"
+CFLAGS="-ggdb -fPIC -fsanitize=address -fsanitize=fuzzer-no-link"
+LDFLAGS="-fsanitize=address"
+$ luarocks install --local --lua-version 5.1 lua-cjson CC="clang" CFLAGS=$CFLAGS LDFLAGS=$LDFLAGS
 
 Installing https://luarocks.org/lua-cjson-2.1.0.6-1.src.rock
 
 lua-cjson 2.1.0.6-1 depends on lua >= 5.1 (5.1-1 provided by VM)
-clang -ggdb -fPIC -fsanitize=address -I/usr/include/lua5.1 -c lua_cjson.c -o lua_cjson.o
-clang -ggdb -fPIC -fsanitize=address -I/usr/include/lua5.1 -c strbuf.c -o strbuf.o
-clang -ggdb -fPIC -fsanitize=address -I/usr/include/lua5.1 -c fpconv.c -o fpconv.o
+clang -ggdb -fPIC -fsanitize=address -fsanitize=fuzzer-no-link -I/usr/include/lua5.1 -c lua_cjson.c -o lua_cjson.o
+clang -ggdb -fPIC -fsanitize=address -fsanitize=fuzzer-no-link -I/usr/include/lua5.1 -c strbuf.c -o strbuf.o
+clang -ggdb -fPIC -fsanitize=address -fsanitize=fuzzer-no-link -I/usr/include/lua5.1 -c fpconv.c -o fpconv.o
 gcc -shared -o cjson.so lua_cjson.o strbuf.o fpconv.o
 No existing manifest. Attempting to rebuild...
 lua-cjson 2.1.0.6-1 is now installed in /home/sergeyb/sources/luzer/build/modules (license: MIT)
 ```
 
-Setup environment and execute test:
-
-```sh
-$ export LUA_PATH="$LUA_PATH;modules/lib/lua/5.1/?.lua"
-$ export LUA_CPATH="$LUA_CPATH;modules/lib/lua/5.1/?.so;./?.so"
-$ mkdir cjson-corpus
-$ echo -n "{}" > cjson-corpus/sample
-$ luajit luzer_example_json.lua
-```
-
-This way could be used for fuzzing Lua runtime. Let's consider a fuzzing
-target: Lear more about function `loadstring()` in chapter [8 – Compilation,
-Execution, and Errors][programming-in-lua-8] of "Programming in Lua" book.
+Create a file `luzer_example_json.lua` with a fuzzing target:
 
 ```lua
 local luzer = require("luzer")
+local json = require("cjson")
 
 local function TestOneInput(buf)
-    assert(loadstring(buf)) ()
+    local text, err = pcall(json.decode, buf)
+    if not err then
+        local encoded = json.encode(text)
+        assert(encoded == buf)
+    end
 end
 
-local args = {
-    max_total_time = 60,
-    print_final_stats = 1,
-}
-luzer.Fuzz(TestOneInput, nil, args)
+luzer.Fuzz(TestOneInput)
 ```
 
-Run fuzzing target with instrumented Lua runtime.
+Setup environment and execute the test:
+
+```sh
+$ eval $(luarocks path)
+$ luajit luzer_example_json.lua
+```
 
 #### Fuzzing a shared library via FFI
 
