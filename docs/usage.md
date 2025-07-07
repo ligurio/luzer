@@ -100,10 +100,19 @@ FFI library allows using `luzer` for fuzzing shared libraries.
 Example `examples/example_zlib.lua` demonstrates a test for ZLib library using
 FFI. For better results it is recommended to build ZLib with sanitizers.
 
+Build Zlib library:
+
+```sh
+git clone https://github.com/madler/zlib
+cd zlib
+CC=clang CFLAGS="-fsanitize=address -fsanitize=fuzzer-no-link" LDFLAGS="-fsanitize=address" cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build/ --parallel
+```
+
 Run fuzzing target:
 
 ```sh
-$ lua examples/example_zlib.lua
+LD_DYNAMIC_WEAK=1 LD_PRELOAD_PATH="./zlib/build/" luajit examples/example_ffi_zlib.lua
 ```
 
 #### Visualizing Code Coverage
