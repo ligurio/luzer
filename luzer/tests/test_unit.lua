@@ -246,6 +246,11 @@ local str2 = "Lua"
 local str = fdp:oneof({str1, str2})
 assert(type(str) == "string" and (str == str1 or str == str2))
 
+-- Check index returned by `oneof()`.
+local idx
+num, idx = fdp:oneof({1, 2, 3, 4, 5})
+assert(num == idx)
+
 local function custom_mutator(data, size, max_size, seed)
     assert(type(data) == "string")
     assert(type(size) == "number")
