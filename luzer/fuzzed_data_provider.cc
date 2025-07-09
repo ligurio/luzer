@@ -229,8 +229,9 @@ luaL_oneof(lua_State *L)
 	int idx = lfdp->fdp->ConsumeIntegralInRange(1, len);
 	lua_pushinteger(L, idx);
 	lua_gettable(L, -2);
+	lua_pushinteger(L, idx);
 
-	return 1;
+	return 2;
 }
 
 NO_SANITIZE static int close(lua_State *L) {

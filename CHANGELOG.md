@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `_VERSION` to a `_LUZER_VERSION`.
 - Use `lua_Number` in FDP methods `consume_number()` and
   `consume_numbers()` instead `double`.
+- Method `oneof()` in FuzzedDataProvider returns an item's index
+  as a second value.
 
 ### Fixed
 
