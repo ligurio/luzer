@@ -79,6 +79,13 @@ target_compile_options(${AFL_LUA} PRIVATE
   ${CFLAGS}
 )
 
+# TODO: install binary
+set(AFL_MUTATOR_NAME luamutator)
+add_library(${AFL_MUTATOR_NAME} SHARED afl_mutator.c)
+target_include_directories(${AFL_MUTATOR_NAME} PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(${AFL_MUTATOR_NAME} PRIVATE ${LUA_LIBRARIES})
+target_compile_options(${AFL_MUTATOR_NAME} PUBLIC -Wall -Wextra -Wno-unused-parameter)
+
 if(ENABLE_TESTING)
   add_subdirectory(tests)
 endif()
