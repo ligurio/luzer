@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: MIT
  *
  * Copyright © 2020, Steven Johnstone
- *             2022-2024, Sergey Bronnikov
+ *             2022-2025, Sergey Bronnikov
  */
 
 #include <assert.h>
@@ -25,9 +25,9 @@
 
 /*
  * We will communicate with the AFL forkserver over two pipes with
- * file descriptors of 198 and 199 (these values are hardcoded by
- * AFL). AFL specifies that the 198 pipe is for reading data from
- * the forkserver, and 199 is for writing to it.
+ * file descriptors equal to 198 and 199 (these values are
+ * hardcoded by AFL). AFL specifies that the 198 pipe is for
+ * reading data from the forkserver, and 199 is for writing to it.
  */
 #define FORKSRV_FD 198
 
@@ -120,13 +120,13 @@ debug_hook(lua_State *L, lua_Debug *ar) {
 int
 main(int argc, const char **argv) {
 	if (argc == 1) {
-		fprintf(stderr, "Missed arguments.\n");
+		fprintf(stderr, "afl-lua: missed arguments.\n");
 		exit(EXIT_FAILURE);
 	}
 
 	int rc = shm_init();
 	if (rc != 0) {
-		fprintf(stderr, "shm_init() failed.\n");
+		fprintf(stderr, "afl-lua: shm_init() failed.\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -134,13 +134,13 @@ main(int argc, const char **argv) {
 
 	const char *script_path = argv[1];
 	if (access(script_path, F_OK) != 0) {
-		fprintf(stderr, "File (%s) does not exist.\n", script_path);
+		fprintf(stderr, "afl-lua: file (%s) does not exist.\n", script_path);
 		exit(EXIT_FAILURE);
 	}
 
 	lua_State *L = luaL_newstate();
 	if (L == NULL) {
-		fprintf(stderr, "Lua initialization failed.\n");
+		fprintf(stderr, "afl-lua: Lua initialization failed.\n");
 		exit(EXIT_FAILURE);
 	}
 	luaL_openlibs(L);
@@ -150,7 +150,7 @@ main(int argc, const char **argv) {
 		rc = luaL_dofile(L, script_path);
 		if (rc != 0) {
 			const char *err_str = lua_tostring(L, 1);
-			fprintf(stderr, "NOFORK luaL_dofile(): %s\n", err_str);
+			fprintf(stderr, "afl-lua: %s\n", err_str);
 			lua_pop(L, 1);
 			exit(EXIT_FAILURE);
 		}
@@ -168,8 +168,8 @@ main(int argc, const char **argv) {
 			rc = luaL_dofile(L, script_path);
 			if (rc != 0) {
 				const char *err_str = lua_tostring(L, 1);
+				fprintf(stderr, "afl-lua: %s\n", err_str);
 				lua_pop(L, 1);
-				fprintf(stderr, "luaL_dofile(): %s\n", err_str);
 				abort();
 			}
 			return EXIT_SUCCESS;
@@ -178,7 +178,7 @@ main(int argc, const char **argv) {
 		int status = 0;
 		rc = wait(&status);
 		if (rc == -1) {
-			fprintf(stderr, "wait() failed.\n");
+			perror("afl-lua");
 			abort();
 		}
 		fork_write(status);

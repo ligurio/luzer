@@ -12,7 +12,6 @@ make_lua_path(LUA_PATH
   ${PROJECT_SOURCE_DIR}/?/?.lua
   ${PROJECT_SOURCE_DIR}/?/init.lua
 )
-# set(LUA_CPATH "\;${PROJECT_BINARY_DIR}/luzer/?.so\;")
 set(AFL_LUA_BIN $<TARGET_FILE:${AFL_LUA}>)
 
 set(AFL_IN_DIR ${CMAKE_CURRENT_BINARY_DIR}/afl_input_dir)
