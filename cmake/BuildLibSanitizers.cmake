@@ -31,28 +31,43 @@ macro(GEN_BUILD_TARGET name libsanitizer_path libfuzzer_path
     DEPENDS copy_libs_${name}
   )
 
+  if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(LINK_COMMAND ${CMAKE_C_COMPILER} -Wl,-force_load,${libfuzzer_name}
+       -Wl,-force_load,${libsanitizer_name} -lstdc++ -lpthread
+       -dynamiclib -o ${sanitizer_dso_name})
+  else()
+    set(LINK_COMMAND ${CMAKE_C_COMPILER} -Wl,--whole-archive ${libfuzzer_name}
+       ${libsanitizer_name} -Wl,--no-whole-archive -lstdc++ -lpthread -ldl
+       -shared -o ${sanitizer_dso_name})
+  endif()
   add_custom_target(build_dso_${name} ALL
     COMMENT "Build sanitizer library ${name}"
-    COMMAND ${CMAKE_C_COMPILER} -Wl,--whole-archive ${libfuzzer_name}
-       ${libsanitizer_name} -Wl,--no-whole-archive -lstdc++ -lpthread -ldl
-       -shared -o ${sanitizer_dso_name}
+    COMMAND ${LINK_COMMAND}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     BYPRODUCTS ${sanitizer_dso_name}
-    DEPENDS strip_lib_${name}
   )
+  if (NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    add_dependencies(build_dso_${name} strip_lib_${name})
+  else()
+    add_dependencies(build_dso_${name} copy_libs_${name})
+  endif()
 endmacro()
 
-list(APPEND LIBCLANG_ASAN_STRIP
-  asan_preinit.cc.o
-  asan_preinit.cpp.o
-)
-list(APPEND LIBCLANG_UBSAN_STRIP
-  ubsan_init_standalone_preinit.cc.o
-  ubsan_init_standalone_preinit.cpp.o
-)
+set(LIBCLANG_ASAN_STRIP "")
+set(LIBCLANG_UBSAN_STRIP "")
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  list(APPEND LIBCLANG_ASAN_STRIP
+    asan_preinit.cc.o
+    asan_preinit.cpp.o
+  )
+  list(APPEND LIBCLANG_UBSAN_STRIP
+    ubsan_init_standalone_preinit.cc.o
+    ubsan_init_standalone_preinit.cpp.o
+  )
+endif()
 
-set(ASAN_DSO "libfuzzer_with_asan.so")
-set(UBSAN_DSO "libfuzzer_with_ubsan.so")
+set(ASAN_DSO "libfuzzer_with_asan${CMAKE_SHARED_LIBRARY_SUFFIX}")
+set(UBSAN_DSO "libfuzzer_with_ubsan${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 GEN_BUILD_TARGET("asan"
   ${LIBCLANG_ASAN_LIB}

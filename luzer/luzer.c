@@ -20,7 +20,11 @@
 #include <libgen.h>
 #include <fcntl.h>
 #include <unistd.h>
+#ifdef __linux__
 #include <linux/limits.h>
+#else
+#include <limits.h>
+#endif
 
 #include "fuzzed_data_provider.h"
 #include "counters.h"
