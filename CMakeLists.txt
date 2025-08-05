@@ -27,7 +27,6 @@ if(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
   set(LUA_FOUND TRUE)
 elseif(ENABLE_LUAJIT)
   find_package(LuaJIT)
-  set(LUA_HAS_JIT ON CACHE INTERNAL "Use LuaJIT library")
   message(STATUS "Found LuaJIT ${LUA_VERSION_STRING}")
   message(STATUS "Found LuaJIT interpreter ${LUA_EXECUTABLE}")
 else()
@@ -40,6 +39,10 @@ endif()
 
 if(NOT LUA_FOUND)
   message(FATAL_ERROR "Lua library is not found")
+endif()
+
+if(ENABLE_LUAJIT)
+  set(LUA_HAS_JIT ON CACHE INTERNAL "Use LuaJIT library")
 endif()
 
 if(LUAJIT_FRIENDLY_MODE AND NOT LUA_HAS_JIT)

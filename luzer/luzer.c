@@ -20,7 +20,11 @@
 #include <libgen.h>
 #include <fcntl.h>
 #include <unistd.h>
+#ifdef __linux__
 #include <linux/limits.h>
+#else
+#include <limits.h>
+#endif
 
 #include "fuzzed_data_provider.h"
 #include "counters.h"
@@ -33,7 +37,11 @@
 
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
 #define CUSTOM_MUTATOR_FUNC "luzer_custom_mutator"
+#ifdef __APPLE__
+#define CUSTOM_MUTATOR_LIB "libcustom_mutator.dylib"
+#else
 #define CUSTOM_MUTATOR_LIB "libcustom_mutator.so"
+#endif /* __APPLE__ */
 #define DEBUG_HOOK_FUNC "luzer_custom_hook"
 
 static lua_State *LL;

@@ -43,7 +43,15 @@ find_package_handle_standard_args(LuaJIT
   FAIL_MESSAGE "${ERROR_MESSAGE}"
 )
 
-find_program(LUAJIT_EXECUTABLE luajit)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  string(JOIN " " LUAJIT_BIN_HINTS
+    /opt/homebrew/bin/
+  )
+endif()
+find_program(LUAJIT_EXECUTABLE
+  NAMES luajit
+  HINTS ${LUAJIT_BIN_HINTS}
+)
 if(NOT EXISTS ${LUAJIT_EXECUTABLE})
   message(WARNING "`luajit` is not found")
 endif()
@@ -58,5 +66,6 @@ unset(LUAJIT_FOUND)
 unset(LUAJIT_LIBRARIES)
 unset(LUAJIT_INCLUDE_DIR)
 unset(LUAJIT_EXECUTABLE)
+unset(LUAJIT_BIN_HINTS)
 
 mark_as_advanced(LUA_INCLUDE_DIR LUA_LIBRARIES)

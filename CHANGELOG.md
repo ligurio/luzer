@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support LuaJIT metrics.
 - Support OSS Fuzz environment (#73).
 - Support for building on Ubuntu 24.04 AArch64 (ARM64).
+- Support for building on macOS ARM64.
 
 ### Changed
 

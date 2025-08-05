@@ -3,6 +3,7 @@ include(MakeLuaPath)
 make_lua_path(LUA_CPATH
   PATHS
   ${PROJECT_BINARY_DIR}/luzer/?${CMAKE_SHARED_LIBRARY_SUFFIX}
+  ${PROJECT_BINARY_DIR}/luzer/tests/?${CMAKE_SHARED_LIBRARY_SUFFIX}
 )
 
 make_lua_path(LUA_PATH
@@ -10,6 +11,18 @@ make_lua_path(LUA_PATH
   ${PROJECT_SOURCE_DIR}/?/?.lua
   ${PROJECT_SOURCE_DIR}/?/init.lua
 )
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  SetClangLibPath("libclang_rt.asan_osx_dynamic.dylib" ASAN_LIBRARY_PATH)
+  # By default, `abort_on_error` is set to 0 on Linux (disabled),
+  # but on macOS it is set to 1 (enabled) by default. When
+  # `abort_on_error` is enabled, the AddressSanitizer calls
+  # `abort()` instead of `_exit()` after printing the error report
+  # and CTest considers such tests to be failed.
+  string(JOIN ":" ASAN_OPTIONS
+    abort_on_error=0
+  )
+endif()
 
 add_test(
   NAME luzer_unit_test
@@ -186,12 +199,17 @@ macro(generate_luac_lib name cflags)
   target_link_libraries(${name} PRIVATE
     ${LUA_LIBRARIES}
     ${FUZZER_NO_MAIN_LIBRARY}
+    -fsanitize=address
     -lstdc++
   )
   set_target_properties(${name} PROPERTIES PREFIX "")
   target_compile_options(${name} PRIVATE
     -fsanitize=fuzzer-no-link
     -DLIB_NAME=${name}
+    # There is an expected overflow in a buffer passed to memset()
+    # in test_lib.c, Clang compiler reports this as an error and
+    # it breaks building. The option below prevents compiler error.
+    -Wno-builtin-memcpy-chk-size
     "${cflags}"
   )
 endmacro()
@@ -207,7 +225,7 @@ macro(generate_luac_test name env_vars pass_regex)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
   set_tests_properties(${name} PROPERTIES
-    ENVIRONMENT "${env_vars}"
+    ENVIRONMENT "${env_vars};DYLD_INSERT_LIBRARIES=${ASAN_LIBRARY_PATH}"
     PASS_REGULAR_EXPRESSION ${pass_regex}
   )
 endmacro()
@@ -238,6 +256,7 @@ string(JOIN ";" TEST_ENVIRONMENT
   LD_PRELOAD=${ASAN_DSO_PATH}
   LIB_NAME=luac_asan
   ERR_INJECTION=HEAP_BUFFER_OVERFLOW
+  ASAN_OPTIONS=${ASAN_OPTIONS}
 )
 generate_luac_test(luzer_luac_asan_heap_buffer_overflow
   "${TEST_ENVIRONMENT}"
@@ -248,6 +267,7 @@ string(JOIN ";" TEST_ENVIRONMENT
   LD_PRELOAD=${ASAN_DSO_PATH}
   LIB_NAME=luac_asan
   ERR_INJECTION=STACK_BUFFER_OVERFLOW
+  ASAN_OPTIONS=${ASAN_OPTIONS}
 )
 generate_luac_test(luzer_luac_asan_stack_buffer_overflow
   "${TEST_ENVIRONMENT}"
@@ -258,6 +278,7 @@ string(JOIN ";" TEST_ENVIRONMENT
   LD_PRELOAD=${ASAN_DSO_PATH}
   LIB_NAME=luac_asan
   ERR_INJECTION=DYNAMIC_STACK_BUFFER_OVERFLOW
+  ASAN_OPTIONS=${ASAN_OPTIONS}
 )
 generate_luac_test(luzer_luac_asan_dynamic_stack_buffer_overflow
   "${TEST_ENVIRONMENT}"
@@ -268,6 +289,7 @@ string(JOIN ";" TEST_ENVIRONMENT
   LD_PRELOAD=${ASAN_DSO_PATH}
   LIB_NAME=luac_asan
   ERR_INJECTION=GLOBAL_BUFFER_OVERFLOW
+  ASAN_OPTIONS=${ASAN_OPTIONS}
 )
 generate_luac_test(luzer_luac_asan_global_buffer_overflow
   "${TEST_ENVIRONMENT}"
@@ -278,6 +300,7 @@ string(JOIN ";" TEST_ENVIRONMENT
   LD_PRELOAD=${ASAN_DSO_PATH}
   LIB_NAME=luac_asan
   ERR_INJECTION=MEMSET_BUFFER_OVERFLOW
+  ASAN_OPTIONS=${ASAN_OPTIONS}
 )
 generate_luac_test(luzer_luac_asan_memset_buffer_overflow
   "${TEST_ENVIRONMENT}"
@@ -288,6 +311,7 @@ string(JOIN ";" TEST_ENVIRONMENT
   LD_PRELOAD=${ASAN_DSO_PATH}
   LIB_NAME=luac_asan
   ERR_INJECTION=MEMCPY_BUFFER_OVERFLOW
+  ASAN_OPTIONS=${ASAN_OPTIONS}
 )
 generate_luac_test(luzer_luac_asan_memcpy_buffer_overflow
   "${TEST_ENVIRONMENT}"
@@ -309,10 +333,15 @@ macro(generate_testlib name cflags)
   target_include_directories(${name} PRIVATE ${LUA_INCLUDE_DIR})
   target_link_libraries(${name} PRIVATE
     ${FUZZER_NO_MAIN_LIBRARY}
+    -fsanitize=address
     -lstdc++
   )
   target_compile_options(${name} PRIVATE
     -fsanitize=fuzzer-no-link
+    # There is an expected overflow in a buffer passed to memset()
+    # in test_lib.c, Clang compiler reports this as an error and
+    # it breaks building. The option below prevents compiler error.
+    -Wno-builtin-memcpy-chk-size
     "${cflags}"
   )
 endmacro()
@@ -329,7 +358,7 @@ macro(generate_ffi_test name env_vars pass_regex)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
   set_tests_properties(${name} PROPERTIES
-    ENVIRONMENT "${env_vars}"
+    ENVIRONMENT "${env_vars};DYLD_INSERT_LIBRARIES=${ASAN_LIBRARY_PATH}"
     PASS_REGULAR_EXPRESSION ${pass_regex}
   )
 endmacro()
@@ -347,11 +376,16 @@ if (LUA_HAS_JIT)
     LD_PRELOAD=${ASAN_DSO_PATH}
     FFI_LIB_NAME=testlib_asan${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
-  # XXX: Memory leak in FDP is expected, should be fixed in [1].
+  # XXX: Memory leak in FDP is expected on Linux, should be fixed
+  # in [1].
   # 1. https://github.com/ligurio/luzer/issues/52
+  set(PASS_PATTERN "LeakSanitizer: detected memory leaks")
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(PASS_PATTERN "Done 10 runs in 0 second")
+  endif()
   generate_ffi_test(luzer_ffi_asan
     "${TEST_ENVIRONMENT}"
-    "LeakSanitizer: detected memory leaks"
+    ${PASS_PATTERN}
   )
   string(JOIN ";" TEST_ENVIRONMENT
     "${TEST_ENV}"
@@ -367,6 +401,7 @@ if (LUA_HAS_JIT)
     LD_PRELOAD=${ASAN_DSO_PATH}
     FFI_LIB_NAME=testlib_asan${CMAKE_SHARED_LIBRARY_SUFFIX}
     ERR_INJECTION=HEAP_BUFFER_OVERFLOW
+    ASAN_OPTIONS=${ASAN_OPTIONS}
   )
   generate_ffi_test(luzer_ffi_asan_heap_overflow
     "${TEST_ENVIRONMENT}"
@@ -377,6 +412,7 @@ if (LUA_HAS_JIT)
     LD_PRELOAD=${UBSAN_DSO_PATH}
     FFI_LIB_NAME=testlib_ubsan${CMAKE_SHARED_LIBRARY_SUFFIX}
     ERR_INJECTION=NULL_POINTER_DEREF
+    ASAN_OPTIONS=${ASAN_OPTIONS}
   )
   generate_ffi_test(luzer_ffi_ubsan_null_pointer_deref
     "${TEST_ENVIRONMENT}"
