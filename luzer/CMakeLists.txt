@@ -38,6 +38,7 @@ set(LUZER_SOURCES luzer.c
                   fuzzed_data_provider.cc
                   tracer.c
                   counters.c
+                  metrics.c
                   ${CMAKE_CURRENT_BINARY_DIR}/config.c)
 
 add_library(luzer_impl SHARED ${LUZER_SOURCES})

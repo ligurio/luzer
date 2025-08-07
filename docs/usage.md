@@ -192,6 +192,42 @@ INFO: seed corpus: files: 10 min: 1b max: 8b total: 29b rss: 44Mb
 Done 11 runs in 0 second(s)
 ```
 
+### LuaJIT Metrics
+
+luzer has support of LuaJIT metrics, at the end of the test luzer
+will print LuaJIT metrics: total number of recorded, aborted,
+exited traces and a number of parsed functions.
+
+An example of output:
+
+```
+ctest -R luzer_luajit_friendly_test -V
+<snipped>
+Done 100 runs in 0 second(s)
+Total number of recorded traces: 12
+Total number of aborted traces: 1
+Total number of exited traces: 19
+Total number of parsed functions: 400
+```
+
+LuaJIT metrics are accounted using LuaJIT hooks that are also used
+by internal LuaJIT tools (see `src/jit`), so custom hooks break
+these tools. By default, LuaJIT metrics are turned on and can be
+disabled by setting the enviroment variable `DISABLE_LUAJIT_METRICS`.
+CMake options `ENABLE_LUAJIT` and `LUAJIT_FRIENDLY_MODE` must be
+enabled in the build for using metrics.
+
+### Environment Variables
+
+This section discusses the environment variables used by luzer to
+expose various functionalities useful for power users or for some
+types of custom fuzzing setups.
+
+`DISABLE_LUAJIT_METRICS`, by default, LuaJIT metrics are turned on
+and can be disabled by setting the enviroment variable
+`DISABLE_LUAJIT_METRICS`. Learn more about the enviroment variable
+in the section [LuaJIT Metrics](#luajit-metrics).
+
 [ffi-library-url]: https://luajit.org/ext_ffi.html
 [programming-in-lua-8]: https://www.lua.org/pil/8.html
 [programming-in-lua-24]: https://www.lua.org/pil/24.html
