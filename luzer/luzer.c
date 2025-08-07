@@ -26,6 +26,7 @@
 #include "counters.h"
 #include "compat.h"
 #include "macros.h"
+#include "metrics.h"
 #include "tracer.h"
 #include "config.h"
 #include "luzer.h"
@@ -294,6 +295,12 @@ luaL_test_one_input(lua_State *L)
 	return rc;
 }
 
+__attribute__((destructor)) static void
+teardown(void)
+{
+	metrics_print();
+}
+
 NO_SANITIZE int
 TestOneInput(const uint8_t* data, size_t size) {
 	const counter_and_pc_table_range alloc = allocate_counters_and_pcs();
@@ -316,6 +323,7 @@ TestOneInput(const uint8_t* data, size_t size) {
 	buf[size] = '\0';
 
 #if defined(LUA_HAS_JIT) && defined(LUAJIT_FRIENDLY_MODE)
+	metrics_enable_luajit_hooks(L);
 	if (jit_status) {
 		if (!luaJIT_setmode(L, 0, LUAJIT_MODE_ON))
 			luaL_error(L, "cannot turn a JIT compiler on");
@@ -325,6 +333,7 @@ TestOneInput(const uint8_t* data, size_t size) {
 		if (!luaJIT_setmode(L, 0, LUAJIT_MODE_OFF))
 			luaL_error(L, "cannot turn a JIT compiler off");
 	}
+	metrics_disable_luajit_hooks(L);
 #endif /* LUA_HAS_JIT && LUAJIT_FRIENDLY_MODE */
 
 	/**
@@ -579,6 +588,9 @@ luaopen_luzer_impl(lua_State *L)
 	lua_rawset(L, -3);
 
 	fdp_metatable_init(L);
+
+	if (!getenv("DISABLE_LUAJIT_METRICS"))
+		metrics_use_luajit_hooks();
 
 	return 1;
 }

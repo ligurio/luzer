@@ -91,6 +91,10 @@ list(APPEND LUAJIT_FRIENDLY_MESSAGES
   "---- TRACE [0-9] stop -> loop"
   "---- TRACE [0-9] start [0-9]/[0-9] test_luajit_friendly.lua:[0-9]+"
   "---- TRACE [0-9] stop -> return"
+  "Total number of recorded traces: [0-9]+"
+  "Total number of aborted traces: [0-9]+"
+  "Total number of exited traces: [0-9]+"
+  "Total number of parsed functions: [0-9]+"
 )
 add_test(
   NAME luzer_luajit_friendly_test
@@ -103,8 +107,22 @@ set_tests_properties(luzer_luajit_friendly_test PROPERTIES
   ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
   PASS_REGULAR_EXPRESSION "${LUAJIT_FRIENDLY_MESSAGES}"
 )
+
+add_test(
+  NAME luzer_luajit_without_metrics_test
+  COMMAND ${LUA_EXECUTABLE} -Ohotloop=1
+          ${CMAKE_CURRENT_SOURCE_DIR}/test_luajit_friendly.lua
+          -runs=100
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_luajit_without_metrics_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH};DISABLE_LUAJIT_METRICS=1"
+  PASS_REGULAR_EXPRESSION "LuaJIT metrics disabled."
+)
+
 if (NOT LUAJIT_FRIENDLY_MODE)
   set_tests_properties(luzer_luajit_friendly_test PROPERTIES DISABLED TRUE)
+  set_tests_properties(luzer_luajit_without_metrics_test PROPERTIES DISABLED TRUE)
 endif()
 
 add_test(
