@@ -90,7 +90,7 @@ install(
   TARGETS luzer_impl
   LIBRARY
   DESTINATION "${CMAKE_LIBDIR}/"
-  RENAME luzer.so
+  RENAME luzer${CMAKE_SHARED_LIBRARY_SUFFIX}
 )
 
 install(
