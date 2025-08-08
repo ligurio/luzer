@@ -9,9 +9,17 @@ endif()
 
 SetClangLibPath("libclang_rt.asan-${ARCH}.a" LIBCLANG_ASAN_LIB)
 SetClangLibPath("libclang_rt.ubsan_standalone-${ARCH}.a" LIBCLANG_UBSAN_LIB)
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  SetClangLibPath("libclang_rt.asan_abi_osx.a" LIBCLANG_ASAN_LIB)
+  SetClangLibPath("libclang_rt.ubsan_minimal_osx.a" LIBCLANG_UBSAN_LIB)
+endif()
+
 SetClangLibPath(${LIBFUZZER_NO_MAIN_LIB_NAME} FUZZER_NO_MAIN_LIBRARY)
 
-include(BuildLibSanitizers)
+# FIXME
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  include(BuildLibSanitizers)
+endif()
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.c
@@ -29,7 +37,9 @@ add_compile_options(
   -Wno-unused-parameter
   -Wpedantic
 )
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+# FIXME
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND
+   NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   add_compile_options(-D_FORTIFY_SOURCE=2)
 endif()
 
@@ -78,7 +88,7 @@ install(
   TARGETS luzer_impl
   LIBRARY
   DESTINATION "${CMAKE_LIBDIR}/"
-  RENAME luzer.so
+  RENAME luzer${CMAKE_SHARED_LIBRARY_SUFFIX}
 )
 
 install(

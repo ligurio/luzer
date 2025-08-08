@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support LuaJIT-friendly mode (#22).
 - Support LuaCov.
 - Support Address and UndefinedBehaviour sanitizers.
+- Support for building on macOS ARM64.
 
 ### Changed
 
