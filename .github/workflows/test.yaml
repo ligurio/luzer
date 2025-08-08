@@ -81,6 +81,10 @@ jobs:
           -DCMAKE_PREFIX_PATH=/opt/homebrew/Cellar/llvm/20.1.8/lib/cmake/llvm/
           ${{ matrix.CMAKEFLAGS }}
 
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
+
       - name: Building
         run: cmake --build build --parallel
 
