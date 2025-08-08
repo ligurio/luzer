@@ -11,6 +11,7 @@
 #ifdef LUA_HAS_JIT
 #include "luajit.h"
 #endif /* LUA_HAS_JIT */
+#include "metrics.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -294,6 +295,13 @@ luaL_test_one_input(lua_State *L)
 	return rc;
 }
 
+__attribute__((destructor))
+static void
+teardown(void)
+{
+	metrics_print();
+}
+
 NO_SANITIZE int
 TestOneInput(const uint8_t* data, size_t size) {
 	const counter_and_pc_table_range alloc = allocate_counters_and_pcs();
@@ -315,7 +323,9 @@ TestOneInput(const uint8_t* data, size_t size) {
 	memcpy(buf, data, size);
 	buf[size] = '\0';
 
+	metrics_increment_num_samples();
 #if defined(LUA_HAS_JIT) && defined(LUAJIT_FRIENDLY_MODE)
+	metrics_enable(L);
 	if (jit_status) {
 		if (!luaJIT_setmode(L, 0, LUAJIT_MODE_ON))
 			luaL_error(L, "cannot turn a JIT compiler on");
@@ -325,6 +335,7 @@ TestOneInput(const uint8_t* data, size_t size) {
 		if (!luaJIT_setmode(L, 0, LUAJIT_MODE_OFF))
 			luaL_error(L, "cannot turn a JIT compiler off");
 	}
+	metrics_disable(L);
 #endif /* LUA_HAS_JIT && LUAJIT_FRIENDLY_MODE */
 
 	/**

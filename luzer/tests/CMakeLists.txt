@@ -91,6 +91,13 @@ list(APPEND LUAJIT_FRIENDLY_MESSAGES
   "---- TRACE [0-9] stop -> loop"
   "---- TRACE [0-9] start [0-9]/[0-9] test_luajit_friendly.lua:[0-9]+"
   "---- TRACE [0-9] stop -> return"
+  "Total number of samples: 100"
+  "Total number of samples with recorded traces: 2 (2.0%)"
+  "Total number of samples with started traces: 2 (2.0%)"
+  "Total number of samples with stopped traces: 2 (2.0%)"
+  "Total number of samples with aborted traces: 0 (0.0%)"
+  "Total number of samples with exited traces: 10 (10.0%)"
+  "Total number of samples with compiled bytecode: 0 (0.0%)"
 )
 add_test(
   NAME luzer_luajit_friendly_test
