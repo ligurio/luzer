@@ -56,8 +56,8 @@ list(APPEND LIBCLANG_UBSAN_STRIP
   ubsan_init_standalone_preinit.cpp.o
 )
 
-set(ASAN_DSO "libfuzzer_with_asan.so")
-set(UBSAN_DSO "libfuzzer_with_ubsan.so")
+set(ASAN_DSO "libfuzzer_with_asan${CMAKE_SHARED_LIBRARY_SUFFIX}")
+set(UBSAN_DSO "libfuzzer_with_ubsan${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 GEN_BUILD_TARGET("asan"
   ${LIBCLANG_ASAN_LIB}
