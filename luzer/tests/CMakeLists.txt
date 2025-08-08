@@ -2,7 +2,7 @@ include(MakeLuaPath)
 
 make_lua_path(LUA_CPATH
   PATHS
-  ${PROJECT_BINARY_DIR}/luzer/?.so
+  ${PROJECT_BINARY_DIR}/luzer/?${CMAKE_SHARED_LIBRARY_SUFFIX}
 )
 
 make_lua_path(LUA_PATH
@@ -329,13 +329,13 @@ list(APPEND TEST_ENV
 )
 if (LUA_HAS_JIT)
   generate_ffi_test(luzer_ffi
-    "${TEST_ENV};FFI_LIB_NAME=testlib.so"
+    "${TEST_ENV};FFI_LIB_NAME=testlib${CMAKE_SHARED_LIBRARY_SUFFIX}"
     "Done 10 runs in 0 second"
   )
   string(JOIN ";" TEST_ENVIRONMENT
     "${TEST_ENV}"
     LD_PRELOAD=${ASAN_DSO_PATH}
-    FFI_LIB_NAME=testlib_asan.so
+    FFI_LIB_NAME=testlib_asan${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
   # XXX: Memory leak in FDP is expected, should be fixed in [1].
   # 1. https://github.com/ligurio/luzer/issues/52
@@ -346,7 +346,7 @@ if (LUA_HAS_JIT)
   string(JOIN ";" TEST_ENVIRONMENT
     "${TEST_ENV}"
     LD_PRELOAD=${UBSAN_DSO_PATH}
-    FFI_LIB_NAME=testlib_ubsan.so
+    FFI_LIB_NAME=testlib_ubsan${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
   generate_ffi_test(luzer_ffi_ubsan
     "${TEST_ENVIRONMENT}"
@@ -355,7 +355,7 @@ if (LUA_HAS_JIT)
   string(JOIN ";" TEST_ENVIRONMENT
     "${TEST_ENV}"
     LD_PRELOAD=${ASAN_DSO_PATH}
-    FFI_LIB_NAME=testlib_asan.so
+    FFI_LIB_NAME=testlib_asan${CMAKE_SHARED_LIBRARY_SUFFIX}
     ERR_INJECTION=HEAP_BUFFER_OVERFLOW
   )
   generate_ffi_test(luzer_ffi_asan_heap_overflow
@@ -365,7 +365,7 @@ if (LUA_HAS_JIT)
   string(JOIN ";" TEST_ENVIRONMENT
     "${TEST_ENV}"
     LD_PRELOAD=${UBSAN_DSO_PATH}
-    FFI_LIB_NAME=testlib_ubsan.so
+    FFI_LIB_NAME=testlib_ubsan${CMAKE_SHARED_LIBRARY_SUFFIX}
     ERR_INJECTION=NULL_POINTER_DEREF
   )
   generate_ffi_test(luzer_ffi_ubsan_null_pointer_deref
