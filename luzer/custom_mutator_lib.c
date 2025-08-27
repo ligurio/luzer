@@ -12,13 +12,8 @@
 
 #include "luzer.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-int luaL_error(lua_State *L, const char *fmt, ...);
-size_t lua_objlen(lua_State *L, int index);
-#ifdef __cplusplus
-} /* extern "C" */
+#if LUA_VERSION_NUM == 501
+#define lua_rawlen(L, i) lua_objlen((L), (i))
 #endif
 
 size_t
@@ -31,7 +26,7 @@ LLVMFuzzerCustomMutator(uint8_t* data, size_t size,
 	lua_pushinteger(L, seed);
 	luaL_mutate(L);
 
-	size_t sz = lua_objlen(L, -1);
+	size_t sz = lua_rawlen(L, -1);
 	if (sz > max_size)
 		luaL_error(L, "The size of mutated data cannot be larger than a max_size.");
 	const char *buf = lua_tostring(L, -1);
