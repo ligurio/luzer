@@ -10,6 +10,8 @@ endif()
 SetClangLibPath("libclang_rt.asan-${ARCH}.a" LIBCLANG_ASAN_LIB)
 SetClangLibPath("libclang_rt.ubsan_standalone-${ARCH}.a" LIBCLANG_UBSAN_LIB)
 SetClangLibPath(${LIBFUZZER_NO_MAIN_LIB_NAME} FUZZER_NO_MAIN_LIBRARY)
+# FIXME
+set(LIBFUZZER_NO_MAIN_LIB_NAME "/usr/lib/llvm-18/lib/clang/18/lib/linux/libclang_rt.fuzzer_no_main-x86_64.a")
 
 include(BuildLibSanitizers)
 
