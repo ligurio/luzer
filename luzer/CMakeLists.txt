@@ -89,6 +89,16 @@ install(
 )
 
 install(
+  FILES ${PROJECT_BINARY_DIR}/luzer/${ASAN_DSO}
+  DESTINATION "${CMAKE_LIBDIR}/"
+)
+
+install(
+  FILES ${PROJECT_BINARY_DIR}/luzer/${UBSAN_DSO}
+  DESTINATION "${CMAKE_LIBDIR}/"
+)
+
+install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/init.lua
   DESTINATION "${CMAKE_LUADIR}/${PROJECT_NAME}"
 )
