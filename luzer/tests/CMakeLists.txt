@@ -190,11 +190,31 @@ generate_luac_test(luzer_luac_ubsan
   "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};LIB_NAME=luac_ubsan"
   "Hello, Lua!"
 )
-generate_luac_test(luzer_luac_asan_failure
-  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=BUFFER_OVERFLOW"
+generate_luac_test(luzer_luac_asan_heap_buffer_overflow
+  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=HEAP_BUFFER_OVERFLOW"
+  "AddressSanitizer: heap-buffer-overflow"
+)
+generate_luac_test(luzer_luac_asan_stack_buffer_overflow
+  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=STACK_BUFFER_OVERFLOW"
+  "AddressSanitizer: stack-buffer-overflow"
+)
+generate_luac_test(luzer_luac_asan_dynamic_stack_buffer_overflow
+  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=DYNAMIC_STACK_BUFFER_OVERFLOW"
   "AddressSanitizer: dynamic-stack-buffer-overflow"
 )
-generate_luac_test(luzer_luac_ubsan_failure
+generate_luac_test(luzer_luac_asan_global_buffer_overflow
+  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=GLOBAL_BUFFER_OVERFLOW"
+  "AddressSanitizer: global-buffer-overflow"
+)
+generate_luac_test(luzer_luac_asan_memset_buffer_overflow
+  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=MEMSET_BUFFER_OVERFLOW"
+  "AddressSanitizer: global-buffer-overflow"
+)
+generate_luac_test(luzer_luac_asan_memcpy_buffer_overflow
+  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=MEMCPY_BUFFER_OVERFLOW"
+  "AddressSanitizer: global-buffer-overflow"
+)
+generate_luac_test(luzer_luac_ubsan_null_pointer_deref
   "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};LIB_NAME=luac_ubsan;ERR_INJECTION=NULL_POINTER_DEREF"
   "runtime error: load of null pointer of type"
 )
@@ -247,11 +267,11 @@ if (LUA_HAS_JIT)
     "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};FFI_LIB_NAME=testlib_ubsan.so"
     "Done 10 runs in 0 second"
   )
-  generate_ffi_test(luzer_ffi_asan_failure
-    "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};FFI_LIB_NAME=testlib_asan.so;ERR_INJECTION=BUFFER_OVERFLOW"
-    "AddressSanitizer: dynamic-stack-buffer-overflow"
+  generate_ffi_test(luzer_ffi_asan_heap_overflow
+    "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};FFI_LIB_NAME=testlib_asan.so;ERR_INJECTION=HEAP_BUFFER_OVERFLOW"
+    "AddressSanitizer: heap-buffer-overflow"
   )
-  generate_ffi_test(luzer_ffi_ubsan_failure
+  generate_ffi_test(luzer_ffi_ubsan_null_pointer_deref
     "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};FFI_LIB_NAME=testlib_ubsan.so;ERR_INJECTION=NULL_POINTER_DEREF"
     "runtime error: load of null pointer of type"
   )
