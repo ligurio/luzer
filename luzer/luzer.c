@@ -520,10 +520,10 @@ luaL_fuzz(lua_State *L)
 
 	lua_pushboolean(L, 1);
 
-	struct sigaction act;
-	act.sa_handler = sig_handler;
-	sigaction(SIGINT, &act, NULL);
-	sigaction(SIGSEGV, &act, NULL);
+	/* struct sigaction act; */
+	/* act.sa_handler = sig_handler; */
+	/* sigaction(SIGINT, &act, NULL); */
+	/* sigaction(SIGSEGV, &act, NULL); */
 
 	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
 	if (lua_isfunction(L, -1) != 1) {
