@@ -29,9 +29,9 @@ add_compile_options(
   -Wno-unused-parameter
   -Wpedantic
 )
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-  add_compile_options(-D_FORTIFY_SOURCE=2)
-endif()
+# if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+#   add_compile_options(-D_FORTIFY_SOURCE=2)
+# endif()
 
 set(LUZER_SOURCES luzer.c
                   compat.c
