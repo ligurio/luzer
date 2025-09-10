@@ -142,9 +142,9 @@ const char *dso_path_lf_ubsan;
 const char *dso_path_libcustom_mutator;
 /* struct paths luzer_paths; */
 
+/*
 NO_SANITIZE static int
 search_module_path(char *so_path, const char *so_name, size_t len) {
-	/* Create a copy, because `strsep()` below mutates a string. */
 	char *lua_cpath = strdup(getenv("LUA_CPATH"));
 	if (!lua_cpath)
 		lua_cpath = "./";
@@ -163,6 +163,7 @@ search_module_path(char *so_path, const char *so_name, size_t len) {
 	}
 	return rc;
 }
+*/
 
 NO_SANITIZE void
 init(void)
@@ -182,6 +183,7 @@ init(void)
         "from this library: %s\n", get_coverage_symbols_location());
 	}
 
+	/*
 	char path[PATH_MAX];
 	int rc = search_module_path(path, CUSTOM_MUTATOR_LIB, PATH_MAX);
 	if (rc) {
@@ -209,19 +211,20 @@ init(void)
 		perror("access");
 
 	free(base_so_path);
+	*/
 }
 
-NO_SANITIZE static void
-sig_handler(int sig)
-{
-	switch (sig) {
-	case SIGINT:
-		exit(0);
-	case SIGSEGV:
-		__sanitizer_print_stack_trace();
-		_exit(139);
-	}
-}
+/* NO_SANITIZE static void */
+/* sig_handler(int sig) */
+/* { */
+/* 	switch (sig) { */
+/* 	case SIGINT: */
+/* 		exit(0); */
+/* 	case SIGSEGV: */
+/* 		__sanitizer_print_stack_trace(); */
+/* 		_exit(139); */
+/* 	} */
+/* } */
 
 /* Returns the current status of the JIT compiler. */
 NO_SANITIZE static int
