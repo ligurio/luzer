@@ -68,7 +68,20 @@ local function Fuzz(test_one_input, custom_mutator, func_args)
     if type(luzer_args) ~= "table" then
         error("args is not a table")
     end
+
     local flags = build_flags(arg, luzer_args)
+
+    -- Lua has the GC-based memory management model, it may
+    -- accumulate memory between the TestOneInput() runs.
+    -- libFuzzer has a flag `detect_leaks`, it is enabled by
+    -- default, when the option is enabled and if LeakSanitizer is
+    -- enabled it tries to detect memory leaks during fuzzing
+    -- (i.e. not only at shut down). The option `detect_leaks` may
+    -- lead to false positives, so it is disabled by default.
+    if flags["detect_leaks"] == nil then
+        flags["detect_leaks"] = 0
+    end
+
     local test_path = arg[0]
     local lua_bin = progname(arg)
     local test_cmd = ("%s %s"):format(lua_bin, test_path)

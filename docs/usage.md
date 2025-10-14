@@ -228,9 +228,33 @@ and can be disabled by setting the enviroment variable
 `DISABLE_LUAJIT_METRICS`. Learn more about the enviroment variable
 in the section [LuaJIT Metrics](#luajit-metrics).
 
+### Memory leaks
+
+When a target application (or a fuzzer) consumes increasing
+amounts of RAM over time without releasing it, it can be a normal
+memory consumption or memory leak is occurring. The common causes
+of memory leak are: unreleased references, improper handling of
+native resources in Lua. If you are encountering a memory leak in
+a target application while using luzer, you may need to use memory
+debugging tools to identify the specific code segment that isn't
+freeing memory.
+
+luzer can encounter false positive memory leaks during testing.
+When fuzzing native extensions, using FDP (FuzzingDataProvider), or
+using FFI memory leak detection (ASan) should be disabled to
+prevent false reports. Set flag `-detect_leaks=0` using enviroment
+variable [`ASAN_OPTIONS`][asan-flags] as it is recommended by
+AddressSanitizer:
+
+```
+SUMMARY: AddressSanitizer: 96 byte(s) leaked in 6 allocation(s).
+INFO: to ignore leaks on libFuzzer side use -detect_leaks=0.
+```
+
 [ffi-library-url]: https://luajit.org/ext_ffi.html
 [programming-in-lua-8]: https://www.lua.org/pil/8.html
 [programming-in-lua-24]: https://www.lua.org/pil/24.html
 [atheris-native-extensions]: https://github.com/google/atheris/blob/master/native_extension_fuzzing.md
 [atheris-native-extensions-video]: https://www.youtube.com/watch?v=oM-7lt43-GA
 [luacov-website]: https://lunarmodules.github.io/luacov/
+[asan-flags]: https://github.com/google/sanitizers/wiki/addresssanitizerflags

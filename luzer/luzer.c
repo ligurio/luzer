@@ -435,6 +435,33 @@ free_argv(int argc, char **argv)
 	free(argv);
 }
 
+NO_SANITIZE static void
+shutdown_lua(void)
+{
+	lua_State *L = get_global_lua_state();
+	luaL_cleanup(L);
+	lua_close(L);
+	set_global_lua_state(NULL);
+}
+
+int atexit_retcode;
+
+NO_SANITIZE void
+atexit_handler(void) {
+	_exit(atexit_retcode);
+}
+
+NO_SANITIZE static void
+graceful_exit(int retcode, bool prevent_crash_report) {
+	if (prevent_crash_report) {
+		/* Disable libFuzzer's atexit(). */
+		atexit_retcode = retcode;
+		atexit(&atexit_handler);
+	}
+	shutdown_lua();
+	exit(retcode);
+}
+
 NO_SANITIZE static int
 luaL_fuzz(lua_State *L)
 {
@@ -534,14 +561,8 @@ luaL_fuzz(lua_State *L)
 	jit_status = luajit_has_enabled_jit(L);
 #endif
 	set_global_lua_state(L);
-	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
-
-	free_argv(argc, argv);
-	luaL_cleanup(L);
-
-	lua_pushnumber(L, rc);
-
-	return 1;
+	graceful_exit(LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput), true);
+	return 0;
 }
 
 static const struct luaL_Reg Module[] = {
