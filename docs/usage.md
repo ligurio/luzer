@@ -228,6 +228,25 @@ and can be disabled by setting the enviroment variable
 `DISABLE_LUAJIT_METRICS`. Learn more about the enviroment variable
 in the section [LuaJIT Metrics](#luajit-metrics).
 
+### Memory leaks
+
+When a target application (or a fuzzer) consumes increasing
+amounts of RAM over time without releasing it, it can be a normal
+memory consumption or memory leak is occurring. The common causes
+of memory leak are: unreleased references, improper handling of
+native resources in Lua. If you are encountering a memory leak in
+a target application while using luzer, you may need to use memory
+debugging tools to identify the specific code segment that isn't
+freeing memory.
+
+luzer can encounter false positive memory leaks during testing.
+Lua uses the GC-based memory management model and objects may
+accumulate memory between `TestOneInput()` runs. Because of that,
+libFuzzer's [leak detection][libfuzzer-options] is disabled by default
+(`detect_leaks=0`). The option postpones the leak check until the end
+of the fuzzing process.
+
+[libfuzzer-options]: https://llvm.org/docs/LibFuzzer.html#options
 [ffi-library-url]: https://luajit.org/ext_ffi.html
 [programming-in-lua-8]: https://www.lua.org/pil/8.html
 [programming-in-lua-24]: https://www.lua.org/pil/24.html

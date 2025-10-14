@@ -376,16 +376,14 @@ if (LUA_HAS_JIT)
     LD_PRELOAD=${ASAN_DSO_PATH}
     FFI_LIB_NAME=testlib_asan${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
-  # XXX: Memory leak in FDP is expected on Linux, should be fixed
-  # in [1].
-  # 1. https://github.com/ligurio/luzer/issues/52
-  set(PASS_PATTERN "LeakSanitizer: detected memory leaks")
-  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(PASS_PATTERN "Done 10 runs in 0 second")
-  endif()
   generate_ffi_test(luzer_ffi_asan
     "${TEST_ENVIRONMENT}"
-    ${PASS_PATTERN}
+    "Done 10 runs in 0 second"
+  )
+  # The FuzzedDataProvider userdata is released on shutdown, so the
+  # test should not report a memory leak (issue #52).
+  set_tests_properties(luzer_ffi_asan PROPERTIES
+    FAIL_REGULAR_EXPRESSION "LeakSanitizer"
   )
   string(JOIN ";" TEST_ENVIRONMENT
     "${TEST_ENV}"
@@ -438,5 +436,48 @@ if (LUA_HAS_JIT)
     ENVIRONMENT "${TEST_ENVIRONMENT}"
     PASS_REGULAR_EXPRESSION "Done 100 runs in [0-9]+ second"
     FAIL_REGULAR_EXPRESSION "LeakSanitizer"
+  )
+
+  # FuzzedDataProvider leak test (issue #52). The FuzzedDataProvider
+  # userdata is released on shutdown, so the test should not report a
+  # memory leak. The test is LuaJIT-only: under PUC Lua the uncollected
+  # userdata stays reachable from the Lua state and LeakSanitizer does
+  # not report it.
+  add_test(
+    NAME luzer_leak_fdp
+    COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_leak_fdp.lua
+            -runs=100
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
+  set_tests_properties(luzer_leak_fdp PROPERTIES
+    ENVIRONMENT "${TEST_ENVIRONMENT}"
+    PASS_REGULAR_EXPRESSION "Done 100 runs in [0-9]+ second"
+    FAIL_REGULAR_EXPRESSION "LeakSanitizer"
+  )
+endif()
+
+# FuzzedDataProvider leak test (issue #52).
+string(JOIN ";" TEST_ENVIRONMENT
+  "${TEST_ENV}"
+  LD_PRELOAD=${ASAN_DSO_PATH}
+)
+
+# A real leak in a Lua target should be reported as out-of-memory,
+# because libFuzzer's per-mutation leak detection is disabled by
+# default (issue #52). The per-mutation detection is observable only
+# where libFuzzer tracks the Lua allocator (PUC Lua): LuaJIT uses its
+# own allocator, so on LuaJIT the option is guarded by the
+# FuzzedDataProvider leak test instead.
+if(NOT LUA_HAS_JIT)
+  add_test(
+    NAME luzer_leak_memory_test
+    COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/leak_memory.lua
+            -rss_limit_mb=500
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
+  set_tests_properties(luzer_leak_memory_test PROPERTIES
+    ENVIRONMENT "${TEST_ENVIRONMENT}"
+    PASS_REGULAR_EXPRESSION "ERROR: libFuzzer: out-of-memory"
+    FAIL_REGULAR_EXPRESSION "libFuzzer disabled leak detection after every mutation"
   )
 endif()

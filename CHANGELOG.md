@@ -64,3 +64,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A possible corruption on copying library (#91).
 - A crash due to incorrect use of signal handler (#40).
 - Memory leak in LuaJIT (#85).
+- Memory leak in FuzzedDataProvider (#52).
