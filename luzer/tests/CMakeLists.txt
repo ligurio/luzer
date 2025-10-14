@@ -237,11 +237,9 @@ if (LUA_HAS_JIT)
     "${TEST_ENV};FFI_LIB_NAME=testlib.so"
     "Done 10 runs in 0 second"
   )
-  # XXX: Memory leak in FDP is expected, should be fixed in [1].
-  # 1. https://github.com/ligurio/luzer/issues/52
   generate_ffi_test(luzer_ffi_asan
     "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};FFI_LIB_NAME=testlib_asan.so"
-    "LeakSanitizer: detected memory leaks"
+    "Done 10 runs in 0 second"
   )
   generate_ffi_test(luzer_ffi_ubsan
     "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};FFI_LIB_NAME=testlib_ubsan.so"
