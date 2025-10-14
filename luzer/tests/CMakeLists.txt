@@ -418,4 +418,25 @@ if (LUA_HAS_JIT)
     "${TEST_ENVIRONMENT}"
     "runtime error: load of null pointer of type"
   )
+  # LuaJIT allocates memory for a JIT compiler state (in particular, an
+  # IR buffer) when a trace is being recorded. The memory is not released
+  # between TestOneInput() calls and can be reported by LeakSanitizer as
+  # a memory leak, see [1].
+  # 1. https://github.com/ligurio/luzer/issues/85
+  string(JOIN ";" TEST_ENVIRONMENT
+    "${TEST_ENV}"
+    LD_PRELOAD=${ASAN_DSO_PATH}
+  )
+  add_test(
+    NAME luzer_luajit_memleak_test
+    COMMAND ${LUA_EXECUTABLE} -Ohotloop=1
+            ${CMAKE_CURRENT_SOURCE_DIR}/test_luajit_memleak.lua
+            -runs=100
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
+  set_tests_properties(luzer_luajit_memleak_test PROPERTIES
+    ENVIRONMENT "${TEST_ENVIRONMENT}"
+    PASS_REGULAR_EXPRESSION "Done 100 runs in [0-9]+ second"
+    FAIL_REGULAR_EXPRESSION "LeakSanitizer"
+  )
 endif()
