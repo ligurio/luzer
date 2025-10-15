@@ -1,5 +1,8 @@
 include(MakeLuaPath)
 
+set(ASAN_DSO_PATH ${PROJECT_BINARY_DIR}/luzer/${ASAN_DSO})
+set(UBSAN_DSO_PATH ${PROJECT_BINARY_DIR}/luzer/${UBSAN_DSO})
+
 make_lua_path(LUA_CPATH
   PATHS
   ${PROJECT_BINARY_DIR}/luzer/?.so
@@ -137,6 +140,21 @@ set_tests_properties(luzer_hook_test PROPERTIES
   PASS_REGULAR_EXPRESSION "test_hook.lua:19"
 )
 
+list(APPEND TEST_ENV
+  "LUA_CPATH=${LUA_CPATH}"
+  "LUA_PATH=${LUA_PATH}"
+  "LD_PRELOAD=${ASAN_DSO_PATH}"
+)
+add_test(
+  NAME luzer_bad_dict_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_3.lua
+          -dict=${CMAKE_CURRENT_SOURCE_DIR}/bad.dict
+)
+set_tests_properties(luzer_bad_dict_test PROPERTIES
+  ENVIRONMENT "${TEST_ENV}"
+  PASS_REGULAR_EXPRESSION "ParseDictionaryFile"
+)
+
 macro(generate_luac_lib name cflags)
   add_library(${name} SHARED luac.c test_lib.c)
   target_include_directories(${name} PRIVATE ${LUA_INCLUDE_DIR})
@@ -173,10 +191,6 @@ list(APPEND TEST_ENV
   "LUA_CPATH=${LUA_CPATH};"
   "LUA_PATH=${LUA_PATH};"
 )
-
-set(ASAN_DSO_PATH ${PROJECT_BINARY_DIR}/luzer/${ASAN_DSO})
-set(UBSAN_DSO_PATH ${PROJECT_BINARY_DIR}/luzer/${UBSAN_DSO})
-set(UBSAN_CXX_DSO_PATH ${PROJECT_BINARY_DIR}/luzer/${UBSAN_CXX_DSO})
 
 generate_luac_test(luzer_luac
   "${TEST_ENV};LIB_NAME=luac"
