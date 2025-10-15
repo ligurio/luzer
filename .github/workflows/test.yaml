@@ -40,6 +40,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Disable processing triggers for man-db
+        run: sudo apt-get remove --purge man-db
+
       - name: Setup common packages
         run: sudo apt install -y clang-15 libclang-common-15-dev ${{ matrix.PACKAGES }}
 
