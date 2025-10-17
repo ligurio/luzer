@@ -84,8 +84,8 @@ the code coverage the existing corpus already provides.
 
 See tests that uses luzer library in:
 
-- Tarantool Lua API tests, https://github.com/ligurio/tarantool-lua-api-tests
-- Lua standard library tests, https://github.com/ligurio/lua-stdlib-tests
+- Tarantool Lua API tests, https://github.com/tarantool/tarantool/tree/master/test/fuzz/lua
+- Lua standard library tests, https://github.com/ligurio/lua-c-api-tests/tree/master/tests/lapi
 - https://github.com/ligurio/snippets/tree/master/luzer-tests
 
 ## Documentation
