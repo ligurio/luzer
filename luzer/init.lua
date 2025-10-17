@@ -62,10 +62,14 @@ local function Fuzz(test_one_input, custom_mutator, func_args)
     if type(luzer_args) ~= "table" then
         error("args is not a table")
     end
-    local flags = build_flags(arg, luzer_args)
-    local test_path = arg[0]
-    local lua_bin = progname(arg)
-    local test_cmd = ("%s %s"):format(lua_bin, test_path)
+    local flags = {}
+    local test_cmd = ""
+    if arg ~= nil then
+        flags = build_flags(arg, luzer_args)
+        local test_path = arg[0]
+        local lua_bin = progname(arg)
+        test_cmd = ("%s %s"):format(lua_bin, test_path)
+    end
     luzer_impl.Fuzz(test_one_input, custom_mutator, flags, test_cmd)
 end
 

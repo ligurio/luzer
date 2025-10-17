@@ -48,6 +48,8 @@ find_package(LLVM REQUIRED CONFIG)
 
 message(STATUS "Found LLVM ${LLVM_VERSION}")
 
+string(RANDOM LENGTH 9 ALPHABET 0123456789 RANDOM_SEED)
+
 if(${LLVM_PACKAGE_VERSION} VERSION_LESS 5.0.0)
   message(FATAL_ERROR "LLVM 5.0.0 or newer is required")
 endif()

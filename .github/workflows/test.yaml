@@ -44,7 +44,7 @@ jobs:
         run: sudo apt-get remove --purge man-db
 
       - name: Setup common packages
-        run: sudo apt install -y clang-15 libclang-common-15-dev ${{ matrix.PACKAGES }}
+        run: sudo apt install -y clang-15 libclang-common-15-dev afl++ ${{ matrix.PACKAGES }}
 
       - name: Running CMake
         run: >

@@ -17,27 +17,32 @@ valuable for finding security exploits and vulnerabilities.
 
 `luzer` is a coverage-guided Lua fuzzing engine. It supports fuzzing of Lua
 code, but also C extensions written for Lua. Luzer is based off of
-[libFuzzer][libfuzzer-url]. When fuzzing native code, `luzer` can be used in
-combination with Address Sanitizer or Undefined Behavior Sanitizer to catch
-extra bugs.
+[libFuzzer][libfuzzer-url] and [AFL][AFL-url]. When fuzzing native code,
+`luzer` can be used in combination with Address Sanitizer or Undefined Behavior
+Sanitizer to catch extra bugs.
 
 ## Quickstart
 
 To use luzer in your own project follow these few simple steps:
 
-1. Setup `luzer` module:
+1. Setup `luzer` module and dependencies:
 
 ```sh
 $ luarocks --local install luzer
 $ eval $(luarocks path)
+$ export PATH=$PATH:$(luarocks path --lr-bin).
 ```
 
-2. Create a fuzz target invoking your code:
+For using AFL engine install `afl++` binary package: `sudo apt install -y
+afl++`.
+
+2. Create a Lua file `example.lua` with a fuzz target invoking your code:
 
 ```lua
 local luzer = require("luzer")
 
 local function TestOneInput(buf)
+    local buf = buf or io.read("*a")
     local b = {}
     buf:gsub(".", function(c) table.insert(b, c) end)
     if b[1] == 'c' then
@@ -56,7 +61,22 @@ end
 luzer.Fuzz(TestOneInput)
 ```
 
-3. Start the fuzzer using the fuzz target
+Make sure Lua script has failed when string "crash" is passed to `stdin`:
+
+```sh
+$ echo "crash" | luajit example.lua
+lua: example.lua:8: assertion failed!
+stack traceback:
+        [C]: in function 'assert'
+        example.lua:8: in function 'fuzz'
+        example.lua:14: in main chunk
+        [C]: in ?
+```
+
+3. Start the fuzzing test:
+
+Running a Lua runtime with created Lua file will start fuzzing using libFuzzer
+engine:
 
 ```
 $ luajit examples/example_basic.lua
@@ -82,6 +102,14 @@ To gather baseline coverage, the fuzzing engine executes both the seed corpus
 and the generated corpus, to ensure that no errors occurred and to understand
 the code coverage the existing corpus already provides.
 
+Alternatively, one can start fuzzing using AFL engine:
+
+```sh
+$ mkdir -p {in,out}
+$ echo -n "\0" > in/sample
+$ __AFL_SHM_ID=$RANDOM afl-fuzz -D -i in/ -o out/ afl-lua examples/example_basic.lua
+```
+
 See tests that uses luzer library in:
 
 - Tarantool Lua API tests, https://github.com/ligurio/tarantool-lua-api-tests
@@ -95,8 +123,9 @@ See [documentation](docs/index.md).
 ## License
 
 Copyright © 2022-2025 [Sergey Bronnikov][bronevichok-url].
-
 Distributed under the ISC License.
+See full Copyright Notice in the LICENSE file.
 
 [libfuzzer-url]: https://llvm.org/docs/LibFuzzer.html
+[AFL-url]: https://aflplus.plus/
 [bronevichok-url]: https://bronevichok.ru/
