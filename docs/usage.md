@@ -115,7 +115,7 @@ Run fuzzing target:
 LD_DYNAMIC_WEAK=1 LD_PRELOAD_PATH="./zlib/build/" luajit examples/example_ffi_zlib.lua
 ```
 
-#### Visualizing Code Coverage
+### Visualizing Code Coverage
 
 Examining which lines are executed is helpful for understanding
 the effectiveness of your fuzzer. `luzer` is compatible with
