@@ -2,9 +2,9 @@
 
 ### Fuzzing targets
 
-In general, `luzer` has an ability to write fuzzing tests for a Lua functions.
-However, steps may depend on implementation of function under test. Let's
-consider a three cases:
+In general, `luzer` has an ability to write fuzzing tests for Lua functions.
+However, steps may depend on the implementation of the function under test.
+Consider three cases:
 
 - Fuzzing a Lua function implemented in Lua
 - Fuzzing a Lua function implemented in Lua C
@@ -12,10 +12,10 @@ consider a three cases:
 
 #### Fuzzing a module written in Lua
 
-Let's create a fuzzing test for a parser of Lua source code used in `luacheck`
+Let's create a fuzzing test for a parser of Lua source code used in the `luacheck`
 module.
 
-Setup a target module using `luarocks`:
+Set up a target module using `luarocks`:
 
 ```sh
 $ luarocks install --local luacheck
@@ -43,12 +43,12 @@ $ lua luacheck_parser_parse.lua
 
 #### Fuzzing a function implemented in Lua C
 
-Lua functions could be implemented using so called Lua C API. Functions built
-in Lua runtime, external modules written in C/C++ are such examples. Learn more
-about Lua C API in chapter ["24 – An Overview of the C API
-"][programming-in-lua-24] of "Programming in Lua" book.
+Lua functions could be implemented using the so-called Lua C API. Functions built
+in the Lua runtime, external modules written in C/C++ are such examples. Learn more
+about the Lua C API in chapter ["24 – An Overview of the C API"][programming-in-lua-24]
+of the "Programming in Lua" book.
 
-Setup module using `luarocks`:
+Set up the module using `luarocks`:
 
 ```sh
 CFLAGS="-ggdb -fPIC -fsanitize=address -fsanitize=fuzzer-no-link"
@@ -83,7 +83,7 @@ end
 luzer.Fuzz(TestOneInput)
 ```
 
-Setup environment and execute the test:
+Set up the environment and execute the test:
 
 ```sh
 $ eval $(luarocks path)
@@ -92,12 +92,12 @@ $ luajit luzer_example_json.lua
 
 #### Fuzzing a shared library via FFI
 
-Lua has a FFI library that allows seamless integration with C/C++ libraries.
-LuaJIT has a builtin [FFI library][ffi-library-url], that allows calling
+Lua has an FFI library that allows seamless integration with C/C++ libraries.
+LuaJIT has a built-in [FFI library][ffi-library-url] that allows calling
 external C functions and using C data structures from pure Lua code.
-FFI library allows using `luzer` for fuzzing shared libraries.
+The FFI library allows using `luzer` for fuzzing shared libraries.
 
-Example `examples/example_zlib.lua` demonstrates a test for ZLib library using
+Example `examples/example_zlib.lua` demonstrates a test for the ZLib library using
 FFI. For better results it is recommended to build ZLib with sanitizers.
 
 Build Zlib library:
@@ -168,14 +168,14 @@ examples/example_basic.lua 5    10     33.33%
 Total                      5    10     33.33%
 ```
 
-Beware, code coverage reports are only generated when option
-`-runs=1` and a path to a non-empty directory with corpus are
-specified. The option `-runs=1` is required because Lua debug hook
+Beware, code coverage reports are only generated when the option
+`-runs=1` and a path to a non-empty directory with a corpus are
+specified. The option `-runs=1` is required because of the Lua debug hook
 needed by LuaCov is also used for code instrumentation. In Lua
 only one hook can be enabled at the same time, so we disable our
 own hook for instrumentation when `-runs=1` is specified to allow
-LuaCov work. The message "Lua debug hook is disabled" is printed,
-when hook for Lua code instrumentation is disabled:
+LuaCov work. The message "Lua debug hook is disabled" is printed
+when the hook for Lua code instrumentation is disabled:
 
 ```
 $ lua -lluacov examples/example_basic.lua -runs=1 corpus_dir/
