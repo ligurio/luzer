@@ -314,20 +314,12 @@ TestOneInput(const uint8_t* data, size_t size) {
 
 	lua_State *L = get_global_lua_state();
 
-	char *buf = malloc(size + 1 * sizeof(*buf));
-	if (!buf) {
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
-	memcpy(buf, data, size);
-	buf[size] = '\0';
-
 #if defined(LUA_HAS_JIT) && defined(LUAJIT_FRIENDLY_MODE)
 	metrics_enable_luajit_hooks(L);
 	if (jit_status) {
 		if (!luaJIT_setmode(L, 0, LUAJIT_MODE_ON))
 			luaL_error(L, "cannot turn a JIT compiler on");
-		lua_pushlstring(L, buf, size);
+		lua_pushlstring(L, (const char *)data, size);
 		/* Returned value is not handled. */
 		luaL_test_one_input(L);
 		if (!luaJIT_setmode(L, 0, LUAJIT_MODE_OFF))
@@ -347,9 +339,8 @@ TestOneInput(const uint8_t* data, size_t size) {
 	 */
 	LUA_SETHOOK(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
 
-	lua_pushlstring(L, buf, size);
+	lua_pushlstring(L, (const char *)data, size);
 	int rc = luaL_test_one_input(L);
-	free(buf);
 
 	/* Disable debug hook. */
 	LUA_SETHOOK(L, debug_hook, 0, 0);
