@@ -70,8 +70,7 @@ local function Fuzz(test_one_input, custom_mutator, func_args)
     end
     local flags = {}
     local test_cmd = ""
-    -- XXX: Replace `os.getenv()` with `luzer_impl._afl_mode`.
-    if not os.getenv("AFL_LUA_IS_RUNNING") then
+    if not luzer_impl._afl_mode then
         flags = build_flags(arg, luzer_args)
         local test_path = arg[0]
         local lua_bin = progname(arg)

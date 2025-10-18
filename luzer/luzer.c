@@ -605,6 +605,10 @@ luaopen_luzer_impl(lua_State *L)
 	lua_pushstring(L, LUA_RELEASE);
 	lua_rawset(L, -3);
 
+	lua_pushliteral(L, "_afl_mode");
+	lua_pushboolean(L, is_afl_running());
+	lua_rawset(L, -3);
+
 	lua_pushliteral(L, "path");
 	luaL_path(L);
 	lua_rawset(L, -3);

@@ -11,6 +11,6 @@ int
 is_afl_running(void)
 {
 	if (getenv(AFL_LUA_ENV))
-		return 0;
-	return -1;
+		return 1;
+	return 0;
 }
