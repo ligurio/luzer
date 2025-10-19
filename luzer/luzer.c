@@ -345,6 +345,8 @@ TestOneInput(const uint8_t* data, size_t size) {
 	/* Disable debug hook. */
 	LUA_SETHOOK(L, debug_hook, 0, 0);
 
+	lua_gc(L, LUA_GCCOLLECT, 0);
+
 	return rc;
 }
 
@@ -435,6 +437,66 @@ free_argv(int argc, char **argv)
 	for (int i = 0; i < argc; i++)
 		free(argv[i]);
 	free(argv);
+}
+
+NO_SANITIZE static int
+os_exit(int exit_code) {
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
+	lua_getglobal(L, "os");
+	if (!lua_istable(L, -1)) {
+		fprintf(stderr, "Error: 'os' table not found.\n");
+		lua_close(L);
+		return 1;
+	}
+
+	lua_getfield(L, -1, "exit");
+	if (!lua_isfunction(L, -1)) {
+		fprintf(stderr, "Error: 'os.exit' function not found.\n");
+		lua_close(L);
+		return 1;
+	}
+
+	// Remove the 'os' table from the stack, leaving only 'os.exit'
+	lua_remove(L, -2);
+	// Optional: Push an exit code argument (e.g., 1 for error)
+	lua_pushinteger(L, exit_code);
+	lua_pushboolean(L, 1);
+	lua_call(L, 1, 0);
+
+	// This part will only be reached if os.exit somehow fails
+	// or doesn't exit the process.
+	lua_close(L);
+	return 0;
+}
+
+NO_SANITIZE static void
+shutdown_lua(void)
+{
+	lua_State *L = get_global_lua_state();
+	lua_gc(L, LUA_GCCOLLECT, 0);
+	luaL_cleanup(L);
+	lua_close(L);
+	set_global_lua_state(NULL);
+}
+
+int atexit_retcode;
+
+NO_SANITIZE void
+xxx(void) {
+	_exit(atexit_retcode);
+}
+
+NO_SANITIZE static void
+graceful_exit(int retcode, bool prevent_crash_report) {
+	prevent_crash_report = true;
+	if (prevent_crash_report) {
+		// Disable libfuzzer's atexit.
+		atexit_retcode = retcode;
+		atexit(&xxx);
+	}
+	shutdown_lua();
+	os_exit(retcode);
 }
 
 NO_SANITIZE static int
@@ -534,14 +596,9 @@ luaL_fuzz(lua_State *L)
 
 	jit_status = luajit_has_enabled_jit(L);
 	set_global_lua_state(L);
-	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
+	graceful_exit(LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput), true);
 
-	free_argv(argc, argv);
-	luaL_cleanup(L);
-
-	lua_pushnumber(L, rc);
-
-	return 1;
+	return 0;
 }
 
 static const struct luaL_Reg Module[] = {
