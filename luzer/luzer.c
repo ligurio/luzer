@@ -304,6 +304,7 @@ teardown(void)
 
 NO_SANITIZE int
 TestOneInput(const uint8_t* data, size_t size) {
+	/* XXX: Use is_afl_running(). */
 	const counter_and_pc_table_range alloc = allocate_counters_and_pcs();
 	if (alloc.counters_start && alloc.counters_end) {
 		__sanitizer_cov_8bit_counters_init(alloc.counters_start,
@@ -536,37 +537,16 @@ luaL_fuzz(lua_State *L)
 	jit_status = luajit_has_enabled_jit(L);
 	set_global_lua_state(L);
 	int rc = 0;
-	if (is_afl_running() == 0) {
-		/**
-		 * Enable debug hook.
-		 *
-		 * Hook is called when the Lua interpreter calls a function
-		 * and when the interpreter is about to start the execution
-		 * of a new line of code, or when it jumps back in the code
-		 * (even to the same line).
-		 * https://www.lua.org/pil/23.2.html
-		 */
-		LUA_SETHOOK(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
-
-		/* char *data = calloc(BUFSIZ + 1, sizeof(char)); */
-		/* 8192 */
-		char buf[BUFSIZ];
-		while(fgets(buf, sizeof(buf), stdin) != NULL ) {
-			/* data = realloc(data, strlen(data) + 1 + strlen(data)); */
-			/* if(!buf) */
-			/* 	return 0; */
-			/* fprintf(stderr, "%s\n", buf); */
-		}
-
-		lua_pushlstring(L, buf, BUFSIZ);
-		rc = luaL_test_one_input(L);
-		/* free(data); */
-
-		/* Disable debug hook. */
-		LUA_SETHOOK(L, debug_hook, 0, 0);
-		return rc;
+	if (is_afl_running()) {
+		/* AFL writes generated data to stdin (standard input). */
+		char buf[AFL_LUA_MAXINPUT];
+		const char *res = fgets(buf, AFL_LUA_MAXINPUT, stdin);
+		if (!res)
+			return 0;
+		rc = TestOneInput((const uint8_t *)&buf, AFL_LUA_MAXINPUT);
+	} else {
+		rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 	}
-	rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 	free_argv(argc, argv);
 	luaL_cleanup(L);
 

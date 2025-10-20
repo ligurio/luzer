@@ -344,14 +344,29 @@ list(APPEND TEST_ENV
 add_test(
   NAME luzer_e2e_test_afl
   COMMAND ${AFL_FUZZ_BIN} -D -i ${AFL_IN_DIR}
-          -o ${AFL_OUT_DIR} ${AFL_LUA_BIN}
-          "${CMAKE_CURRENT_SOURCE_DIR}/test_e2e.lua"
+    -o ${AFL_OUT_DIR} ${AFL_LUA_BIN}
+    "${CMAKE_CURRENT_SOURCE_DIR}/test_e2e.lua"
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 set_tests_properties(luzer_e2e_test_afl PROPERTIES
   ENVIRONMENT "${TEST_ENV}"
   PASS_REGULAR_EXPRESSION "assert has triggered"
 )
+add_test(
+  NAME luzer_e2e_test_afl_nofork
+  COMMAND ${AFL_FUZZ_BIN} -D -i ${AFL_IN_DIR}
+    -o ${AFL_OUT_DIR} ${AFL_LUA_BIN}
+    "${CMAKE_CURRENT_SOURCE_DIR}/test_e2e.lua"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_e2e_test_afl_nofork PROPERTIES
+  ENVIRONMENT "${TEST_ENV};NOFORK=1"
+  PASS_REGULAR_EXPRESSION "assert has triggered"
+)
 if(${AFL_FUZZ_BIN} STREQUAL "AFL_FUZZ_BIN-NOTFOUND")
-  set_tests_properties(luzer_e2e_test_afl PROPERTIES DISABLED TRUE)
+  set_tests_properties(
+    luzer_e2e_test_afl
+    luzer_e2e_test_afl_nofork
+    PROPERTIES DISABLED TRUE
+  )
 endif()

@@ -14,10 +14,12 @@ Function accepts following arguments:
   invoked with a single string container.
 - `custom_mutator` (optional) defines a custom mutator function
   (equivalent to `LLVMFuzzerCustomMutator`). Default is `nil`.
+  Note, the custom mutator is not supported when AFL engine is used.
 - `args` (optional) is a table with arguments: the process arguments to pass to the
   fuzzer. Field `corpus` specifies a path to a directory with seed corpus, see a
   list with other options in the [libFuzzer documentation][libfuzzer-options-url].
-  Default is an empty table.
+  Default is an empty table. Note, arguments specified in the
+  `args` table are ignored when AFL engine is used.
 
 It may be desirable to reject some inputs, i.e. to not add them to the corpus.
 For example, when fuzzing an API consisting of parsing and other logic, one may

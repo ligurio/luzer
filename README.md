@@ -33,8 +33,8 @@ $ eval $(luarocks path)
 $ export PATH=$PATH:$(luarocks path --lr-bin).
 ```
 
-For using AFL engine install `afl++` binary package: `sudo apt install -y
-afl++`.
+For using AFL engine install `afl++` binary package:
+`sudo apt install -y afl++`.
 
 2. Create a Lua file `example.lua` with a fuzz target invoking your code:
 
@@ -42,7 +42,6 @@ afl++`.
 local luzer = require("luzer")
 
 local function TestOneInput(buf)
-    local buf = buf or io.read("*a")
     local b = {}
     buf:gsub(".", function(c) table.insert(b, c) end)
     if b[1] == 'c' then
@@ -59,18 +58,6 @@ local function TestOneInput(buf)
 end
 
 luzer.Fuzz(TestOneInput)
-```
-
-Make sure Lua script has failed when string "crash" is passed to `stdin`:
-
-```sh
-$ echo "crash" | luajit example.lua
-lua: example.lua:8: assertion failed!
-stack traceback:
-        [C]: in function 'assert'
-        example.lua:8: in function 'fuzz'
-        example.lua:14: in main chunk
-        [C]: in ?
 ```
 
 3. Start the fuzzing test:
