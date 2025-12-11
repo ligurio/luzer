@@ -49,3 +49,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Arguments checking in `Fuzz()` (#41).
 - A memory leak in a Lua-based implementation of `TestOneInput()`.
 - An initial buffer size in FuzzedDataProvider.
+- Memory leak in FuzzedDataProvider (#52).
+- Segfault on parsing a broken dictionary (#65).
