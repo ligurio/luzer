@@ -1,5 +1,8 @@
 SetHwArchString(ARCH)
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+# LibFuzzer library in the OSS Fuzz environment has another name.
+if (DEFINED ENV{OSS_FUZZ})
+  set(LIBFUZZER_NO_MAIN_LIB_NAME "libclang_rt.fuzzer_no_main.a")
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(LIBFUZZER_NO_MAIN_LIB_NAME "libclang_rt.fuzzer_no_main-${ARCH}.a")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   set(LIBFUZZER_NO_MAIN_LIB_NAME "libclang_rt.fuzzer_no_main_osx.a")
@@ -7,8 +10,16 @@ else()
   message(FATAL_ERROR "Unsupported system: ${CMAKE_SYSTEM_NAME}")
 endif()
 
-SetClangLibPath("libclang_rt.asan-${ARCH}.a" LIBCLANG_ASAN_LIB)
-SetClangLibPath("libclang_rt.ubsan_standalone-${ARCH}.a" LIBCLANG_UBSAN_LIB)
+set(LIBCLANG_ASAN_NAME "libclang_rt.asan-${ARCH}.a")
+set(LIBCLANG_UBSAN_NAME "libclang_rt.ubsan_standalone-${ARCH}.a")
+# Sanitizers libraries in the OSS Fuzz environment have different
+# names.
+if (DEFINED ENV{OSS_FUZZ})
+  set(LIBCLANG_ASAN_NAME "libclang_rt.asan.a")
+  set(LIBCLANG_UBSAN_NAME "libclang_rt.ubsan_standalone.a")
+endif()
+SetClangLibPath(${LIBCLANG_ASAN_NAME} LIBCLANG_ASAN_LIB)
+SetClangLibPath(${LIBCLANG_UBSAN_NAME} LIBCLANG_UBSAN_LIB)
 SetClangLibPath(${LIBFUZZER_NO_MAIN_LIB_NAME} FUZZER_NO_MAIN_LIBRARY)
 
 include(BuildLibSanitizers)
