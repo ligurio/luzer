@@ -86,6 +86,16 @@ set_tests_properties(luzer_options_help_test PROPERTIES
   PASS_REGULAR_EXPRESSION "Usage:"
 )
 
+add_test(
+  NAME luzer_options_dashes_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_2.lua
+          -- -runs=1 seed_corpus
+)
+set_tests_properties(luzer_options_dashes_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "Done [0-9] runs in [0-9] second;0 files found in seed_corpus"
+)
+
 list(APPEND LUAJIT_FRIENDLY_MESSAGES
   "---- TRACE [0-9] start test_luajit_friendly.lua:[0-9]+"
   "---- TRACE [0-9] stop -> loop"

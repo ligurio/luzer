@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support LuaCov.
 - Support Address and UndefinedBehaviour sanitizers.
 - Support LuaJIT metrics.
+- Support OSS Fuzz environment (#73).
 
 ### Changed
 

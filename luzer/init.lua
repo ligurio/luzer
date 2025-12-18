@@ -26,12 +26,18 @@ local function build_flags(arg, func_args)
     local flags = {}
     for _, arg_str in ipairs(arg) do
         local name, value
+        -- XXX: Ignore the symbol `--` because in the OSS Fuzz it
+        -- is followed by libFuzzer arguments.
         if starts_with(arg_str, "-") then
-            name, value = parse_flag(arg_str)
+            if arg_str ~= "--" then
+                name, value = parse_flag(arg_str)
+            end
         else
             name, value = "corpus", arg_str
         end
-        flags[name] = value
+        if name and value then
+            flags[name] = value
+        end
     end
 
     for flag_name, flag_val in pairs(func_args) do
