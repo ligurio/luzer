@@ -44,12 +44,8 @@ if(LUAJIT_FRIENDLY_MODE AND NOT LUA_HAS_JIT)
   message(FATAL_ERROR "LuaJIT-friendly mode requires option ENABLE_LUAJIT")
 endif()
 
-find_package(LLVM REQUIRED CONFIG)
-
-message(STATUS "Found LLVM ${LLVM_VERSION}")
-
-if(${LLVM_PACKAGE_VERSION} VERSION_LESS 5.0.0)
-  message(FATAL_ERROR "LLVM 5.0.0 or newer is required")
+if(${CMAKE_C_COMPILER_VERSION} VERSION_LESS 5.0.0)
+  message(FATAL_ERROR "Clang 5.0.0 or newer is required")
 endif()
 
 if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
