@@ -21,11 +21,16 @@ macro(GEN_BUILD_TARGET name libsanitizer_path libfuzzer_path
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
 
+  set(AR ${CMAKE_C_COMPILER_AR})
+  if (NOT EXISTS ${AR})
+    set(AR ${CMAKE_AR})
+  endif()
+
   # Strip preinit object files in static libraries, otherwise a message
   # `.preinit_array section is not allowed in DSO` will prevent building DSO.
   add_custom_target(strip_lib_${name}
     COMMENT "Strip sanitizer library ${name}"
-    COMMAND ${CMAKE_C_COMPILER_AR} d ${libsanitizer_name} ${strip}
+    COMMAND ${AR} d ${libsanitizer_name} ${strip}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     BYPRODUCTS ${libsanitizer_name}
     DEPENDS copy_libs_${name}
