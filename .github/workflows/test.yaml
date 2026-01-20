@@ -51,26 +51,26 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Disable processing triggers for man-db
-        if: runner.os == "Linux"
+        if: runner.os == 'Linux'
         run: sudo apt-get remove --purge man-db
 
       - name: Setup Linux packages
-        if: runner.os == "Linux"
+        if: runner.os == 'Linux'
         run: sudo apt install -y clang-15 libclang-common-15-dev ${{ matrix.PACKAGES }}
 
       - name: Setup macOS packages
-        if: runner.os == "macOS"
+        if: runner.os == 'macOS'
         run: brew install llvm luajit cmake ninja
 
       - name: Running CMake (Linux)
-        if: runner.os == "Linux"
+        if: runner.os == 'Linux'
         run: >
           cmake -S . -B build -G Ninja -DENABLE_TESTING=ON
           -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15
           ${{ matrix.CMAKEFLAGS }} ${{ matrix.FLAVORFLAGS }}
 
       - name: Running CMake (macOS)
-        if: runner.os == "macOS"
+        if: runner.os == 'macOS'
         run: >
           cmake -S . -B build -G Ninja
           -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang
