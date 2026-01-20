@@ -78,7 +78,7 @@ jobs:
           -DLUA_INCLUDE_DIR=/opt/homebrew/include/luajit-2.1
           -DLUA_LIBRARIES=/opt/homebrew/lib/libluajit-5.1.dylib
           -DLLVM_DIR=/opt/homebrew/opt/llvm/
-          -DCMAKE_PREFIX_PATH=/opt/homebrew/Cellar/llvm/20.1.8//lib/cmake/llvm/
+          -DCMAKE_PREFIX_PATH=/opt/homebrew/Cellar/llvm/20.1.8/lib/cmake/llvm/
           ${{ matrix.CMAKEFLAGS }}
 
       - name: Building
