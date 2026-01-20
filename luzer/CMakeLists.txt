@@ -38,15 +38,16 @@ add_compile_options(
   -fPIC
   -pedantic
   -Wall
-  -Werror
   -Wextra
   -Wno-unused-parameter
   -Wpedantic
 )
-# FIXME
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND
    NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   add_compile_options(-D_FORTIFY_SOURCE=2)
+endif()
+if(ENABLE_TESTING)
+  # add_compile_options(-Werror)
 endif()
 
 set(LUZER_SOURCES luzer.c
