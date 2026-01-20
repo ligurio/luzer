@@ -7,6 +7,11 @@ project(luzer
 
 option(ENABLE_LUAJIT "Use LuaJIT library" OFF)
 option(LUAJIT_FRIENDLY_MODE "Use LuaJIT-friendly mode" OFF)
+option(OSS_FUZZ "Enable OSS Fuzz support" OFF)
+
+if(DEFINED ENV{OSS_FUZZ})
+  set(OSS_FUZZ ON)
+endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(SetClangRTLib)

@@ -1,6 +1,6 @@
 SetHwArchString(ARCH)
 # LibFuzzer library in the OSS Fuzz environment has another name.
-if (DEFINED ENV{OSS_FUZZ})
+if(OSS_FUZZ)
   set(LIBFUZZER_NO_MAIN_LIB_NAME "libclang_rt.fuzzer_no_main.a")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(LIBFUZZER_NO_MAIN_LIB_NAME "libclang_rt.fuzzer_no_main-${ARCH}.a")
@@ -14,7 +14,7 @@ set(LIBCLANG_ASAN_NAME "libclang_rt.asan-${ARCH}.a")
 set(LIBCLANG_UBSAN_NAME "libclang_rt.ubsan_standalone-${ARCH}.a")
 # Sanitizers libraries in the OSS Fuzz environment have different
 # names.
-if (DEFINED ENV{OSS_FUZZ})
+if(OSS_FUZZ)
   set(LIBCLANG_ASAN_NAME "libclang_rt.asan.a")
   set(LIBCLANG_UBSAN_NAME "libclang_rt.ubsan_standalone.a")
 endif()
