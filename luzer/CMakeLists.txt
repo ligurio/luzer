@@ -25,10 +25,7 @@ SetClangLibPath(${LIBCLANG_ASAN_NAME} LIBCLANG_ASAN_LIB)
 SetClangLibPath(${LIBCLANG_UBSAN_NAME} LIBCLANG_UBSAN_LIB)
 SetClangLibPath(${LIBFUZZER_NO_MAIN_LIB_NAME} FUZZER_NO_MAIN_LIBRARY)
 
-# FIXME
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  include(BuildLibSanitizers)
-endif()
+include(BuildLibSanitizers)
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.c
