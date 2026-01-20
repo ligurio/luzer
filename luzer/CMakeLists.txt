@@ -12,11 +12,14 @@ endif()
 
 set(LIBCLANG_ASAN_NAME "libclang_rt.asan-${ARCH}.a")
 set(LIBCLANG_UBSAN_NAME "libclang_rt.ubsan_standalone-${ARCH}.a")
-# Sanitizers libraries in the OSS Fuzz environment have different
-# names.
+# Sanitizers libraries in the OSS Fuzz environment and macOS have
+# different names.
 if (DEFINED ENV{OSS_FUZZ})
   set(LIBCLANG_ASAN_NAME "libclang_rt.asan.a")
   set(LIBCLANG_UBSAN_NAME "libclang_rt.ubsan_standalone.a")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(LIBCLANG_ASAN_NAME "libclang_rt.asan_abi_osx.a")
+  set(LIBCLANG_UBSAN_NAME "libclang_rt.ubsan_minimal_osx.a")
 endif()
 SetClangLibPath(${LIBCLANG_ASAN_NAME} LIBCLANG_ASAN_LIB)
 SetClangLibPath(${LIBCLANG_UBSAN_NAME} LIBCLANG_UBSAN_LIB)
@@ -35,13 +38,16 @@ add_compile_options(
   -fPIC
   -pedantic
   -Wall
-  -Werror
   -Wextra
   -Wno-unused-parameter
   -Wpedantic
 )
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND
+   NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   add_compile_options(-D_FORTIFY_SOURCE=2)
+endif()
+if(ENABLE_TESTING)
+  # add_compile_options(-Werror)
 endif()
 
 set(LUZER_SOURCES luzer.c
@@ -90,7 +96,7 @@ install(
   TARGETS luzer_impl
   LIBRARY
   DESTINATION "${CMAKE_LIBDIR}/"
-  RENAME luzer.so
+  RENAME luzer${CMAKE_SHARED_LIBRARY_SUFFIX}
 )
 
 install(

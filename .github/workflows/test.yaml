@@ -12,6 +12,7 @@ jobs:
       github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       matrix:
+        os: [ubuntu-24.04, macos-latest]
         BUILDTYPE: [Debug, Release]
         LIBLUA:
           - "5.4"
@@ -19,6 +20,15 @@ jobs:
           - "5.2"
           - "5.1"
           - "luajit-v2.1"
+        exclude:
+          - os: macos-latest
+            LIBLUA: "5.4"
+          - os: macos-latest
+            LIBLUA: "5.3"
+          - os: macos-latest
+            LIBLUA: "5.2"
+          - os: macos-latest
+            LIBLUA: "5.1"
         include:
           - BUILDTYPE: Debug
             CMAKEFLAGS: -DCMAKE_BUILD_TYPE=Debug
@@ -36,24 +46,47 @@ jobs:
             PACKAGES: libluajit-5.1-dev libluajit-5.1-2 luajit
             FLAVORFLAGS: -DLUAJIT_FRIENDLY_MODE=ON -DENABLE_LUAJIT=ON
       fail-fast: false
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
 
       - name: Disable processing triggers for man-db
+        if: runner.os == 'Linux'
         run: sudo apt-get remove --purge man-db
 
-      - name: Setup common packages
+      - name: Setup Linux packages
+        if: runner.os == 'Linux'
         run: sudo apt install -y clang-15 libclang-common-15-dev ${{ matrix.PACKAGES }}
 
-      - name: Running CMake
+      - name: Setup macOS packages
+        if: runner.os == 'macOS'
+        run: brew install llvm luajit cmake ninja
+
+      - name: Running CMake (Linux)
+        if: runner.os == 'Linux'
         run: >
           cmake -S . -B build -G Ninja -DENABLE_TESTING=ON
           -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15
           ${{ matrix.CMAKEFLAGS }} ${{ matrix.FLAVORFLAGS }}
 
+      - name: Running CMake (macOS)
+        if: runner.os == 'macOS'
+        run: >
+          cmake -S . -B build -G Ninja
+          -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang
+          -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++
+          -DLUA_INCLUDE_DIR=/opt/homebrew/include/luajit-2.1
+          -DLUA_LIBRARIES=/opt/homebrew/lib/libluajit-5.1.dylib
+          -DLLVM_DIR=/opt/homebrew/opt/llvm/
+          -DCMAKE_PREFIX_PATH=/opt/homebrew/Cellar/llvm/20.1.8/lib/cmake/llvm/
+          ${{ matrix.CMAKEFLAGS }}
+
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
+
       - name: Building
-        run: cmake --build build --parallel $(nproc)
+        run: cmake --build build --parallel
 
       - name: Testing
         run: cmake --build build --target test
