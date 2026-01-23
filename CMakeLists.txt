@@ -5,6 +5,8 @@ project(luzer
   VERSION "1.0.0"
 )
 
+execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
+
 option(ENABLE_LUAJIT "Use LuaJIT library" OFF)
 option(LUAJIT_FRIENDLY_MODE "Use LuaJIT-friendly mode" OFF)
 option(OSS_FUZZ "Enable OSS Fuzz support" OFF)
