@@ -57,10 +57,10 @@
 #if __has_feature(coverage_sanitizer)
 #define NO_SANITIZE_COVERAGE __attribute__((no_sanitize("coverage")))
 #else // __has_feature(coverage_sanitizer)
-#warning "compiler does not support 'coverage_sanitizer' feature"
-#warning "it still may have instrumentation, but no way to exclude
-#warning "certain functions found"
-#warning "if you proceed, your coverage may be polluted or broken"
+/* #warning "compiler does not support 'coverage_sanitizer' feature" */
+/* #warning "it still may have instrumentation, but no way to exclude */
+/* #warning "certain functions found" */
+/* #warning "if you proceed, your coverage may be polluted or broken" */
 #define NO_SANITIZE_COVERAGE
 #endif // __has_feature(coverage_sanitizer)
 

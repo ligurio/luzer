@@ -24,8 +24,12 @@
 #include <stdint.h>
 #include <string.h> /* strlen */
 
-#include "counters.h"
 #include "macros.h"
+#include "afl.h"
+#ifndef DISABLE_TRACE_LIBFUZZER
+#include "tracer_libfuzzer.h"
+#endif /* DISABLE_TRACE_LIBFUZZER */
+#include "tracer_afl.h"
 
 /**
  * From afl-python
@@ -34,12 +38,6 @@
 #define LHASH_INIT       0x811C9DC5
 #define LHASH_MAGIC_MULT 0x01000193
 #define LHASH_NEXT(x)    h = ((h ^ (unsigned char)(x)) * LHASH_MAGIC_MULT)
-
-NO_SANITIZE void
-_trace_branch(uint64_t idx)
-{
-	increment_counter(idx);
-}
 
 NO_SANITIZE static inline unsigned int
 lhash(const char *key, size_t offset)
@@ -68,6 +66,12 @@ debug_hook(lua_State *L, lua_Debug *ar)
 	lua_getinfo(L, "Sln", ar);
 	if (ar && ar->source && ar->currentline) {
 		const unsigned int new_location = lhash(ar->source, ar->currentline);
-		_trace_branch(new_location);
+		if (is_afl_running()) {
+			trace_afl(new_location);
+		} else {
+#ifndef DISABLE_TRACE_LIBFUZZER
+			trace_libfuzzer(new_location);
+#endif /* DISABLE_TRACE_LIBFUZZER */
+		}
 	}
 }

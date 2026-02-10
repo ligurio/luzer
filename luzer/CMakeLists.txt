@@ -44,13 +44,17 @@ if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_options(-D_FORTIFY_SOURCE=2)
 endif()
 
-set(LUZER_SOURCES luzer.c
-                  compat.c
-                  fuzzed_data_provider.cc
-                  tracer.c
-                  counters.c
-                  metrics.c
-                  ${CMAKE_CURRENT_BINARY_DIR}/config.c)
+set(LUZER_SOURCES
+  ${CMAKE_CURRENT_BINARY_DIR}/config.c
+  afl.c
+  compat.c
+  counters.c
+  fuzzed_data_provider.cc
+  luzer.c
+  tracer_afl.c
+  tracer.c
+  tracer_libfuzzer.c
+)
 
 add_library(luzer_impl SHARED ${LUZER_SOURCES})
 target_include_directories(luzer_impl PRIVATE
@@ -80,6 +84,22 @@ target_include_directories(custom_mutator PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(custom_mutator PRIVATE
   ${LUA_LIBRARIES}
   luzer_impl
+)
+
+set(AFL_LUA afl-lua)
+add_executable(${AFL_LUA}
+  afl-lua.c
+  afl.c
+  tracer.c
+  tracer_afl.c
+)
+target_include_directories(${AFL_LUA} PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(${AFL_LUA} PRIVATE ${LUA_LIBRARIES})
+target_compile_options(${AFL_LUA} PRIVATE
+  ${CFLAGS}
+)
+target_compile_definitions(${AFL_LUA} PRIVATE
+  DISABLE_TRACE_LIBFUZZER=1
 )
 
 if(ENABLE_TESTING)
@@ -112,4 +132,9 @@ install(
 install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/init.lua
   DESTINATION "${CMAKE_LUADIR}/${PROJECT_NAME}"
+)
+
+install(
+  TARGETS ${AFL_LUA}
+  DESTINATION "${CMAKE_BINARY_DIR}/"
 )
