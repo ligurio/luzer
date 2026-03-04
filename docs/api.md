@@ -25,7 +25,7 @@ want to allow only those inputs into the corpus that parse successfully. If the
 fuzz target returns `-1` on a given input, `luzer` will not add that input top
 the corpus, regardless of what coverage it triggers.
 
-The `luzer` module provides a function `path()` that returns a table with paths
+The `luzer` module provides a table `path` with paths
 to shared libraries with libFuzzer and sanitizers.
 
 ```
