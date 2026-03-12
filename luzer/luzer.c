@@ -145,10 +145,17 @@ const char *dso_path_libcustom_mutator;
 
 NO_SANITIZE static int
 search_module_path(char *so_path, const char *so_name, size_t len) {
+	const char *env = getenv("LUA_CPATH");
+	if (!env)
+		return 1;
 	/* Create a copy, because `strsep()` below mutates a string. */
-	char *lua_cpath = strdup(getenv("LUA_CPATH"));
+	char *lua_cpath = strdup(env);
 	if (!lua_cpath)
 		lua_cpath = "./";
+	/*
+	 * Remember a pointer to the strsep's first argument, strsep()
+	 * modifies it.
+	*/
 	char *stringp = lua_cpath;
 	int rc = -1;
 	char *cpath = NULL;
@@ -158,7 +165,6 @@ search_module_path(char *so_path, const char *so_name, size_t len) {
 		if (access(so_path, F_OK) == 0) {
 			rc = 0;
 			strcpy(so_path, cpath);
-			free(lua_cpath);
 			break;
 		}
 	}
