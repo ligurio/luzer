@@ -1,5 +1,17 @@
 ## Usage
 
+### Fuzzing engines
+
+The luzer library supports two engines: [libFuzzer][libfuzzer-url]
+and [AFL][AFL-url]. A single [API](api.md) is used for both
+engines. However, integration with AFL has some limitations:
+function with custom mutator specified in the `luzer.Fuzz()`
+is ignored and arguments specified in the `args` table and
+command-line are ignored.
+
+Thanks to the tight integration and a single API, the same test
+can be used with both engines without modifications.
+
 ### Fuzzing targets
 
 In general, `luzer` has an ability to write fuzzing tests for Lua functions.
@@ -234,3 +246,5 @@ in the section [LuaJIT Metrics](#luajit-metrics).
 [atheris-native-extensions]: https://github.com/google/atheris/blob/master/native_extension_fuzzing.md
 [atheris-native-extensions-video]: https://www.youtube.com/watch?v=oM-7lt43-GA
 [luacov-website]: https://lunarmodules.github.io/luacov/
+[libfuzzer-url]: https://llvm.org/docs/LibFuzzer.html
+[AFL-url]: https://aflplus.plus/

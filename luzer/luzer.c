@@ -30,6 +30,7 @@
 #include "tracer.h"
 #include "config.h"
 #include "luzer.h"
+#include "afl.h"
 
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
 #define CUSTOM_MUTATOR_FUNC "luzer_custom_mutator"
@@ -303,6 +304,7 @@ teardown(void)
 
 NO_SANITIZE int
 TestOneInput(const uint8_t* data, size_t size) {
+	/* XXX: Use is_afl_running(). */
 	const counter_and_pc_table_range alloc = allocate_counters_and_pcs();
 	if (alloc.counters_start && alloc.counters_end) {
 		__sanitizer_cov_8bit_counters_init(alloc.counters_start,
@@ -314,20 +316,12 @@ TestOneInput(const uint8_t* data, size_t size) {
 
 	lua_State *L = get_global_lua_state();
 
-	char *buf = malloc(size + 1 * sizeof(*buf));
-	if (!buf) {
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
-	memcpy(buf, data, size);
-	buf[size] = '\0';
-
 #if defined(LUA_HAS_JIT) && defined(LUAJIT_FRIENDLY_MODE)
 	metrics_enable_luajit_hooks(L);
 	if (jit_status) {
 		if (!luaJIT_setmode(L, 0, LUAJIT_MODE_ON))
 			luaL_error(L, "cannot turn a JIT compiler on");
-		lua_pushlstring(L, buf, size);
+		lua_pushlstring(L, (const char *)data, size);
 		/* Returned value is not handled. */
 		luaL_test_one_input(L);
 		if (!luaJIT_setmode(L, 0, LUAJIT_MODE_OFF))
@@ -347,9 +341,8 @@ TestOneInput(const uint8_t* data, size_t size) {
 	 */
 	LUA_SETHOOK(L, debug_hook, LUA_MASKCALL | LUA_MASKLINE, 0);
 
-	lua_pushlstring(L, buf, size);
+	lua_pushlstring(L, (const char *)data, size);
 	int rc = luaL_test_one_input(L);
-	free(buf);
 
 	/* Disable debug hook. */
 	LUA_SETHOOK(L, debug_hook, 0, 0);
@@ -543,8 +536,17 @@ luaL_fuzz(lua_State *L)
 
 	jit_status = luajit_has_enabled_jit(L);
 	set_global_lua_state(L);
-	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
-
+	int rc = 0;
+	if (is_afl_running()) {
+		/* AFL writes generated data to stdin (standard input). */
+		char buf[AFL_LUA_MAXINPUT];
+		const char *res = fgets(buf, AFL_LUA_MAXINPUT, stdin);
+		if (!res)
+			return 0;
+		rc = TestOneInput((const uint8_t *)&buf, AFL_LUA_MAXINPUT);
+	} else {
+		rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
+	}
 	free_argv(argc, argv);
 	luaL_cleanup(L);
 
@@ -581,6 +583,10 @@ luaopen_luzer_impl(lua_State *L)
 
 	lua_pushliteral(L, "_LUA_VERSION");
 	lua_pushstring(L, LUA_RELEASE);
+	lua_rawset(L, -3);
+
+	lua_pushliteral(L, "_afl_mode");
+	lua_pushboolean(L, is_afl_running());
 	lua_rawset(L, -3);
 
 	lua_pushliteral(L, "path");
