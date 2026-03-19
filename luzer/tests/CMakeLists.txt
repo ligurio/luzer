@@ -125,8 +125,13 @@ add_test(
           -runs=100
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+string(JOIN ";" TEST_ENVIRONMENT
+  "LUA_CPATH=${LUA_CPATH}"
+  "LUA_PATH=${LUA_PATH}"
+  DISABLE_LUAJIT_METRICS=1
+)
 set_tests_properties(luzer_luajit_without_metrics_test PROPERTIES
-  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH};DISABLE_LUAJIT_METRICS=1"
+  ENVIRONMENT "${TEST_ENVIRONMENT}"
   PASS_REGULAR_EXPRESSION "LuaJIT metrics disabled."
 )
 
@@ -218,32 +223,74 @@ generate_luac_test(luzer_luac_ubsan
   "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};LIB_NAME=luac_ubsan"
   "Hello, Lua!"
 )
+string(JOIN ";" TEST_ENVIRONMENT
+  "${TEST_ENV}"
+  LD_PRELOAD=${ASAN_DSO_PATH}
+  LIB_NAME=luac_asan
+  ERR_INJECTION=HEAP_BUFFER_OVERFLOW
+)
 generate_luac_test(luzer_luac_asan_heap_buffer_overflow
-  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=HEAP_BUFFER_OVERFLOW"
+  "${TEST_ENVIRONMENT}"
   "AddressSanitizer: heap-buffer-overflow"
 )
+string(JOIN ";" TEST_ENVIRONMENT
+  "${TEST_ENV}"
+  LD_PRELOAD=${ASAN_DSO_PATH}
+  LIB_NAME=luac_asan
+  ERR_INJECTION=STACK_BUFFER_OVERFLOW
+)
 generate_luac_test(luzer_luac_asan_stack_buffer_overflow
-  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=STACK_BUFFER_OVERFLOW"
+  "${TEST_ENVIRONMENT}"
   "AddressSanitizer: stack-buffer-overflow"
 )
+string(JOIN ";" TEST_ENVIRONMENT
+  "${TEST_ENV}"
+  LD_PRELOAD=${ASAN_DSO_PATH}
+  LIB_NAME=luac_asan
+  ERR_INJECTION=DYNAMIC_STACK_BUFFER_OVERFLOW
+)
 generate_luac_test(luzer_luac_asan_dynamic_stack_buffer_overflow
-  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=DYNAMIC_STACK_BUFFER_OVERFLOW"
+  "${TEST_ENVIRONMENT}"
   "AddressSanitizer: dynamic-stack-buffer-overflow"
 )
+string(JOIN ";" TEST_ENVIRONMENT
+  "${TEST_ENV}"
+  LD_PRELOAD=${ASAN_DSO_PATH}
+  LIB_NAME=luac_asan
+  ERR_INJECTION=GLOBAL_BUFFER_OVERFLOW
+)
 generate_luac_test(luzer_luac_asan_global_buffer_overflow
-  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=GLOBAL_BUFFER_OVERFLOW"
+  "${TEST_ENVIRONMENT}"
   "AddressSanitizer: global-buffer-overflow"
+)
+string(JOIN ";" TEST_ENVIRONMENT
+  "${TEST_ENV}"
+  LD_PRELOAD=${ASAN_DSO_PATH}
+  LIB_NAME=luac_asan
+  ERR_INJECTION=MEMCPY_BUFFER_OVERFLOW
 )
 generate_luac_test(luzer_luac_asan_memset_buffer_overflow
-  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=MEMSET_BUFFER_OVERFLOW"
+  "${TEST_ENVIRONMENT}"
   "AddressSanitizer: global-buffer-overflow"
+)
+string(JOIN ";" TEST_ENVIRONMENT
+  "${TEST_ENV}"
+  LD_PRELOAD=${ASAN_DSO_PATH}
+  LIB_NAME=luac_asan
+  ERR_INJECTION=MEMCPY_BUFFER_OVERFLOW
 )
 generate_luac_test(luzer_luac_asan_memcpy_buffer_overflow
-  "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};LIB_NAME=luac_asan;ERR_INJECTION=MEMCPY_BUFFER_OVERFLOW"
+  "${TEST_ENVIRONMENT}"
   "AddressSanitizer: global-buffer-overflow"
 )
+string(JOIN ";" TEST_ENVIRONMENT
+  "${TEST_ENV}"
+  LD_PRELOAD=${UBSAN_DSO_PATH}
+  LIB_NAME=luac_ubsan
+  ERR_INJECTION=NULL_POINTER_DEREF
+)
 generate_luac_test(luzer_luac_ubsan_null_pointer_deref
-  "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};LIB_NAME=luac_ubsan;ERR_INJECTION=NULL_POINTER_DEREF"
+  "${TEST_ENVIRONMENT}"
   "runtime error: load of null pointer of type"
 )
 
@@ -285,22 +332,44 @@ if (LUA_HAS_JIT)
     "${TEST_ENV};FFI_LIB_NAME=testlib.so"
     "Done 10 runs in 0 second"
   )
+  string(JOIN ";" TEST_ENVIRONMENT
+    "${TEST_ENV}"
+    LD_PRELOAD=${ASAN_DSO_PATH}
+    FFI_LIB_NAME=testlib_asan.so
+  )
   # XXX: Memory leak in FDP is expected, should be fixed in [1].
   # 1. https://github.com/ligurio/luzer/issues/52
   generate_ffi_test(luzer_ffi_asan
-    "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};FFI_LIB_NAME=testlib_asan.so"
+    "${TEST_ENVIRONMENT}"
     "LeakSanitizer: detected memory leaks"
   )
+  string(JOIN ";" TEST_ENVIRONMENT
+    "${TEST_ENV}"
+    LD_PRELOAD=${UBSAN_DSO_PATH}
+    FFI_LIB_NAME=testlib_ubsan.so
+  )
   generate_ffi_test(luzer_ffi_ubsan
-    "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};FFI_LIB_NAME=testlib_ubsan.so"
+    "${TEST_ENVIRONMENT}"
     "Done 10 runs in 0 second"
   )
+  string(JOIN ";" TEST_ENVIRONMENT
+    "${TEST_ENV}"
+    LD_PRELOAD=${ASAN_DSO_PATH}
+    FFI_LIB_NAME=testlib_asan.so
+    ERR_INJECTION=HEAP_BUFFER_OVERFLOW
+  )
   generate_ffi_test(luzer_ffi_asan_heap_overflow
-    "${TEST_ENV};LD_PRELOAD=${ASAN_DSO_PATH};FFI_LIB_NAME=testlib_asan.so;ERR_INJECTION=HEAP_BUFFER_OVERFLOW"
+    "${TEST_ENVIRONMENT}"
     "AddressSanitizer: heap-buffer-overflow"
   )
+  string(JOIN ";" TEST_ENVIRONMENT
+    "${TEST_ENV}"
+    LD_PRELOAD=${UBSAN_DSO_PATH}
+    FFI_LIB_NAME=testlib_ubsan.so
+    ERR_INJECTION=NULL_POINTER_DEREF
+  )
   generate_ffi_test(luzer_ffi_ubsan_null_pointer_deref
-    "${TEST_ENV};LD_PRELOAD=${UBSAN_DSO_PATH};FFI_LIB_NAME=testlib_ubsan.so;ERR_INJECTION=NULL_POINTER_DEREF"
+    "${TEST_ENVIRONMENT}"
     "runtime error: load of null pointer of type"
   )
 endif()
