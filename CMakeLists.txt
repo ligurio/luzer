@@ -16,7 +16,7 @@ endif()
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(SetClangRTLib)
 
-if(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
+if(LUA_INCLUDE_DIR AND LUA_LIBRARIES AND NOT ENABLE_LUAJIT)
   # When a path to a Lua library is passed outside, we should
   # mimic a real CMake library to don't break code that depends on
   # LUA_LIBRARIES.
@@ -27,7 +27,10 @@ if(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
 elseif(ENABLE_LUAJIT)
   include(FindLuaJIT)
   set(LUA_NAME "luajit")
-  find_program(LUA_EXECUTABLE "${LUA_NAME}")
+  find_program(LUA_EXECUTABLE
+    NAMES ${LUA_NAME}
+    HINTS /opt/homebrew/bin/
+  )
   if(NOT EXISTS ${LUA_EXECUTABLE})
     message(FATAL_ERROR "`${LUA_NAME}` is required")
   endif()

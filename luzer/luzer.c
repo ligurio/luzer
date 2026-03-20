@@ -20,7 +20,11 @@
 #include <libgen.h>
 #include <fcntl.h>
 #include <unistd.h>
+#ifdef __linux__
 #include <linux/limits.h>
+#else
+#include <limits.h>
+#endif
 
 #include "fuzzed_data_provider.h"
 #include "counters.h"
@@ -33,7 +37,11 @@
 
 #define TEST_ONE_INPUT_FUNC "luzer_test_one_input"
 #define CUSTOM_MUTATOR_FUNC "luzer_custom_mutator"
+#ifdef __APPLE__
+#define CUSTOM_MUTATOR_LIB "libcustom_mutator.dylib"
+#else
 #define CUSTOM_MUTATOR_LIB "libcustom_mutator.so"
+#endif /* __APPLE__ */
 #define DEBUG_HOOK_FUNC "luzer_custom_hook"
 
 static lua_State *LL;
@@ -141,28 +149,20 @@ get_coverage_symbols_location(void) {
 const char *dso_path_lf_asan;
 const char *dso_path_lf_ubsan;
 const char *dso_path_libcustom_mutator;
-/* struct paths luzer_paths; */
 
-NO_SANITIZE static int
-search_module_path(char *so_path, const char *so_name, size_t len) {
-	/* Create a copy, because `strsep()` below mutates a string. */
-	char *lua_cpath = strdup(getenv("LUA_CPATH"));
-	if (!lua_cpath)
-		lua_cpath = "./";
-	char *stringp = lua_cpath;
-	int rc = -1;
-	char *cpath = NULL;
-	while ((cpath = strsep(&stringp, ";")) != NULL) {
-		const char *dir = dirname(cpath);
-		snprintf(so_path, len, "%s/%s", dir, so_name);
-		if (access(so_path, F_OK) == 0) {
-			rc = 0;
-			strcpy(so_path, cpath);
-			free(lua_cpath);
-			break;
-		}
+NO_SANITIZE const char *
+search_module_path(char *base_path) {
+	Dl_info dlinfo;
+	int rc = dladdr((void *)&get_coverage_symbols_location, &dlinfo);
+	if (!rc)
+		return NULL;
+	char *path = realpath(dlinfo.dli_fname, base_path);
+	if (!path) {
+		perror("realpath");
+		return NULL;
 	}
-	return rc;
+	const char *dir = dirname(path);
+	return dir;
 }
 
 NO_SANITIZE void
@@ -183,16 +183,12 @@ init(void)
         "from this library: %s\n", get_coverage_symbols_location());
 	}
 
-	char path[PATH_MAX];
-	int rc = search_module_path(path, CUSTOM_MUTATOR_LIB, PATH_MAX);
-	if (rc) {
-		fprintf(stderr, "%s is not found\n", CUSTOM_MUTATOR_LIB);
+	char base_path[PATH_MAX], path[PATH_MAX];
+	const char *base_so_path = search_module_path(base_path);
+	if (!base_so_path) {
+		fprintf(stderr, "something goes wrong\n");
 		return;
 	}
-	char *base_so_path = realpath((const char *)&path, NULL);
-	if (!base_so_path)
-		perror("realpath");
-	memset(&path, 0, PATH_MAX);
 
 	snprintf(path, PATH_MAX, "%s/%s", base_so_path, CUSTOM_MUTATOR_LIB);
 	dso_path_libcustom_mutator = strdup(path);
@@ -208,8 +204,6 @@ init(void)
 	dso_path_lf_ubsan = strdup(path);
 	if (access(dso_path_lf_ubsan, F_OK))
 		perror("access");
-
-	free(base_so_path);
 }
 
 NO_SANITIZE static void
