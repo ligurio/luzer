@@ -120,50 +120,30 @@ __sanitizer_print_stack_trace(void)
 } /* extern "C" */
 #endif
 
-NO_SANITIZE const char *
-get_libFuzzer_symbols_location(void) {
+NO_SANITIZE char *
+get_symbol_path(void *addr) {
 	Dl_info dl_info;
-	if (!dladdr((void*)&LLVMFuzzerRunDriver, &dl_info)) {
-		return "<Not a shared object>";
+	if (dladdr(addr, &dl_info)) {
+		if (!dl_info.dli_sname)
+			return NULL;
+	} else {
+		/*
+		 * The specified address in `addr` could not be matched to
+		 * a shared object.
+		 */
+		return NULL;
 	}
-	return (dl_info.dli_fname);
-}
-
-NO_SANITIZE const char *
-get_coverage_symbols_location(void) {
-	Dl_info dl_info;
-	if (!dladdr((void*)&__sanitizer_cov_8bit_counters_init, &dl_info)) {
-		return "<Not a shared object>";
+	char *path = realpath(dl_info.dli_fname, NULL);
+	if (!path) {
+		perror("realpath");
+		return NULL;
 	}
-	return (dl_info.dli_fname);
+	return path;
 }
 
 const char *dso_path_lf_asan;
 const char *dso_path_lf_ubsan;
 const char *dso_path_libcustom_mutator;
-/* struct paths luzer_paths; */
-
-NO_SANITIZE static int
-search_module_path(char *so_path, const char *so_name, size_t len) {
-	/* Create a copy, because `strsep()` below mutates a string. */
-	char *lua_cpath = strdup(getenv("LUA_CPATH"));
-	if (!lua_cpath)
-		lua_cpath = "./";
-	char *stringp = lua_cpath;
-	int rc = -1;
-	char *cpath = NULL;
-	while ((cpath = strsep(&stringp, ";")) != NULL) {
-		const char *dir = dirname(cpath);
-		snprintf(so_path, len, "%s/%s", dir, so_name);
-		if (access(so_path, F_OK) == 0) {
-			rc = 0;
-			strcpy(so_path, cpath);
-			free(lua_cpath);
-			break;
-		}
-	}
-	return rc;
-}
 
 NO_SANITIZE void
 init(void)
@@ -175,41 +155,44 @@ init(void)
         assert(NULL);
 	}
 
-	if (strcmp(get_coverage_symbols_location(), get_libFuzzer_symbols_location()) != 0) {
+	char *coverage_symbols_location =
+		get_symbol_path((void*)&__sanitizer_cov_8bit_counters_init);
+	char *libFuzzer_symbols_location =
+		get_symbol_path((void*)&LLVMFuzzerRunDriver);
+	if (libFuzzer_symbols_location && coverage_symbols_location &&
+	    strcmp(libFuzzer_symbols_location, coverage_symbols_location) != 0) {
         fprintf(stderr,
         "WARNING: Coverage symbols are being provided by a library other than "
         "libFuzzer. This will result in a broken Lua code coverage and "
         "severely impacted native extension code coverage. Symbols are coming "
-        "from this library: %s\n", get_coverage_symbols_location());
+        "from this library: %s\n", coverage_symbols_location);
 	}
+	free(coverage_symbols_location);
+	free(libFuzzer_symbols_location);
 
 	char path[PATH_MAX];
-	int rc = search_module_path(path, CUSTOM_MUTATOR_LIB, PATH_MAX);
-	if (rc) {
-		fprintf(stderr, "%s is not found\n", CUSTOM_MUTATOR_LIB);
+	char *base_path = get_symbol_path((void *)&get_symbol_path);
+	if (!base_path) {
 		return;
 	}
-	char *base_so_path = realpath((const char *)&path, NULL);
-	if (!base_so_path)
-		perror("realpath");
-	memset(&path, 0, PATH_MAX);
+	const char *base_dir = dirname(base_path);
 
-	snprintf(path, PATH_MAX, "%s/%s", base_so_path, CUSTOM_MUTATOR_LIB);
+	snprintf(path, PATH_MAX, "%s/%s", base_dir, CUSTOM_MUTATOR_LIB);
 	dso_path_libcustom_mutator = strdup(path);
 	if (access(dso_path_libcustom_mutator, F_OK))
 		perror("access");
 
-	snprintf(path, PATH_MAX, "%s/%s", base_so_path, dso_asan_string());
+	snprintf(path, PATH_MAX, "%s/%s", base_dir, dso_asan_string());
 	dso_path_lf_asan = strdup(path);
 	if (access(dso_path_lf_asan, F_OK))
 		perror("access");
 
-	snprintf(path, PATH_MAX, "%s/%s", base_so_path, dso_ubsan_string());
+	snprintf(path, PATH_MAX, "%s/%s", base_dir, dso_ubsan_string());
 	dso_path_lf_ubsan = strdup(path);
 	if (access(dso_path_lf_ubsan, F_OK))
 		perror("access");
 
-	free(base_so_path);
+	free(base_path);
 }
 
 NO_SANITIZE static void
