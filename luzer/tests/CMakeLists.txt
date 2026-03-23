@@ -113,8 +113,18 @@ add_test(
           -runs=100
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+# luzer_luajit_friendly_test uses an internal LuaJIT module and
+# for running this test for luzer module built with non-system
+# LuaJIT then one should set environment variable LUA_PATH pointed
+# to a directory with LuaJIT modules before running CMake
+# configuration.
+make_lua_path(LUA_PATH_WITH_USER_PATH
+  PATHS
+  $ENV{LUA_PATH}
+  ${LUA_PATH}
+)
 set_tests_properties(luzer_luajit_friendly_test PROPERTIES
-  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH_WITH_USER_PATH}"
   PASS_REGULAR_EXPRESSION "${LUAJIT_FRIENDLY_MESSAGES}"
 )
 
