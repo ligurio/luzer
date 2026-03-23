@@ -1,12 +1,9 @@
+# The function sets the given variable in a parent scope to a
+# string with hardware architecture name and this name should
+# match to hardware architecture name used in a library name of
+# libclang_rt.fuzzer_no_main: aarch64, x86_64, i386.
 function(SetHwArchString outvar)
-  if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-    set(hw_arch "i386")
-  elseif (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(hw_arch "x86_64")
-  else ()
-    message(FATAL_ERROR "Unsupported architecture.")
-  endif ()
-  set(${outvar} ${hw_arch} PARENT_SCOPE)
+  set(${outvar} ${CMAKE_SYSTEM_PROCESSOR} PARENT_SCOPE)
 endfunction()
 
 # The function sets the given variable in a parent scope to a
