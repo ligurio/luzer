@@ -1,9 +1,10 @@
-# Locate a LuaJIT library.
+# Locate a LuaJIT library and binary executable.
 #
 # This module defines:
 #  LUA_FOUND, if false, do not try to link to LuaJIT,
 #  LUA_LIBRARIES, where to find libluajit,
 #  LUA_INCLUDE_DIR, where to find luajit.h,
+#  LUA_EXECUTABLE, where to find luajit binary executable,
 #  LUA_VERSION_STRING, the version of LuaJIT found,
 #  LUA_VERSION_MAJOR, the major version of LuaJIT,
 #  LUA_VERSION_MINOR, the minor version of LuaJIT,
@@ -41,13 +42,21 @@ find_package_handle_standard_args(LuaJIT
   VERSION_VAR LUA_VERSION_STRING
   FAIL_MESSAGE "${ERROR_MESSAGE}"
 )
-# Set LUA_FOUND, LUA_INCLUDE_DIR and LUA_LIBRARIES for
-# compatibility with FindLua.cmake.
+
+find_program(LUAJIT_EXECUTABLE luajit)
+if(NOT EXISTS ${LUAJIT_EXECUTABLE})
+  message(WARNING "`luajit` is not found")
+endif()
+
+# Set LUA_FOUND, LUA_INCLUDE_DIR, LUA_LIBRARIES and LUA_EXECUTABLE
+# for compatibility with FindLua.cmake.
 set(LUA_FOUND ${LUAJIT_FOUND})
 set(LUA_LIBRARIES ${LUAJIT_LIBRARIES})
 set(LUA_INCLUDE_DIR ${LUAJIT_INCLUDE_DIR})
+set(LUA_EXECUTABLE ${LUAJIT_EXECUTABLE})
 unset(LUAJIT_FOUND)
 unset(LUAJIT_LIBRARIES)
 unset(LUAJIT_INCLUDE_DIR)
+unset(LUAJIT_EXECUTABLE)
 
 mark_as_advanced(LUA_INCLUDE_DIR LUA_LIBRARIES)
