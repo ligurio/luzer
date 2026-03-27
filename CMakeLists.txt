@@ -16,13 +16,13 @@ endif()
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(SetClangRTLib)
 
-if(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
+if(CMAKE_LUA_INCLUDE_DIR AND CMAKE_LUA_LIBRARIES)
   # When a path to a Lua library is passed outside, we should
   # mimic a real CMake library to don't break code that depends on
   # LUA_LIBRARIES.
   add_library(liblua STATIC IMPORTED GLOBAL)
   set_target_properties(liblua PROPERTIES
-    IMPORTED_LOCATION ${LUA_LIBRARIES})
+    IMPORTED_LOCATION ${CMAKE_LUA_LIBRARIES})
   set(LUA_LIBRARIES liblua)
   set(LUA_FOUND TRUE)
 elseif(ENABLE_LUAJIT)

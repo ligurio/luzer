@@ -26,10 +26,13 @@ build = {
     -- https://github.com/luarocks/luarocks/blob/7ed653f010671b3a7245be9adcc70068c049ef68/docs/config_file_format.md#config-file-format
     -- luacheck: pop
     variables = {
-        CMAKE_LUADIR = "$(LUADIR)",
-        CMAKE_LIBDIR = "$(LIBDIR)",
         CMAKE_BUILD_TYPE = "RelWithDebInfo",
         CMAKE_C_COMPILER = "clang",
         CMAKE_CXX_COMPILER = "clang++",
+        CMAKE_LIBDIR = "$(LIBDIR)",
+        CMAKE_LUADIR = "$(LUADIR)",
+        ENABLE_LUAJIT = "$(ENABLE_LUAJIT)",
+        LUAJIT_FRIENDLY_MODE = "$(LUAJIT_FRIENDLY_MODE)",
+        OSS_FUZZ = "$(OSS_FUZZ)",
     },
 }
