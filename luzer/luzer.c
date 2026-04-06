@@ -37,7 +37,9 @@
 #define DEBUG_HOOK_FUNC "luzer_custom_hook"
 
 static lua_State *LL;
+#if defined(LUA_HAS_JIT) && defined(LUAJIT_FRIENDLY_MODE)
 static int jit_status = 0;
+#endif /* LUA_HAS_JIT && LUAJIT_FRIENDLY_MODE */
 
 int internal_hook_disabled = 0;
 
@@ -208,10 +210,10 @@ sig_handler(int sig)
 }
 
 /* Returns the current status of the JIT compiler. */
+#if defined(LUA_HAS_JIT) && defined(LUAJIT_FRIENDLY_MODE)
 NO_SANITIZE static int
 luajit_has_enabled_jit(lua_State *L)
 {
-#if defined(LUA_HAS_JIT)
 	lua_getglobal(L, "jit");
 	lua_getfield(L, -1, "status");
 	/*
@@ -223,10 +225,8 @@ luajit_has_enabled_jit(lua_State *L)
 	 */
 	lua_pcall(L, 0, 1, 0);
 	return lua_toboolean(L, -1);
-#else
-	return 0;
-#endif
 }
+#endif /* LUA_HAS_JIT && LUAJIT_FRIENDLY_MODE */
 
 NO_SANITIZE int
 luaL_mutate(lua_State *L)
@@ -524,7 +524,9 @@ luaL_fuzz(lua_State *L)
 	}
 	lua_pop(L, -1);
 
+#if defined(LUA_HAS_JIT) && defined(LUAJIT_FRIENDLY_MODE)
 	jit_status = luajit_has_enabled_jit(L);
+#endif
 	set_global_lua_state(L);
 	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 
