@@ -27,6 +27,52 @@ int table_nkeys(lua_State *L, int idx);
  */
 #define FDP_LUA_UDATA_NAME	"fdp"
 
+#define FDP_REFS_TABLE	"LUZER_FDP_REFS"
+
+#if LUA_VERSION_NUM == 501
+#define lua_rawlen(L, idx)	lua_objlen((L), (idx))
+#endif
+
+NO_SANITIZE int
+ref_fdp(lua_State *L) {
+	luaL_checktype(L, -1, LUA_TUSERDATA);
+	lua_pushvalue(L, -1);
+	int ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+	lua_getfield(L, LUA_REGISTRYINDEX, FDP_REFS_TABLE);
+	if (lua_isnil(L, -1)) {
+		lua_pop(L, 1);
+		lua_newtable(L);
+		lua_pushvalue(L, -1);
+		lua_setfield(L, LUA_REGISTRYINDEX, FDP_REFS_TABLE);
+	}
+	int n = lua_rawlen(L, -1);
+	lua_pushinteger(L, ref);
+	lua_rawseti(L, -2, n + 1);
+	lua_pop(L, 1);
+
+	return 0;
+}
+
+NO_SANITIZE void
+unref_fdp(lua_State *L) {
+	lua_getfield(L, LUA_REGISTRYINDEX, FDP_REFS_TABLE);
+	if (lua_isnil(L, -1)) {
+		lua_pop(L, 1);
+		return;
+	}
+	int n = lua_rawlen(L, -1);
+	for (int i = 1; i <= n; i++) {
+		lua_rawgeti(L, -1, i);
+		int ref = lua_tointeger(L, -1);
+		luaL_unref(L, LUA_REGISTRYINDEX, ref);
+		lua_pop(L, 1);
+	}
+	lua_pushnil(L);
+	lua_setfield(L, LUA_REGISTRYINDEX, FDP_REFS_TABLE);
+	lua_pop(L, 1);
+}
+
 /*
  * A convenience wrapper turning the raw fuzzer input bytes into Lua primitive
  * types. The methods behave similarly to math.random(), with all returned
@@ -306,6 +352,8 @@ luaL_fuzzed_data_provider(lua_State *L)
 
 	luaL_getmetatable(L, FDP_LUA_UDATA_NAME);
 	lua_setmetatable(L, -2);
+
+	ref_fdp(L);
 
 	return 1;
 }

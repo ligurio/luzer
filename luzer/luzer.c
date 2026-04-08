@@ -151,9 +151,9 @@ get_symbol_path(void *addr) {
 	return path;
 }
 
-const char *dso_path_lf_asan;
-const char *dso_path_lf_ubsan;
-const char *dso_path_libcustom_mutator;
+char *dso_path_lf_asan;
+char *dso_path_lf_ubsan;
+char *dso_path_libcustom_mutator;
 
 NO_SANITIZE void
 init(void)
@@ -290,6 +290,59 @@ teardown(void)
 	metrics_print();
 }
 
+NO_SANITIZE static int
+luzer_cleanup(lua_State *L)
+{
+	lua_pushnil(L);
+	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
+	lua_pushnil(L);
+	lua_setglobal(L, DEBUG_HOOK_FUNC);
+	lua_pushnil(L);
+	lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
+	unref_fdp(L);
+
+	free(dso_path_lf_asan);
+	dso_path_lf_asan = NULL;
+	free(dso_path_lf_ubsan);
+	dso_path_lf_ubsan = NULL;
+	free(dso_path_libcustom_mutator);
+	dso_path_libcustom_mutator = NULL;
+
+	return 0;
+}
+
+NO_SANITIZE static void
+shutdown_lua(void)
+{
+	lua_State *L = get_global_lua_state();
+	luzer_cleanup(L);
+	lua_settop(L, 0);
+	lua_gc(L, LUA_GCCOLLECT, 0);
+	lua_gc(L, LUA_GCCOLLECT, 0);
+	lua_close(L);
+	set_global_lua_state(NULL);
+}
+
+int atexit_retcode;
+
+NO_SANITIZE void
+atexit_handler(void)
+{
+	_exit(atexit_retcode);
+}
+
+NO_SANITIZE static void
+graceful_exit(int retcode, bool prevent_crash_report)
+{
+	if (prevent_crash_report) {
+		/* Override libFuzzer's atexit(). */
+		atexit_retcode = retcode;
+		atexit(&atexit_handler);
+	}
+	shutdown_lua();
+	exit(retcode);
+}
+
 NO_SANITIZE int
 TestOneInput(const uint8_t* data, size_t size) {
 	const counter_and_pc_table_range alloc = allocate_counters_and_pcs();
@@ -344,18 +397,6 @@ TestOneInput(const uint8_t* data, size_t size) {
 	LUA_SETHOOK(L, debug_hook, 0, 0);
 
 	return rc;
-}
-
-NO_SANITIZE static int
-luaL_cleanup(lua_State *L)
-{
-	lua_pushnil(L);
-	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
-	lua_pushnil(L);
-	lua_setglobal(L, DEBUG_HOOK_FUNC);
-	lua_pushnil(L);
-	lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
-	return 0;
 }
 
 NO_SANITIZE static int
@@ -433,33 +474,6 @@ free_argv(int argc, char **argv)
 	for (int i = 0; i < argc; i++)
 		free(argv[i]);
 	free(argv);
-}
-
-NO_SANITIZE static void
-shutdown_lua(void)
-{
-	lua_State *L = get_global_lua_state();
-	luaL_cleanup(L);
-	lua_close(L);
-	set_global_lua_state(NULL);
-}
-
-int atexit_retcode;
-
-NO_SANITIZE void
-atexit_handler(void) {
-	_exit(atexit_retcode);
-}
-
-NO_SANITIZE static void
-graceful_exit(int retcode, bool prevent_crash_report) {
-	if (prevent_crash_report) {
-		/* Disable libFuzzer's atexit(). */
-		atexit_retcode = retcode;
-		atexit(&atexit_handler);
-	}
-	shutdown_lua();
-	exit(retcode);
 }
 
 NO_SANITIZE static int
@@ -561,7 +575,10 @@ luaL_fuzz(lua_State *L)
 	jit_status = luajit_has_enabled_jit(L);
 #endif
 	set_global_lua_state(L);
-	graceful_exit(LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput), true);
+	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
+	free_argv(argc, argv);
+	free((void *)corpus_path);
+	graceful_exit(rc, true);
 	return 0;
 }
 

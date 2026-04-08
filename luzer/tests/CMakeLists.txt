@@ -431,7 +431,7 @@ add_test(
 )
 set_tests_properties(luzer_leak_fdp PROPERTIES
   ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH};LD_PRELOAD=${ASAN_DSO_PATH}"
-  PASS_REGULAR_EXPRESSION "LeakSanitizer: detected memory leaks"
+  PASS_REGULAR_EXPRESSION "Done 100 runs in [0-9]+ second"
 )
 
 string(JOIN ";" TEST_ENV
