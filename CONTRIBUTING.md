@@ -14,6 +14,13 @@ a package `libclang-common-XX-dev`, where XX is a Clang version.
 
 On macOS: `brew install llvm cmake luajit`.
 
+On Nix:
+
+- Build `luzer` package with LuaJIT: `nix build`
+- build `luzer` package with PUC Rio Lua 5.4: `nix build .#lua54`
+- Developer shell for building `luzer` with LuaJIT: `nix develop`
+- Developer shell for building `luzer` with PUC Rio Lua 5.4: `nix develop .#lua54`
+
 ### Building
 
 On Debian:

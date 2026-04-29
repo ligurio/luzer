@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   variables to the rockspec.
 - Support for building on i386 (#83).
 - Testing with PUC Rio Lua 5.5.
+- Nix flake.
 
 ### Changed
 
