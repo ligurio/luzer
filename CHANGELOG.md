@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `ENABLE_LUAJIT`, `LUAJIT_FRIENDLY_MODE` and `OSS_FUZZ`
   variables to the rockspec.
 - Support for building on i386 (#83).
+- Nix flake.
 
 ### Changed
 
