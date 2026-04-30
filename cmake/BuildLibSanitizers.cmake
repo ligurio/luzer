@@ -40,8 +40,8 @@ macro(GEN_BUILD_TARGET name libsanitizer_path libfuzzer_path
   set(LINK_COMMAND
     ${CMAKE_C_COMPILER}
     -Wl,--whole-archive
-    ${libfuzzer_name}
-    ${libsanitizer_name}
+    ${CMAKE_CURRENT_BINARY_DIR}/${libfuzzer_name}
+    ${CMAKE_CURRENT_BINARY_DIR}/${libsanitizer_name}
     -Wl,--no-whole-archive
     -lstdc++
     -lpthread
@@ -52,8 +52,8 @@ macro(GEN_BUILD_TARGET name libsanitizer_path libfuzzer_path
   if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(LINK_COMMAND
       ${CMAKE_C_COMPILER}
-      ${libfuzzer_name}
-      ${libsanitizer_name}
+      ${CMAKE_CURRENT_BINARY_DIR}/${libfuzzer_name}
+      ${CMAKE_CURRENT_BINARY_DIR}/${libsanitizer_name}
       -lstdc++
       -lpthread
       -dynamiclib
