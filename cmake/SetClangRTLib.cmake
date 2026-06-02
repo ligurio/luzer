@@ -28,12 +28,12 @@ function(SetClangLibPath lib_name outvar)
 
   execute_process(COMMAND ${CMAKE_C_COMPILER} "-print-file-name=${lib_name}"
     RESULT_VARIABLE CMD_ERROR
-    OUTPUT_VARIABLE CMD_OUTPUT
+    OUTPUT_VARIABLE LIB_PATH
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
   if (CMD_ERROR)
     message(FATAL_ERROR "${CMD_ERROR}")
   endif ()
-  set(${outvar} ${CMD_OUTPUT} PARENT_SCOPE)
-  message(STATUS "[SetClangRTLib] ${outvar} is ${CMD_OUTPUT}")
+  set(${outvar} ${LIB_PATH} PARENT_SCOPE)
+  message(STATUS "[SetClangRTLib] ${outvar} is ${LIB_PATH}")
 endfunction()
