@@ -3,7 +3,14 @@
 # match to hardware architecture name used in a library name of
 # libclang_rt.fuzzer_no_main: aarch64, x86_64, i386.
 function(SetHwArchString outvar)
-  set(${outvar} ${CMAKE_SYSTEM_PROCESSOR} PARENT_SCOPE)
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64" AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+    set(HW_ARCH "i386")
+  elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
+    set(HW_ARCH "aarch64")
+  else()
+    set(HW_ARCH ${CMAKE_SYSTEM_PROCESSOR})
+  endif()
+  set(${outvar} ${HW_ARCH} PARENT_SCOPE)
 endfunction()
 
 # The function sets the given variable in a parent scope to a
