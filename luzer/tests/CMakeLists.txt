@@ -89,6 +89,34 @@ set_tests_properties(luzer_options_jobs_test PROPERTIES
   PASS_REGULAR_EXPRESSION "Job 4 exited with exit code 0"
 )
 
+set(LUAJIT_METRICS_MESSAGE "Total number of recorded traces")
+if (NOT LUAJIT_FRIENDLY_MODE)
+  set(LUAJIT_METRICS_MESSAGE "LuaJIT metrics disabled.")
+endif()
+add_test(
+  NAME luzer_options_jobs_metrics_test
+  COMMAND ${LUA_EXECUTABLE}
+          ${CMAKE_CURRENT_SOURCE_DIR}/test_luajit_friendly.lua
+          -runs=100 -jobs=2
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_options_jobs_metrics_test PROPERTIES
+  ENVIRONMENT "DISABLE_LUAJIT_METRICS=1;LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  FAIL_REGULAR_EXPRESSION "(${LUAJIT_METRICS_MESSAGE})(.*\\n.*\\1)+"
+)
+
+add_test(
+  NAME luzer_options_fork_metrics_test
+  COMMAND ${LUA_EXECUTABLE}
+          ${CMAKE_CURRENT_SOURCE_DIR}/test_luajit_friendly.lua
+          -runs=100 -fork=1
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_options_fork_metrics_test PROPERTIES
+  ENVIRONMENT "DISABLE_LUAJIT_METRICS=1;LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  FAIL_REGULAR_EXPRESSION "(${LUAJIT_METRICS_MESSAGE})(.*\\n.*\\1)+"
+)
+
 add_test(
   NAME luzer_options_help_test
   COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_2.lua

@@ -11,6 +11,7 @@
 #ifdef LUA_HAS_JIT
 #include "luajit.h"
 #endif /* LUA_HAS_JIT */
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -50,12 +51,42 @@ static int jit_status = 0;
 #endif /* LUA_HAS_JIT && LUAJIT_FRIENDLY_MODE */
 
 int internal_hook_disabled = 0;
+static bool fork_mode = false;
+static bool fork_mode_main = false;
+static bool metrics_printed = false;
 
 #define LUA_SETHOOK(lua_state, hook, mask, count) \
 	do { \
 		if (!internal_hook_disabled) \
 			lua_sethook((lua_state), (hook), (mask), (count)); \
 	} while(0)
+
+/**
+ * Checks whether the current call is from the original (parent)
+ * process or from a forked child process. On first call, stores
+ * the current process PID. On subsequent calls, compares the
+ * stored PID with the current PID to detect fork().
+ *
+ * @return 1 - original (parent) process
+ *         0 - forked child process
+ */
+NO_SANITIZE static int
+check_parent_or_child(void)
+{
+	static pid_t saved_pid = -1;
+	static bool first_call = true;
+
+	if (first_call) {
+		saved_pid = getpid();
+		first_call = false;
+		return 1;
+	}
+
+	if (saved_pid == getpid())
+		return 1;
+	else
+		return 0;
+}
 
 NO_SANITIZE static void
 set_global_lua_state(lua_State *L)
@@ -266,6 +297,14 @@ luaL_set_custom_mutator(lua_State *L)
 }
 
 NO_SANITIZE static int
+luaL_set_fork_mode(lua_State *L)
+{
+	fork_mode = true;
+	fork_mode_main = true;
+	return 0;
+}
+
+NO_SANITIZE static int
 luaL_test_one_input(lua_State *L)
 {
 	lua_getglobal(L, TEST_ONE_INPUT_FUNC);
@@ -287,7 +326,20 @@ luaL_test_one_input(lua_State *L)
 __attribute__((destructor)) static void
 teardown(void)
 {
-	metrics_print();
+	/*
+	 * In single-process mode, print metrics from the destructor.
+	 * In fork/jobs mode, the main process prints metrics once:
+	 *   - from teardown() for -fork (exit() is called inside libFuzzer)
+	 *   - after LLVMFuzzerRunDriver() for -jobs (returns normally)
+	 * Child processes (fork/exec) always skip printing.
+	 */
+	if (fork_mode_main) {
+		if (!metrics_printed)
+			metrics_print();
+	} else if (!fork_mode) {
+		if (check_parent_or_child() == 1)
+			metrics_print();
+	}
 }
 
 NO_SANITIZE int
@@ -438,6 +490,17 @@ free_argv(int argc, char **argv)
 NO_SANITIZE static int
 luaL_fuzz(lua_State *L)
 {
+	/* Remember PID. */
+	check_parent_or_child();
+
+	/*
+	 * If LUZER_IN_FORK_MODE is set, this process is a child
+	 * spawned by libFuzzer's -jobs mode. Mark fork_mode without
+	 * setting fork_mode_main so children skip metrics printing.
+	 */
+	if (getenv("LUZER_IN_FORK_MODE"))
+		fork_mode = true;
+
 	const char *str = luaL_checkstring(L, -1);
 	lua_pop(L, 1);
 	char *argv_0 = strdup(str);
@@ -534,7 +597,27 @@ luaL_fuzz(lua_State *L)
 	jit_status = luajit_has_enabled_jit(L);
 #endif
 	set_global_lua_state(L);
+
+	/*
+	 * Set an environment variable so child processes spawned
+	 * via -jobs (which use exec, not fork) know they are
+	 * running in fork/jobs mode and should skip printing.
+	 */
+	if (fork_mode)
+		setenv("LUZER_IN_FORK_MODE", "1", 1);
+
 	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
+
+	/*
+	 * In -jobs mode, the main process returns here after all
+	 * child jobs have completed. Print metrics once.
+	 * In -fork mode, libFuzzer calls exit() inside FuzzWithFork,
+	 * so we never reach this point; printing happens in teardown().
+	 */
+	if (fork_mode_main) {
+		metrics_print();
+		metrics_printed = true;
+	}
 
 	free_argv(argc, argv);
 	luaL_cleanup(L);
@@ -548,6 +631,7 @@ static const struct luaL_Reg Module[] = {
 	{ "Fuzz", luaL_fuzz },
 	{ "FuzzedDataProvider", luaL_fuzzed_data_provider },
 	{ "_set_custom_mutator", luaL_set_custom_mutator },
+	{ "_set_fork_mode", luaL_set_fork_mode },
 	{ "_mutate", luaL_mutate },
 	{ NULL, NULL }
 };

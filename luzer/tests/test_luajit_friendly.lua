@@ -1,13 +1,11 @@
 local luzer = require("luzer")
 
-local chunk = [[
 local function fib(n)
   if n <= 1 then
       return n
   end
   return fib(n - 1) + fib(n - 2)
 end
-]]
 
 local function TestOneInput(buf)
     local fdp = luzer.FuzzedDataProvider(buf)
@@ -24,7 +22,7 @@ local function TestOneInput(buf)
     end
 
     -- Needed for testing LuaJIT metric with parsed functions.
-    load(chunk)
+    fib(5)
 end
 
 local args = {
