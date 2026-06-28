@@ -31,11 +31,15 @@
 #ifdef __has_attribute
 #if __has_attribute(no_sanitize)
 #define NO_SANITIZE_MEMORY __attribute__((no_sanitize("memory")))
+#define NO_SANITIZE_UNSIGNED_INT_OVERFLOW \
+  __attribute__((no_sanitize("unsigned-integer-overflow")))
 #else
 #define NO_SANITIZE_MEMORY
+#define NO_SANITIZE_UNSIGNED_INT_OVERFLOW
 #endif  // __has_attribute(no_sanitize)
 #else
 #define NO_SANITIZE_MEMORY
+#define NO_SANITIZE_UNSIGNED_INT_OVERFLOW
 #endif  // __has_attribute
 
 /*
