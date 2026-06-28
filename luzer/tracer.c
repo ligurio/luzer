@@ -41,7 +41,7 @@ _trace_branch(uint64_t idx)
 	increment_counter(idx);
 }
 
-NO_SANITIZE static inline unsigned int
+NO_SANITIZE NO_SANITIZE_UNSIGNED_INT_OVERFLOW static inline unsigned int
 lhash(const char *key, size_t offset)
 {
 	const char *const last = &key[strlen(key) - 1];
