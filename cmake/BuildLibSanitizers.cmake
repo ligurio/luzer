@@ -15,9 +15,8 @@ macro(GEN_BUILD_TARGET name libsanitizer_path libfuzzer_path
   get_filename_component(libfuzzer_name ${libfuzzer_path} NAME)
 
   add_custom_target(copy_libs_${name}
-    COMMENT "Copy libFuzzer and sanitizer libraries"
+    COMMENT "Copy sanitizer library ${name}"
     COMMAND ${CMAKE_COMMAND} -E copy ${libsanitizer_path} ${libsanitizer_name}
-    COMMAND ${CMAKE_COMMAND} -E copy ${libfuzzer_path} ${libfuzzer_name}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
 
@@ -66,6 +65,7 @@ macro(GEN_BUILD_TARGET name libsanitizer_path libfuzzer_path
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     BYPRODUCTS ${sanitizer_dso_name}
   )
+  add_dependencies(build_dso_${name} copy_libFuzzer)
   if (NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     add_dependencies(build_dso_${name} strip_lib_${name})
   else()
@@ -88,6 +88,14 @@ endif()
 
 set(ASAN_DSO "libfuzzer_with_asan${CMAKE_SHARED_LIBRARY_SUFFIX}")
 set(UBSAN_DSO "libfuzzer_with_ubsan${CMAKE_SHARED_LIBRARY_SUFFIX}")
+
+get_filename_component(FUZZER_NO_MAIN_LIB_NAME ${FUZZER_NO_MAIN_LIBRARY} NAME)
+add_custom_target(copy_libFuzzer
+  COMMENT "Copy libFuzzer library"
+  COMMAND ${CMAKE_COMMAND} -E copy
+    ${FUZZER_NO_MAIN_LIBRARY} ${FUZZER_NO_MAIN_LIB_NAME}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 GEN_BUILD_TARGET("asan"
   ${LIBCLANG_ASAN_LIB}
