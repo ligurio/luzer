@@ -58,3 +58,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - An initial buffer size in FuzzedDataProvider.
 - Search of the archiver tool (`ar`) in the OSS Fuzz environment.
 - An error when Clang couldn't find the library.
+- A possible corruption on copying library (#91).
