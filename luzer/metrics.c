@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include "macros.h"
 #include "metrics.h"
 
 static struct metrics metrics = { 0 };
@@ -23,7 +24,7 @@ jit_attach(lua_State *L, void *func, const char *event)
  *
  * Arguments: tr, func, pc, depth, callee.
  */
-static int
+NO_SANITIZE static int
 record_cb(lua_State *L) {
 	metrics.jit_trace_record_num++;
 	return 0;
@@ -34,7 +35,7 @@ record_cb(lua_State *L) {
  *
  * Arguments: func.
  */
-static int
+NO_SANITIZE static int
 bc_cb(lua_State *L) {
 	metrics.bc_num++;
 	return 0;
@@ -45,7 +46,7 @@ bc_cb(lua_State *L) {
  *
  * Arguments: tr, ex, ngpr, nfpr, ... .
  */
-static int
+NO_SANITIZE static int
 texit_cb(lua_State *L) {
 	metrics.texit_num++;
 	return 0;
@@ -56,7 +57,7 @@ texit_cb(lua_State *L) {
  *
  * Arguments: what, tr, func, pc, otr, oex.
  */
-static int
+NO_SANITIZE static int
 trace_cb(lua_State *L) {
 	const char *what = lua_tostring(L, 1);
 	if (strcmp(what, "abort") == 0) {
@@ -65,7 +66,7 @@ trace_cb(lua_State *L) {
 	return 0;
 }
 
-void
+NO_SANITIZE void
 metrics_print(void)
 {
 	if (!metrics.use_luajit_hooks) {
@@ -84,12 +85,12 @@ metrics_print(void)
 #endif /* LUA_HAS_JIT && LUAJIT_FRIENDLY_MODE */
 }
 
-void
+NO_SANITIZE void
 metrics_use_luajit_hooks(void) {
 	metrics.use_luajit_hooks = true;
 }
 
-void
+NO_SANITIZE void
 metrics_enable_luajit_hooks(lua_State *L)
 {
 	if (!metrics.use_luajit_hooks)
@@ -100,7 +101,7 @@ metrics_enable_luajit_hooks(lua_State *L)
 	jit_attach(L, (void *)trace_cb, "trace");
 }
 
-void
+NO_SANITIZE void
 metrics_disable_luajit_hooks(lua_State *L)
 {
 	if (!metrics.use_luajit_hooks)
