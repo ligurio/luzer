@@ -43,13 +43,11 @@ add_compile_options(
   -Wno-unused-parameter
   -Wpedantic
 )
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-  # It turns out that macOS set _FORTIFY_SOURCE internally, so we
-  # need to undefine it first, otherwise an error "'_FORTIFY_SOURCE'
-  # macro redefined" breaks a building.
-  add_compile_options(-U_FORTIFY_SOURCE)
-  add_compile_options(-D_FORTIFY_SOURCE=2)
-endif()
+# _FORTIFY_SOURCE requires optimization (-O). When building without
+# optimization (Debug) or with -O0 (ASan/UBSan tests), glibc 2.40+
+# errors out. Since the toolchain may define _FORTIFY_SOURCE by
+# default (e.g. NixOS), undefine it unconditionally.
+add_compile_options(-U_FORTIFY_SOURCE)
 
 set(LUZER_SOURCES luzer.c
                   compat.c
