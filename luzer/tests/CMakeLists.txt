@@ -215,8 +215,8 @@ macro(generate_luac_lib name cflags)
 endmacro()
 
 generate_luac_lib(luac "")
-generate_luac_lib(luac_asan "-fsanitize=address;-O0")
-generate_luac_lib(luac_ubsan "-fsanitize=undefined;-O0")
+generate_luac_lib(luac_asan "-fsanitize=address;-O1")
+generate_luac_lib(luac_ubsan "-fsanitize=undefined;-O1")
 
 macro(generate_luac_test name env_vars pass_regex)
   add_test(NAME ${name}
@@ -347,8 +347,8 @@ macro(generate_testlib name cflags)
 endmacro()
 
 generate_testlib(testlib "")
-generate_testlib(testlib_asan "-fsanitize=address;-O0")
-generate_testlib(testlib_ubsan "-fsanitize=undefined;-O0")
+generate_testlib(testlib_asan "-fsanitize=address;-O1")
+generate_testlib(testlib_ubsan "-fsanitize=undefined;-O1")
 
 macro(generate_ffi_test name env_vars pass_regex)
   add_test(
