@@ -36,8 +36,10 @@ macro(GEN_BUILD_TARGET name libsanitizer_path libfuzzer_path
     DEPENDS copy_libs_${name}
   )
 
+  string(REPLACE " " ";" CMAKE_C_FLAGS_LIST "${CMAKE_C_FLAGS}")
   set(LINK_COMMAND
     ${CMAKE_C_COMPILER}
+    ${CMAKE_C_FLAGS_LIST}
     -Wl,--whole-archive
     ${CMAKE_CURRENT_BINARY_DIR}/${libfuzzer_name}
     ${CMAKE_CURRENT_BINARY_DIR}/${libsanitizer_name}
@@ -51,6 +53,7 @@ macro(GEN_BUILD_TARGET name libsanitizer_path libfuzzer_path
   if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(LINK_COMMAND
       ${CMAKE_C_COMPILER}
+      ${CMAKE_C_FLAGS_LIST}
       ${CMAKE_CURRENT_BINARY_DIR}/${libfuzzer_name}
       ${CMAKE_CURRENT_BINARY_DIR}/${libsanitizer_name}
       -lstdc++
