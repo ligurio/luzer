@@ -26,7 +26,9 @@ function(SetClangLibPath lib_name outvar)
     message(FATAL_ERROR "C compiler is not a Clang")
   endif ()
 
-  execute_process(COMMAND ${CMAKE_C_COMPILER} "-print-file-name=${lib_name}"
+  string(REPLACE " " ";" CMAKE_C_FLAGS_LIST "${CMAKE_C_FLAGS}")
+  execute_process(
+    COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS_LIST} "-print-file-name=${lib_name}"
     RESULT_VARIABLE CMD_ERROR
     OUTPUT_VARIABLE LIB_PATH
     OUTPUT_STRIP_TRAILING_WHITESPACE
