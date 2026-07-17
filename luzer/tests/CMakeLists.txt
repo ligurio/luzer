@@ -419,3 +419,15 @@ if (LUA_HAS_JIT)
     "runtime error: load of null pointer of type"
   )
 endif()
+
+# FuzzedDataProvider leak test (issue #52)
+add_test(
+  NAME luzer_leak_fdp
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_leak_fdp.lua
+          -runs=100
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_leak_fdp PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH};LD_PRELOAD=${ASAN_DSO_PATH}"
+  PASS_REGULAR_EXPRESSION "LeakSanitizer: detected memory leaks"
+)
