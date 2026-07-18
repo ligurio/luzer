@@ -363,6 +363,11 @@ macro(generate_ffi_test name env_vars pass_regex)
   )
 endmacro()
 
+list(APPEND LSAN_REGULAR_EXPRESSION
+  "LeakSanitizer: detected memory leaks"
+  "[0-9]+ byte(s) leaked in [0-9]+ allocation"
+)
+
 list(APPEND TEST_ENV
   "LD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR};"
 )
@@ -376,10 +381,7 @@ if (LUA_HAS_JIT)
     LD_PRELOAD=${ASAN_DSO_PATH}
     FFI_LIB_NAME=testlib_asan${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
-  # XXX: Memory leak in FDP is expected on Linux, should be fixed
-  # in [1].
-  # 1. https://github.com/ligurio/luzer/issues/52
-  set(PASS_PATTERN "LeakSanitizer: detected memory leaks")
+  set(PASS_PATTERN ${LSAN_REGULAR_EXPRESSION})
   if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(PASS_PATTERN "Done 10 runs in 0 second")
   endif()
@@ -419,3 +421,45 @@ if (LUA_HAS_JIT)
     "runtime error: load of null pointer of type"
   )
 endif()
+
+# FuzzedDataProvider leak test (issue #52)
+add_test(
+  NAME luzer_leak_fdp
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_leak_fdp.lua
+          -runs=100
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_leak_fdp PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH};LD_PRELOAD=${ASAN_DSO_PATH}"
+  PASS_REGULAR_EXPRESSION "Done 100 runs in [0-9]+ second"
+)
+
+string(JOIN ";" TEST_ENV
+  "LUA_CPATH=${LUA_CPATH}"
+  "LUA_PATH=${LUA_PATH}"
+  "LD_PRELOAD=${ASAN_DSO_PATH}"
+)
+add_test(
+  NAME luzer_missed_dict_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_3.lua
+          -dict=${CMAKE_CURRENT_SOURCE_DIR}/nonexistent.dict
+)
+set_tests_properties(luzer_missed_dict_test PROPERTIES
+  ENVIRONMENT "${TEST_ENV}"
+  PASS_REGULAR_EXPRESSION "ParseDictionaryFile: file does not exist or is empty"
+  FAIL_REGULAR_EXPRESSION "${LSAN_REGULAR_EXPRESSION}"
+)
+
+add_test(
+  NAME luzer_leak_memory_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/leak_memory.lua
+          -rss_limit_mb=500
+)
+list(APPEND PASS_REGULAR_EXPRESSION
+  "libFuzzer disabled leak detection after every mutation"
+  "ERROR: libFuzzer: out-of-memory"
+)
+set_tests_properties(luzer_leak_memory_test PROPERTIES
+  ENVIRONMENT "${TEST_ENV}"
+  PASS_REGULAR_EXPRESSION "${PASS_REGULAR_EXPRESSION}"
+)
