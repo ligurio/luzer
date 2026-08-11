@@ -69,6 +69,9 @@ local function Fuzz(test_one_input, custom_mutator, func_args)
         error("args is not a table")
     end
     local flags = build_flags(arg, luzer_args)
+    if flags.fork or flags.jobs then
+        luzer_impl._set_fork_mode()
+    end
     local test_path = arg[0]
     local lua_bin = progname(arg)
     local test_cmd = ("%s %s"):format(lua_bin, test_path)
