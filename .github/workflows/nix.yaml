@@ -1,0 +1,29 @@
+name: Nix
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  nix-flake:
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v4
+
+      - name: Setup magic Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v2
+
+      - name: Check flake
+        run: nix flake check
+
+      - name: Build default package
+        run: nix build .#default
