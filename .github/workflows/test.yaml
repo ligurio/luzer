@@ -15,12 +15,15 @@ jobs:
         os: [ubuntu-24.04, macos-26]
         BUILDTYPE: [Debug, Release]
         LIBLUA:
+          - "5.5"
           - "5.4"
           - "5.3"
           - "5.2"
           - "5.1"
           - "luajit-v2.1"
         exclude:
+          - os: macos-26
+            LIBLUA: "5.5"
           - os: macos-26
             LIBLUA: "5.4"
           - os: macos-26
@@ -34,6 +37,8 @@ jobs:
             CMAKEFLAGS: -DCMAKE_BUILD_TYPE=Debug
           - BUILDTYPE: Release
             CMAKEFLAGS: -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          - LIBLUA: "5.5"
+            PACKAGES: ""
           - LIBLUA: "5.4"
             PACKAGES: lua5.4 liblua5.4-dev
           - LIBLUA: "5.3"
@@ -62,12 +67,18 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install llvm luajit cmake ninja
 
+      - name: Build Lua 5.5 from source
+        if: matrix.LIBLUA == '5.5'
+        uses: ./.github/actions/build-lua
+        with:
+          version: 5.5.1
+
       - name: Running CMake (Linux)
         if: runner.os == 'Linux'
         run: >
           cmake -S . -B build -G Ninja -DENABLE_TESTING=ON
           -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15
-          ${{ matrix.CMAKEFLAGS }} ${{ matrix.FLAVORFLAGS }}
+          ${{ matrix.CMAKEFLAGS }} ${{ matrix.FLAVORFLAGS }} ${{ env.LUACFLAGS }}
 
       - name: Define Brew prefixes (macOS)
         if: runner.os == 'macOS'
