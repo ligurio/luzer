@@ -1,0 +1,27 @@
+name: Build Lua from source
+description: Download and build a PUC Rio Lua version from source
+
+inputs:
+  version:
+    description: PUC Rio Lua version to build (e.g. 5.5.1)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Download PUC Rio Lua tarball ${{ inputs.version }}
+      shell: bash
+      run: |
+        curl -fsSL -o lua-${{ inputs.version }}.tar.gz \
+          https://www.lua.org/ftp/lua-${{ inputs.version }}.tar.gz
+        tar -xzf lua-${{ inputs.version }}.tar.gz
+
+    - name: Build PUC Rio Lua ${{ inputs.version }}
+      shell: bash
+      working-directory: lua-${{ inputs.version }}
+      run: make linux MYCFLAGS=-fPIC -j$(getconf _NPROCESSORS_ONLN)
+
+    - name: Set CMake flags for PUC Rio Lua ${{ inputs.version }}
+      shell: bash
+      run: |
+        echo "LUACFLAGS=-DCMAKE_LUA_INCLUDE_DIR=$GITHUB_WORKSPACE/lua-${{ inputs.version }}/src -DCMAKE_LUA_LIBRARIES=$GITHUB_WORKSPACE/lua-${{ inputs.version }}/src/liblua.a -DLUA_EXECUTABLE=$GITHUB_WORKSPACE/lua-${{ inputs.version }}/src/lua" >> $GITHUB_ENV
