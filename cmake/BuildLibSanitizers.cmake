@@ -14,9 +14,13 @@ macro(GEN_BUILD_TARGET name libsanitizer_path libfuzzer_path
   get_filename_component(libsanitizer_name ${libsanitizer_path} NAME)
   get_filename_component(libfuzzer_name ${libfuzzer_path} NAME)
 
+  # `cmake -E copy` preserves permissions of the source, so a
+  # sanitizer library installed read-only (e.g. in the Nix store)
+  # is copied read-only and `ar d` below fails to rewrite it.
   add_custom_target(copy_libs_${name}
     COMMENT "Copy sanitizer library ${name}"
     COMMAND ${CMAKE_COMMAND} -E copy ${libsanitizer_path} ${libsanitizer_name}
+    COMMAND chmod u+w ${libsanitizer_name}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
 
