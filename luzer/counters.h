@@ -7,18 +7,13 @@ struct PCTableEntry {
 };
 
 // Sets the global number of counters.
-// Must not be called after InitializeCountersWithLLVM is called.
+// Must not be called after allocate_counters_and_pcs is called.
 void set_max_counters(size_t max);
 
-// Returns the maximum number of allocatable luzer counters. If more than this
-// many counters are reserved, luzer reuses counters, lowering fuzz quality.
+// Returns the number of luzer counters. Indices at or beyond it are folded
+// into range by increment_counter, so distinct locations may share a counter,
+// lowering fuzz quality.
 size_t get_max_counters(void);
-
-// Returns a new counter index.
-size_t reserve_counter(void);
-// Reserves a number of counters with contiguous indices, and returns the first
-// index.
-size_t reserve_counters(size_t amount);
 
 // Increments the counter at the given index, folded modulo the maximum
 // number of counters.
