@@ -22,7 +22,13 @@ void __sanitizer_cov_pcs_init(uint8_t* pcs_beg, uint8_t* pcs_end);
 } /* extern "C" */
 #endif
 
-static const size_t kDefaultNumCounters = 1 << 20;
+// libFuzzer reserves 8 feature slots per counter and folds the
+// derived features into a 2^21-entry set, so a counter shares its
+// slots with the one 2^18 positions away and a larger table adds
+// no distinguishable coverage. It also clears and scans every
+// registered counter on each execution, so a larger table costs
+// time on every run.
+static const size_t kDefaultNumCounters = 1 << 18;
 
 // Number of counters and pctable entries that are allocated. Counter indices
 // are folded into this range by increment_counter.
