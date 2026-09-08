@@ -44,6 +44,24 @@ set_tests_properties(luzer_e2e_test PROPERTIES
 )
 
 add_test(
+  NAME luzer_coverage_feedback_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_coverage.lua
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+# The test bounds itself by an execution budget and a wall-clock limit;
+# the CTest timeout is a backstop. PASS relies on CTest ignoring the exit
+# code when PASS_REGULAR_EXPRESSION is set: the guarded branch aborts on
+# purpose.
+set_tests_properties(luzer_coverage_feedback_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "coverage feedback reached the guarded branch"
+  # A counter/PC-table size mismatch aborts libFuzzer before the branch
+  # could be reached; name that class of bug explicitly.
+  FAIL_REGULAR_EXPRESSION "coverage PC tables does not match"
+  TIMEOUT 600
+)
+
+add_test(
   NAME luzer_options_corpus_path_via_table_test
   COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_1.lua
           -max_total_time=1
