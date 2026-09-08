@@ -68,10 +68,11 @@ NO_SANITIZE void
 increment_counter(size_t index)
 {
 	if (counters != NULL && pctable != NULL) {
-		// `counters` is an allocation of length `max_counters`. If we reserve more
-		// than the allocated number of counters, we'll wrap around and overload
-		// old counters, trading away fuzzing quality for limits on memory usage.
-		counters[counter_index % max_counters]++;
+		// `counters` is an allocation of length `max_counters`. The index is a
+		// hash of source:line from the debug hook, so it is folded into range
+		// here; distinct lines may collide, trading resolution for a fixed
+		// memory ceiling.
+		counters[index % max_counters]++;
 	}
 }
 
@@ -105,38 +106,42 @@ allocate_counters_and_pcs(void) {
 						"greater than the number of counters registered.\n");
 		_exit(1);
 	}
-	// Allocate memory.
-	if (counters == NULL || pctable == NULL) {
-		// We mmap memory for pctable and counters, instead of std::vector, ensuring
-		// that there is no initialization. The untouched memory will only cost
-		// virtual memory, which is cheap.
-		counters = (unsigned char*)(
-			mmap(NULL, max_counters, PROT_READ | PROT_WRITE,
-				 MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
-			pctable = (struct PCTableEntry*)(
-					  mmap(NULL, max_counters * sizeof(struct PCTableEntry),
-						   PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
-		if (counters == MAP_FAILED || pctable == MAP_FAILED) {
-			fprintf(stderr, "Internal error: Failed to mmap counters.\n");
-			_exit(1);
-		}
+	if (counters != NULL && pctable != NULL) {
+		// The allocation was handed to libFuzzer on an earlier call.
+		return (counter_and_pc_table_range){NULL, NULL, NULL, NULL};
+	}
+	// We mmap memory for pctable and counters, instead of std::vector, ensuring
+	// that there is no initialization. The untouched memory will only cost
+	// virtual memory, which is cheap.
+	counters = (unsigned char*)(
+		mmap(NULL, max_counters, PROT_READ | PROT_WRITE,
+			 MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
+	pctable = (struct PCTableEntry*)(
+		mmap(NULL, max_counters * sizeof(struct PCTableEntry),
+			 PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
+	if (counters == MAP_FAILED || pctable == MAP_FAILED) {
+		fprintf(stderr, "Internal error: Failed to mmap counters.\n");
+		_exit(1);
 	}
 
-	const size_t next_index = MIN(counter_index, max_counters);
-	if (counter_index_registered >= next_index) {
-		// There are no counters to pass. Perhaps because we've reserved more than
-		// max_counters, or because no counters have been reserved since this was
-		// last called.
-		counter_index_registered = counter_index;
-		return (counter_and_pc_table_range){NULL, NULL, NULL, NULL};
-	} else {
-		counter_and_pc_table_range ranges = {
-			.counters_start = counters + counter_index_registered,
-			.counters_end = counters + next_index,
-			.pctable_start = (uint8_t*)(pctable + counter_index_registered),
-			.pctable_end = (uint8_t*)(pctable + next_index)
-		};
-		counter_index_registered = counter_index;
-		return ranges;
-	}
+	// The debug hook addresses counters by a hash of source:line, so every
+	// bucket is live from the first execution: there is no reservation phase
+	// whose growth a registered range could follow. The whole allocation is
+	// handed to libFuzzer at once.
+	//
+	// The PC table goes with it. libFuzzer maps counters to PCs (the `cov:`
+	// statistic, -print_pcs, -print_funcs, -print_coverage) only while the
+	// number of registered counters equals the number of registered PC
+	// entries across all modules; registering counters alone would switch
+	// that off for native modules too. Lua lines have no machine address, so
+	// the entries stay zero, PC 0 with no function-entry flag, as in Atheris.
+	// They are never written, so the table costs virtual memory only. Since
+	// every PC is zero, those reports cannot name Lua source lines; the
+	// fuzzer is guided by the counter values alone.
+	return (counter_and_pc_table_range){
+		.counters_start = counters,
+		.counters_end = counters + max_counters,
+		.pctable_start = (unsigned char*)pctable,
+		.pctable_end = (unsigned char*)(pctable + max_counters)
+	};
 }

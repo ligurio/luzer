@@ -20,8 +20,8 @@ size_t reserve_counter(void);
 // index.
 size_t reserve_counters(size_t amount);
 
-// Increments a counter at the given index. If more than the maximum number of
-// counters has been reserved, reuse counters.
+// Increments the counter at the given index, folded modulo the maximum
+// number of counters.
 void increment_counter(size_t index);
 
 typedef struct counter_and_pc_table_range {
@@ -33,9 +33,8 @@ typedef struct counter_and_pc_table_range {
 
 // Returns pointers to a range of memory for counters and another for pctable.
 // The intent is for this memory to be handed to Libfuzzer. It will only be
-// deallocated by test_only_reset_counters. The size of the ranges is proportional
-// to the number of counters reserved, unless no new counters were reserved or
-// more than max_counters were already reserved, in which case returns nullptrs.
+// deallocated by test_only_reset_counters. The first call returns the whole
+// allocation, counters and PC table; every later call returns nullptrs.
 counter_and_pc_table_range allocate_counters_and_pcs(void);
 
 // Resets counters' state to defaults. This is not safe for use with the actual
