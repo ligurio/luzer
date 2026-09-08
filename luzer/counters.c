@@ -24,12 +24,8 @@ void __sanitizer_cov_pcs_init(uint8_t* pcs_beg, uint8_t* pcs_end);
 
 static const size_t kDefaultNumCounters = 1 << 20;
 
-// Number of counters requested by Lua instrumentation.
-size_t counter_index = 0;
-// Number of counters given to Libfuzzer.
-size_t counter_index_registered = 0;
-// Maximum number of counters and pctable entries that may be reserved and also
-// the number that are allocated.
+// Number of counters and pctable entries that are allocated. Counter indices
+// are folded into this range by increment_counter.
 size_t max_counters = 0;
 // Counter Allocations. These are allocated once, before __sanitize_... are
 // called and can only be deallocated by test_only_reset_counters.
@@ -47,21 +43,6 @@ test_only_reset_counters(void) {
 		pctable = NULL;
 	}
 	max_counters = 0;
-	counter_index = 0;
-	counter_index_registered = 0;
-}
-
-NO_SANITIZE size_t
-reserve_counters(size_t amount) {
-	size_t ret = counter_index;
-	counter_index += amount;
-	return ret;
-}
-
-NO_SANITIZE size_t
-reserve_counter(void)
-{
-	return counter_index++;
 }
 
 NO_SANITIZE void
@@ -100,11 +81,6 @@ NO_SANITIZE counter_and_pc_table_range
 allocate_counters_and_pcs(void) {
 	if (max_counters < 1) {
 		set_max_counters(kDefaultNumCounters);
-	}
-	if (counter_index < counter_index_registered) {
-		fprintf(stderr, "Internal error: The counter index is "
-						"greater than the number of counters registered.\n");
-		_exit(1);
 	}
 	if (counters != NULL && pctable != NULL) {
 		// The allocation was handed to libFuzzer on an earlier call.
