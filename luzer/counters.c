@@ -43,7 +43,7 @@ test_only_reset_counters(void) {
 		counters = NULL;
 	}
 	if (pctable) {
-		munmap(pctable, max_counters);
+		munmap(pctable, max_counters * sizeof(struct PCTableEntry));
 		pctable = NULL;
 	}
 	max_counters = 0;
