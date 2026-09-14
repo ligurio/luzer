@@ -292,15 +292,6 @@ teardown(void)
 
 NO_SANITIZE int
 TestOneInput(const uint8_t* data, size_t size) {
-	const counter_and_pc_table_range alloc = allocate_counters_and_pcs();
-	if (alloc.counters_start && alloc.counters_end) {
-		__sanitizer_cov_8bit_counters_init(alloc.counters_start,
-										   alloc.counters_end);
-	}
-	if (alloc.pctable_start && alloc.pctable_end) {
-		__sanitizer_cov_pcs_init(alloc.pctable_start, alloc.pctable_end);
-	}
-
 	lua_State *L = get_global_lua_state();
 
 	char *buf = malloc(size + 1 * sizeof(*buf));
@@ -533,6 +524,23 @@ luaL_fuzz(lua_State *L)
 #if defined(LUA_HAS_JIT) && defined(LUAJIT_FRIENDLY_MODE)
 	jit_status = luajit_has_enabled_jit(L);
 #endif
+	/*
+	 * Register the counters and PC table before the run loop.
+	 * libFuzzer prints and validates the registered modules when
+	 * it starts, so doing this here, rather than on the first
+	 * input, puts the luzer table into that report and checks its
+	 * counters against its PC entries. The allocation is handed
+	 * over once and stays live for the whole run.
+	 */
+	const counter_and_pc_table_range alloc = allocate_counters_and_pcs();
+	if (alloc.counters_start && alloc.counters_end) {
+		__sanitizer_cov_8bit_counters_init(alloc.counters_start,
+										   alloc.counters_end);
+	}
+	if (alloc.pctable_start && alloc.pctable_end) {
+		__sanitizer_cov_pcs_init(alloc.pctable_start, alloc.pctable_end);
+	}
+
 	set_global_lua_state(L);
 	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 

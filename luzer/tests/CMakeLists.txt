@@ -62,6 +62,21 @@ set_tests_properties(luzer_coverage_feedback_test PROPERTIES
 )
 
 add_test(
+  NAME luzer_counters_registered_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_registration.lua
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+# The luzer counter table has 2^18 entries, so its module appears in the
+# startup report as "262144 [0x..."; the native instrumentation of the
+# shared library is far smaller. libFuzzer checks the PC table against
+# the counters at startup and aborts on a mismatch.
+set_tests_properties(luzer_counters_registered_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "262144 \\[0x"
+  FAIL_REGULAR_EXPRESSION "coverage PC tables does not match"
+)
+
+add_test(
   NAME luzer_options_corpus_path_via_table_test
   COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_1.lua
           -max_total_time=1
