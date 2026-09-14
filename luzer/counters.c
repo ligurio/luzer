@@ -71,12 +71,6 @@ set_max_counters(size_t max)
 	max_counters = max;
 }
 
-NO_SANITIZE size_t
-get_max_counters(void)
-{
-	return max_counters;
-}
-
 NO_SANITIZE counter_and_pc_table_range
 allocate_counters_and_pcs(void) {
 	if (max_counters < 1) {
