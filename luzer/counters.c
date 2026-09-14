@@ -92,11 +92,17 @@ allocate_counters_and_pcs(void) {
 	counters = (unsigned char*)(
 		mmap(NULL, max_counters, PROT_READ | PROT_WRITE,
 			 MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
+	if (counters == MAP_FAILED) {
+		fprintf(stderr, "Internal error: Failed to mmap counters.\n");
+		_exit(1);
+	}
 	pctable = (struct PCTableEntry*)(
 		mmap(NULL, max_counters * sizeof(struct PCTableEntry),
 			 PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
-	if (counters == MAP_FAILED || pctable == MAP_FAILED) {
-		fprintf(stderr, "Internal error: Failed to mmap counters.\n");
+	if (pctable == MAP_FAILED) {
+		fprintf(stderr, "Internal error: Failed to mmap the PC table.\n");
+		munmap(counters, max_counters);
+		counters = NULL;
 		_exit(1);
 	}
 
