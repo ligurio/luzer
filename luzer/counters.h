@@ -1,9 +1,12 @@
 #ifndef LUZER_COUNTERS_H_
 #define LUZER_COUNTERS_H_
 
+#include <stddef.h>
+#include <stdint.h>
+
 struct PCTableEntry {
-	void* pc;
-	long flags;
+	uintptr_t pc;
+	uintptr_t flags;
 };
 
 // Increments the counter at the given index, folded modulo the maximum
