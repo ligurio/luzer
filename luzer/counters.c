@@ -57,7 +57,8 @@ increment_counter(size_t index)
 	}
 }
 
-NO_SANITIZE void
+// Must not be called after allocate_counters_and_pcs is called.
+NO_SANITIZE static void
 set_max_counters(size_t max)
 {
 	if (counters != NULL && pctable != NULL) {

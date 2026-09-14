@@ -6,10 +6,6 @@ struct PCTableEntry {
 	long flags;
 };
 
-// Sets the global number of counters.
-// Must not be called after allocate_counters_and_pcs is called.
-void set_max_counters(size_t max);
-
 // Increments the counter at the given index, folded modulo the maximum
 // number of counters.
 void increment_counter(size_t index);
