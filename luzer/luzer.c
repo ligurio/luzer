@@ -11,6 +11,7 @@
 #ifdef LUA_HAS_JIT
 #include "luajit.h"
 #endif /* LUA_HAS_JIT */
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,6 +44,7 @@
 #define CUSTOM_MUTATOR_LIB "libcustom_mutator.so"
 #endif /* __APPLE__ */
 #define DEBUG_HOOK_FUNC "luzer_custom_hook"
+#define MP_MODE_ENV "LUZER_MULTIPROCESS_MODE"
 
 static lua_State *LL;
 #if defined(LUA_HAS_JIT) && defined(LUAJIT_FRIENDLY_MODE)
@@ -50,6 +52,12 @@ static int jit_status = 0;
 #endif /* LUA_HAS_JIT && LUAJIT_FRIENDLY_MODE */
 
 int internal_hook_disabled = 0;
+/*
+ * True when the process was spawned by libFuzzer's -fork/-jobs via
+ * exec(), i.e. by a luzer parent process. Such children must not
+ * print metrics: the parent prints the report once.
+ */
+static bool is_child = false;
 
 #define LUA_SETHOOK(lua_state, hook, mask, count) \
 	do { \
@@ -287,7 +295,14 @@ luaL_test_one_input(lua_State *L)
 __attribute__((destructor)) static void
 teardown(void)
 {
-	metrics_print();
+	/*
+	 * Child processes spawned by libFuzzer's -fork/-jobs via exec()
+	 * skip printing; the spawning process prints the metrics once here.
+	 * The destructor runs for -fork (libFuzzer calls exit()) and for
+	 * -jobs (LLVMFuzzerRunDriver() returns normally).
+	 */
+	if (!is_child)
+		metrics_print();
 }
 
 NO_SANITIZE int
@@ -429,6 +444,7 @@ free_argv(int argc, char **argv)
 NO_SANITIZE static int
 luaL_fuzz(lua_State *L)
 {
+	bool multiprocess = false;
 	const char *str = luaL_checkstring(L, -1);
 	lua_pop(L, 1);
 	char *argv_0 = strdup(str);
@@ -450,6 +466,9 @@ luaL_fuzz(lua_State *L)
 	while (lua_next(L, -2) != 0) {
 		const char *key = lua_tostring(L, -2);
 		const char *value = lua_tostring(L, -1);
+		if ((strcmp(key, "fork") == 0 || strcmp(key, "jobs") == 0) &&
+		    atoi(value) > 0)
+			multiprocess = true;
 		if (strcmp(key, "corpus") == 0) {
 			corpus_path = strdup(value);
 			lua_pop(L, 1);
@@ -542,6 +561,16 @@ luaL_fuzz(lua_State *L)
 	}
 
 	set_global_lua_state(L);
+
+	/*
+	 * Mark child processes spawned by libFuzzer's -fork/-jobs via
+	 * exec() so that they skip metrics printing. The marker is
+	 * inherited through the environment and checked at library
+	 * initialization (is_child).
+	 */
+	if (multiprocess && !is_child)
+		setenv(MP_MODE_ENV, "1", 1);
+
 	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 
 	free_argv(argc, argv);
@@ -587,6 +616,8 @@ luaopen_luzer_impl(lua_State *L)
 	lua_rawset(L, -3);
 
 	fdp_metatable_init(L);
+
+	is_child = getenv(MP_MODE_ENV) != NULL;
 
 	if (!getenv("DISABLE_LUAJIT_METRICS"))
 		metrics_use_luajit_hooks();
