@@ -151,9 +151,9 @@ get_symbol_path(void *addr) {
 	return path;
 }
 
-const char *dso_path_lf_asan;
-const char *dso_path_lf_ubsan;
-const char *dso_path_libcustom_mutator;
+char *dso_path_lf_asan;
+char *dso_path_lf_ubsan;
+char *dso_path_libcustom_mutator;
 
 NO_SANITIZE void
 init(void)
@@ -347,7 +347,7 @@ TestOneInput(const uint8_t* data, size_t size) {
 }
 
 NO_SANITIZE static int
-luaL_cleanup(lua_State *L)
+luzer_cleanup(lua_State *L)
 {
 	lua_pushnil(L);
 	lua_setglobal(L, TEST_ONE_INPUT_FUNC);
@@ -355,7 +355,91 @@ luaL_cleanup(lua_State *L)
 	lua_setglobal(L, DEBUG_HOOK_FUNC);
 	lua_pushnil(L);
 	lua_setglobal(L, CUSTOM_MUTATOR_FUNC);
+
+	free(dso_path_lf_asan);
+	dso_path_lf_asan = NULL;
+	free(dso_path_lf_ubsan);
+	dso_path_lf_ubsan = NULL;
+	free(dso_path_libcustom_mutator);
+	dso_path_libcustom_mutator = NULL;
+
 	return 0;
+}
+
+/*
+ * Releases Lua objects allocated for the fuzzing loop and frees the
+ * resources owned by luzer itself.
+ *
+ * Lua uses a GC-based memory management model, so objects (for example,
+ * a `FuzzedDataProvider` userdata) can stay allocated between
+ * `TestOneInput()` calls. libFuzzer finishes the process with `exit()`,
+ * and only there LeakSanitizer can report these objects as leaks.
+ * Collecting the garbage and freeing luzer's own resources before the
+ * process finishes avoids these false positives.
+ */
+NO_SANITIZE static void
+luzer_shutdown(void)
+{
+	lua_State *L = LL;
+	if (!L)
+		return;
+	luzer_cleanup(L);
+	lua_settop(L, 0);
+	lua_gc(L, LUA_GCCOLLECT, 0);
+	lua_gc(L, LUA_GCCOLLECT, 0);
+	set_global_lua_state(NULL);
+}
+
+static int exit_retcode;
+
+/*
+ * Runs LeakSanitizer's leak check if the sanitizer runtime is loaded.
+ *
+ * The symbol is looked up at run time with `dlsym()`: referencing it
+ * directly would create an undefined weak reference, which is not
+ * allowed by the linker on Darwin (and LeakSanitizer is not supported
+ * on macOS anyway).
+ */
+NO_SANITIZE static void
+lsan_do_leak_check(void)
+{
+	typedef void (*lsan_do_leak_check_fn)(void);
+	lsan_do_leak_check_fn fn =
+		(lsan_do_leak_check_fn)dlsym(RTLD_DEFAULT,
+					     "__lsan_do_leak_check");
+
+	if (fn)
+		fn();
+}
+
+/*
+ * The handler is registered with `atexit()` before starting the driver.
+ * It is called both when the driver exits the process itself and when it
+ * returns with an error.
+ *
+ * libFuzzer exits the process with `exit()`. Running all the exit
+ * handlers of the process is fragile, because the dynamically loaded
+ * helper libraries may embed their own sanitizer runtimes, so the
+ * process is finished with `_exit()`. For the same reason the sanitizer
+ * leak check is not run implicitly on `_exit()`, so it is invoked
+ * explicitly to keep leak detection working. `fflush()` is called to not
+ * lose buffered output.
+ */
+NO_SANITIZE static void
+luzer_atexit(void)
+{
+	luzer_shutdown();
+	metrics_print();
+	lsan_do_leak_check();
+	fflush(NULL);
+	_exit(exit_retcode);
+}
+
+NO_SANITIZE __attribute__((noreturn)) static void
+graceful_exit(int retcode)
+{
+	exit_retcode = retcode;
+	exit(retcode);
 }
 
 NO_SANITIZE static int
@@ -534,14 +618,20 @@ luaL_fuzz(lua_State *L)
 	jit_status = luajit_has_enabled_jit(L);
 #endif
 	set_global_lua_state(L);
+	/*
+	 * The driver normally finishes the process on its own with
+	 * `exit()`/`atexit()`, so the handler is used to release the Lua
+	 * state and luzer's resources in both cases: when the driver
+	 * exits the process and when it returns with an error.
+	 */
+	if (atexit(luzer_atexit) != 0) {
+		free_argv(argc, argv);
+		luaL_error(L, "cannot register an exit handler");
+	}
 	int rc = LLVMFuzzerRunDriver(&argc, &argv, &TestOneInput);
 
 	free_argv(argc, argv);
-	luaL_cleanup(L);
-
-	lua_pushnumber(L, rc);
-
-	return 1;
+	graceful_exit(rc);
 }
 
 static const struct luaL_Reg Module[] = {
