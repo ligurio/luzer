@@ -1,20 +1,18 @@
 local luzer = require("luzer")
 
-local chunk = [[
 local function fib(n)
   if n <= 1 then
       return n
   end
   return fib(n - 1) + fib(n - 2)
 end
-]]
 
 local function TestOneInput(buf)
     local fdp = luzer.FuzzedDataProvider(buf)
     local numbers = fdp:consume_numbers(0, 2*10^6, 10)
     for _, n in ipairs(numbers) do
         if n == 100500 then
-            assert("Bingo!")
+            error("Bingo!")
         end
     end
 
@@ -24,7 +22,7 @@ local function TestOneInput(buf)
     end
 
     -- Needed for testing LuaJIT metric with parsed functions.
-    load(chunk)
+    fib(5)
 end
 
 local args = {

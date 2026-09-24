@@ -65,3 +65,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A crash due to incorrect use of signal handler (#40).
 - Lua coverage was never passed to libFuzzer, so fuzzing ran without
   feedback (#12).
+- Metrics printed in every child process with libFuzzer options
+  `-fork`/`-jobs` (#89).
