@@ -142,15 +142,20 @@ set_tests_properties(luzer_options_dashes_test PROPERTIES
   PASS_REGULAR_EXPRESSION "Done [0-9] runs in [0-9] second;0 files found in seed_corpus"
 )
 
-list(APPEND LUAJIT_FRIENDLY_MESSAGES
-  "---- TRACE [0-9] start test_luajit_friendly.lua:[0-9]+"
-  "---- TRACE [0-9] stop -> loop"
-  "---- TRACE [0-9] start [0-9]/[0-9] test_luajit_friendly.lua:[0-9]+"
-  "---- TRACE [0-9] stop -> return"
-  "Total number of recorded traces: [0-9]+"
-  "Total number of aborted traces: [0-9]+"
-  "Total number of exited traces: [0-9]+"
-  "Total number of parsed functions: [0-9]+"
+# LuaJIT dumps traces with `-jdump`, but `-jdump` is implemented with
+# `jit.attach()` on the "trace" event and luzer's LuaJIT metrics hooks
+# replace that handler. So tracing is checked with disabled LuaJIT
+# metrics, while the metrics themselves are checked by
+# `luzer_luajit_metrics_test` below.
+# A single regular expression is used because `PASS_REGULAR_EXPRESSION`
+# treats a list of expressions as alternatives and requires only one of
+# them to match. `.` matches newlines, so `.*` glues the trace messages
+# together and forces all of them to be present.
+string(CONCAT LUAJIT_FRIENDLY_TRACES_REGEX
+  "---- TRACE [0-9]+ start test_luajit_friendly.lua:[0-9]+.*"
+  "---- TRACE [0-9]+ stop -> loop.*"
+  "---- TRACE [0-9]+ start [0-9]+/[0-9]+ test_luajit_friendly.lua:[0-9]+.*"
+  "---- TRACE [0-9]+ stop -> return"
 )
 add_test(
   NAME luzer_luajit_friendly_test
@@ -170,8 +175,33 @@ make_lua_path(LUA_PATH_WITH_USER_PATH
   ${LUA_PATH}
 )
 set_tests_properties(luzer_luajit_friendly_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH_WITH_USER_PATH};DISABLE_LUAJIT_METRICS=1"
+  PASS_REGULAR_EXPRESSION "${LUAJIT_FRIENDLY_TRACES_REGEX}"
+)
+
+# A single regular expression is used to require the whole metrics
+# report. `FAIL_REGULAR_EXPRESSION` rejects a repeated report, so the
+# two properties together ensure that LuaJIT metrics are printed once.
+string(CONCAT LUAJIT_METRICS_REGEX
+  "Total number of recorded traces: [0-9]+\n"
+  "Total number of aborted traces: [0-9]+\n"
+  "Total number of exited traces: [0-9]+\n"
+  "Total number of parsed functions: [0-9]+"
+)
+set(LUAJIT_METRICS_TWICE_REGEX
+  "Total number of recorded traces: [0-9]+.*Total number of recorded traces:"
+)
+add_test(
+  NAME luzer_luajit_metrics_test
+  COMMAND ${LUA_EXECUTABLE} -Ohotloop=1
+          ${CMAKE_CURRENT_SOURCE_DIR}/test_luajit_friendly.lua
+          -runs=100
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_luajit_metrics_test PROPERTIES
   ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH_WITH_USER_PATH}"
-  PASS_REGULAR_EXPRESSION "${LUAJIT_FRIENDLY_MESSAGES}"
+  PASS_REGULAR_EXPRESSION "${LUAJIT_METRICS_REGEX}"
+  FAIL_REGULAR_EXPRESSION "${LUAJIT_METRICS_TWICE_REGEX}"
 )
 
 add_test(
@@ -193,6 +223,7 @@ set_tests_properties(luzer_luajit_without_metrics_test PROPERTIES
 
 if (NOT LUAJIT_FRIENDLY_MODE)
   set_tests_properties(luzer_luajit_friendly_test PROPERTIES DISABLED TRUE)
+  set_tests_properties(luzer_luajit_metrics_test PROPERTIES DISABLED TRUE)
   set_tests_properties(luzer_luajit_without_metrics_test PROPERTIES DISABLED TRUE)
 endif()
 

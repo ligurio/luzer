@@ -201,7 +201,7 @@ exited traces and a number of parsed functions.
 An example of output:
 
 ```
-ctest -R luzer_luajit_friendly_test -V
+ctest -R luzer_luajit_metrics_test -V
 <snipped>
 Done 100 runs in 0 second(s)
 Total number of recorded traces: 12
@@ -212,8 +212,9 @@ Total number of parsed functions: 400
 
 LuaJIT metrics are accounted using LuaJIT hooks that are also used
 by internal LuaJIT tools (see `src/jit`), so custom hooks break
-these tools. By default, LuaJIT metrics are turned on and can be
-disabled by setting the enviroment variable `DISABLE_LUAJIT_METRICS`.
+these tools and `-jdump` stops dumping traces. By default, LuaJIT
+metrics are turned on and can be disabled by setting the enviroment
+variable `DISABLE_LUAJIT_METRICS`.
 CMake options `ENABLE_LUAJIT` and `LUAJIT_FRIENDLY_MODE` must be
 enabled in the build for using metrics.
 
