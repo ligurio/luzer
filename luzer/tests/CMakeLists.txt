@@ -24,6 +24,20 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   )
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+  # The external symbolizer shipped with Clang is a 64-bit executable
+  # and cannot symbolize 32-bit addresses. AddressSanitizer hangs and
+  # UndefinedBehaviorSanitizer is very slow while trying to use it, so
+  # turn symbolization off for 32-bit builds. The test patterns match
+  # the sanitizer report, not its stack frames.
+  string(JOIN ":" ASAN_OPTIONS
+    symbolize=0
+  )
+  string(JOIN ":" UBSAN_OPTIONS
+    symbolize=0
+  )
+endif()
+
 add_test(
   NAME luzer_unit_test
   COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_unit.lua
@@ -258,7 +272,7 @@ macro(generate_luac_test name env_vars pass_regex)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
   set_tests_properties(${name} PROPERTIES
-    ENVIRONMENT "${env_vars};DYLD_INSERT_LIBRARIES=${ASAN_LIBRARY_PATH}"
+    ENVIRONMENT "${env_vars};DYLD_INSERT_LIBRARIES=${ASAN_LIBRARY_PATH};UBSAN_OPTIONS=${UBSAN_OPTIONS}"
     PASS_REGULAR_EXPRESSION ${pass_regex}
   )
 endmacro()
@@ -391,7 +405,7 @@ macro(generate_ffi_test name env_vars pass_regex)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
   set_tests_properties(${name} PROPERTIES
-    ENVIRONMENT "${env_vars};DYLD_INSERT_LIBRARIES=${ASAN_LIBRARY_PATH}"
+    ENVIRONMENT "${env_vars};DYLD_INSERT_LIBRARIES=${ASAN_LIBRARY_PATH};UBSAN_OPTIONS=${UBSAN_OPTIONS}"
     PASS_REGULAR_EXPRESSION ${pass_regex}
   )
 endmacro()

@@ -7,7 +7,18 @@
   };
 
   outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+    # i686-linux is added explicitly to flake-utils' default systems so
+    # that a native 32-bit build can be produced (e.g. on an x86_64 host
+    # with `extra-platforms = i686-linux`):
+    #
+    #   $ nix build .#packages.i686-linux.default
+    flake-utils.lib.eachSystem [
+      "aarch64-darwin"
+      "aarch64-linux"
+      "x86_64-darwin"
+      "x86_64-linux"
+      "i686-linux"
+    ] (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
         lib = pkgs.lib;

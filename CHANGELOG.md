@@ -26,7 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for building on macOS ARM64.
 - Add `ENABLE_LUAJIT`, `LUAJIT_FRIENDLY_MODE` and `OSS_FUZZ`
   variables to the rockspec.
-- Support for building on i386 (#83).
+- Support for building on i386 (#83), including a CMake preset,
+  a 32-bit CI matrix dimension and a Nix flake output (#106).
 - Testing with PUC Rio Lua 5.5.
 - Nix flake.
 
