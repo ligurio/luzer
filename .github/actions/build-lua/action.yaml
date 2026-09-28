@@ -5,6 +5,10 @@ inputs:
   version:
     description: PUC Rio Lua version to build (e.g. 5.5.1)
     required: true
+  arch:
+    description: Target architecture, "64" (default) or "32"
+    required: false
+    default: "64"
 
 runs:
   using: composite
@@ -19,7 +23,23 @@ runs:
     - name: Build PUC Rio Lua ${{ inputs.version }}
       shell: bash
       working-directory: lua-${{ inputs.version }}
-      run: make linux MYCFLAGS=-fPIC -j$(getconf _NPROCESSORS_ONLN)
+      run: |
+        JOBS=$(getconf _NPROCESSORS_ONLN)
+        ARCH_FLAGS=""
+        if [ "${{ inputs.arch }}" = "32" ]; then
+          ARCH_FLAGS="-m32"
+        fi
+        # Build the sources directly. The `linux` target of some
+        # versions links against readline/ncurses, which are not
+        # available here, and for Lua 5.1 it overrides MYCFLAGS and
+        # drops -fPIC, which is needed to link liblua.a into a shared
+        # library. `-DLUA_USE_POSIX -DLUA_USE_DLOPEN` and `-ldl` are
+        # enough to run the test suite.
+        make -C src all \
+          MYCFLAGS="-fPIC $ARCH_FLAGS -DLUA_USE_POSIX -DLUA_USE_DLOPEN" \
+          MYLDFLAGS="$ARCH_FLAGS" \
+          MYLIBS="-Wl,-E -ldl" \
+          -j"$JOBS"
 
     - name: Set CMake flags for PUC Rio Lua ${{ inputs.version }}
       shell: bash
