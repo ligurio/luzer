@@ -1,0 +1,46 @@
+name: Build LuaJIT from source
+description: Build LuaJIT v2.1 from source (optionally 32-bit)
+
+inputs:
+  arch:
+    description: Target architecture, "64" (default) or "32"
+    required: false
+    default: "64"
+
+runs:
+  using: composite
+  steps:
+    - name: Download LuaJIT v2.1
+      shell: bash
+      run: |
+        curl -fsSL -o luajit-v2.1.tar.gz \
+          https://codeload.github.com/LuaJIT/LuaJIT/tar.gz/refs/heads/v2.1
+        mkdir -p luajit-src
+        tar -xzf luajit-v2.1.tar.gz -C luajit-src --strip-components=1
+
+    - name: Build and install LuaJIT v2.1
+      shell: bash
+      working-directory: luajit-src
+      run: |
+        JOBS=$(getconf _NPROCESSORS_ONLN)
+        PREFIX="$GITHUB_WORKSPACE/luajit-install"
+        if [ "${{ inputs.arch }}" = "32" ]; then
+          # Build both the target and the host part as 32-bit: the buildvm
+          # tool generates code matching the target's pointer size.
+          make CC="gcc -m32" HOST_CC="gcc -m32" -j"$JOBS"
+        else
+          make -j"$JOBS"
+        fi
+        make install PREFIX="$PREFIX"
+
+    - name: Expose LuaJIT to CMake
+      shell: bash
+      run: |
+        PREFIX="$GITHUB_WORKSPACE/luajit-install"
+        LUAJIT_VERSION_DIR=$(ls -d "$PREFIX"/share/luajit-* | head -n1)
+        {
+          echo "PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+          echo "CMAKE_PREFIX_PATH=$PREFIX:$CMAKE_PREFIX_PATH"
+          echo "LUA_PATH=$LUAJIT_VERSION_DIR/?.lua;;"
+        } >> "$GITHUB_ENV"
+        echo "$PREFIX/bin" >> "$GITHUB_PATH"

@@ -16,29 +16,39 @@ local err
 local fdp
 local res
 
--- By default `lua_Integer` is ptrdiff_t in Lua 5.1 and Lua 5.2
--- and `long long` in Lua 5.3+, (usually a 64-bit two-complement
--- integer), but that can be changed to `long` or `int` (usually a
--- 32-bit two-complement integer), see LUA_INT_TYPE in
--- <luaconf.h>. Lua 5.3+ has two functions: `math.maxinteger` and
--- `math.mininteger` that returns an integer with the maximum
--- value for an integer and an integer with the minimum value for
--- an integer, see [1] and [2].
-
--- `0x7ffffffffffff` is a maximum integer in `long long`, however
--- this number is not representable in `double` and the nearest
--- number representable in `double` is `0x7ffffffffffffc00`.
+-- By default `lua_Integer` is `ptrdiff_t` in Lua 5.1, Lua 5.2 and
+-- LuaJIT, and `long long` in Lua 5.3+, but that can be changed to
+-- `long` or `int` (usually a 32-bit two-complement integer), see
+-- LUA_INT_TYPE in <luaconf.h>. Lua 5.3+ exposes the exact bounds via
+-- `math.maxinteger` and `math.mininteger`, see [1] and [2]. For older
+-- versions `lua_Integer` follows the pointer size, so on 32-bit
+-- platforms it is a 32-bit integer; LuaJIT reports this through FFI.
+--
+-- `0x7ffffffffffff` is the maximum integer in `long long`, however
+-- this number is not representable in `double` and the nearest number
+-- representable in `double` is `0x7ffffffffffffc00`.
 --
 -- 1. https://www.lua.org/manual/5.1/manual.html#lua_Integer
 -- 2. https://www.lua.org/manual/5.3/manual.html#lua_Integer
-local MAX_REPRESENTABLE_INT = 0x7fffffffffffffff
-local MIN_REPRESENTABLE_INT = MAX_REPRESENTABLE_INT
-if _VERSION == "Lua 5.1" or _VERSION == "Lua 5.2" then
-    MAX_REPRESENTABLE_INT = 0x7ffffffffffffc00
-    MIN_REPRESENTABLE_INT = 0x8000000000000000
+local MAX_INT
+local MIN_INT
+if math.maxinteger then
+    MAX_INT = math.maxinteger
+    MIN_INT = math.mininteger
+else
+    local is32 = false
+    local has_ffi, ffi = pcall(require, "ffi")
+    if has_ffi then
+        is32 = ffi.abi("32bit")
+    end
+    if is32 then
+        MAX_INT = 0x7fffffff
+        MIN_INT = -0x80000000
+    else
+        MAX_INT = 0x7ffffffffffffc00
+        MIN_INT = -0x8000000000000000
+    end
 end
-local MAX_INT = math.maxinteger or MAX_REPRESENTABLE_INT
-local MIN_INT = math.mininteger or -MIN_REPRESENTABLE_INT
 
 -- luzer.FuzzedDataProvider()
 assert(type(luzer.FuzzedDataProvider) == "function")

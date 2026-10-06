@@ -14,6 +14,9 @@ jobs:
       matrix:
         os: [ubuntu-24.04, macos-26]
         BUILDTYPE: [Debug, Release]
+        # "64" is the native build; "32" builds a 32-bit (i386) target
+        # with `-m32` and a Lua implementation built from source.
+        ARCH: ["64", "32"]
         LIBLUA:
           - "5.5"
           - "5.4"
@@ -32,21 +35,37 @@ jobs:
             LIBLUA: "5.2"
           - os: macos-26
             LIBLUA: "5.1"
+          - os: macos-26
+            ARCH: "32"
+          # 32-bit builds are only tested with Lua 5.5 and LuaJIT;
+          # the other Lua versions are tested in 64-bit only.
+          - LIBLUA: "5.4"
+            ARCH: "32"
+          - LIBLUA: "5.3"
+            ARCH: "32"
+          - LIBLUA: "5.2"
+            ARCH: "32"
+          - LIBLUA: "5.1"
+            ARCH: "32"
         include:
           - BUILDTYPE: Debug
             CMAKEFLAGS: -DCMAKE_BUILD_TYPE=Debug
           - BUILDTYPE: Release
             CMAKEFLAGS: -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          - ARCH: "64"
+            ARCHFLAGS: ""
+          - ARCH: "32"
+            ARCHFLAGS: -DCMAKE_C_FLAGS=-m32 -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_EXE_LINKER_FLAGS=-m32 -DCMAKE_SHARED_LINKER_FLAGS=-m32
           - LIBLUA: "5.5"
-            PACKAGES: ""
+            SOURCE_VERSION: "5.5.1"
           - LIBLUA: "5.4"
-            PACKAGES: lua5.4 liblua5.4-dev
+            SOURCE_VERSION: "5.4.4"
           - LIBLUA: "5.3"
-            PACKAGES: lua5.3 liblua5.3-dev
+            SOURCE_VERSION: "5.3.6"
           - LIBLUA: "5.2"
-            PACKAGES: lua5.2 liblua5.2-dev
+            SOURCE_VERSION: "5.2.4"
           - LIBLUA: "5.1"
-            PACKAGES: lua5.1 liblua5.1-0-dev
+            SOURCE_VERSION: "5.1.5"
           - LIBLUA: "luajit-v2.1"
             PACKAGES: libluajit-5.1-dev libluajit-5.1-2 luajit
             FLAVORFLAGS: -DLUAJIT_FRIENDLY_MODE=ON -DENABLE_LUAJIT=ON
@@ -61,24 +80,43 @@ jobs:
 
       - name: Setup Linux packages
         if: runner.os == 'Linux'
-        run: sudo apt install -y clang-15 libclang-common-15-dev ${{ matrix.PACKAGES }}
+        run: |
+          # Lua is built from source; 64-bit LuaJIT comes from the
+          # distribution package and 32-bit builds need the multilib
+          # toolchain.
+          PACKAGES=""
+          if [ "${{ matrix.ARCH }}" = "32" ]; then
+            PACKAGES="gcc-multilib g++-multilib libc6-dev-i386"
+          elif [ "${{ matrix.LIBLUA }}" = "luajit-v2.1" ]; then
+            PACKAGES="${{ matrix.PACKAGES }}"
+          fi
+          sudo apt install -y clang-15 libclang-common-15-dev \
+            libclang-rt-15-dev $PACKAGES
 
       - name: Setup macOS packages
         if: runner.os == 'macOS'
         run: brew install llvm luajit cmake ninja
 
-      - name: Build Lua 5.5 from source
-        if: matrix.LIBLUA == '5.5'
+      - name: Build Lua from source
+        if: matrix.LIBLUA != 'luajit-v2.1'
         uses: ./.github/actions/build-lua
         with:
-          version: 5.5.1
+          version: ${{ matrix.SOURCE_VERSION }}
+          arch: ${{ matrix.ARCH }}
+
+      - name: Build LuaJIT from source (32-bit)
+        if: matrix.LIBLUA == 'luajit-v2.1' && matrix.ARCH == '32' && runner.os == 'Linux'
+        uses: ./.github/actions/build-luajit
+        with:
+          arch: "32"
 
       - name: Running CMake (Linux)
         if: runner.os == 'Linux'
         run: >
           cmake -S . -B build -G Ninja -DENABLE_TESTING=ON
           -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15
-          ${{ matrix.CMAKEFLAGS }} ${{ matrix.FLAVORFLAGS }} ${{ env.LUACFLAGS }}
+          ${{ matrix.CMAKEFLAGS }} ${{ matrix.ARCHFLAGS }}
+          ${{ matrix.FLAVORFLAGS }} ${{ env.LUACFLAGS }}
 
       - name: Define Brew prefixes (macOS)
         if: runner.os == 'macOS'
