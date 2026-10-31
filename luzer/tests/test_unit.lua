@@ -315,6 +315,17 @@ ok, err = pcall(luzer.Fuzz, function() end, nil, 42)
 assert(ok == false)
 assert(err:match("args is not a table") ~= nil)
 
+-- Call `Fuzz()` with a table instead a corpus directory path.
+ok, err = pcall(luzer.Fuzz, function() end, nil, { corpus = {} })
+assert(ok == false)
+assert(err:match("string expected") ~= nil)
+
+-- Call the implementation of `Fuzz()` with a wrong number of arguments.
+local luzer_impl = require("luzer_impl")
+ok, err = pcall(luzer_impl.Fuzz, function() end, nil, {}, "luajit test.lua")
+assert(ok == false)
+assert(err:match("expects 5 arguments") ~= nil)
+
 -- `luzer.path`
 assert(luzer.path)
 assert(type(luzer.path) == "table")

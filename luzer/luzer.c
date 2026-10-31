@@ -414,11 +414,18 @@ load_custom_mutator_lib(const char *so_path) {
 	return 0;
 }
 
-/* Find amount of fields in the table on the top of the stack. */
+/* Find amount of fields in the table at the given stack index. */
 NO_SANITIZE int
 table_nkeys(lua_State *L, int idx)
 {
 	int len = 0;
+	/*
+	 * Resolve a relative index before pushing the iteration key, so
+	 * callers can pass an index as usually done in the Lua C API.
+	 */
+	if (idx < 0)
+		/* +1: Lua indices are 1-based, -1 is the top. */
+		idx = lua_gettop(L) + idx + 1;
 	/* Push starting `nil` for iterations. */
 	lua_pushnil(L);
 	while (lua_next(L, idx) != 0) {
@@ -445,20 +452,48 @@ NO_SANITIZE static int
 luaL_fuzz(lua_State *L)
 {
 	bool multiprocess = false;
-	const char *str = luaL_checkstring(L, -1);
-	lua_pop(L, 1);
+	if (lua_gettop(L) != 5) {
+		luaL_error(L, "Fuzz expects 5 arguments");
+	}
+	const char *str = luaL_checkstring(L, -2);
 	char *argv_0 = strdup(str);
-	if (lua_istable(L, -1) == 0) {
+	if (lua_istable(L, -3) == 0) {
 		luaL_error(L, "opts is not a table");
 	}
+	if (lua_istable(L, -1) == 0) {
+		luaL_error(L, "corpus dirs are not a table");
+	}
+	int n_corpus = (int)lua_rawlen(L, -1);
+	/*
+	 * Validate corpus entries before allocating `argv`, so that a
+	 * bad element cannot longjmp past its cleanup.
+	 */
+	for (int i = 1; i <= n_corpus; i++) {
+		lua_rawgeti(L, -1, i);
+		(void)luaL_checkstring(L, -1);
+		lua_pop(L, 1);
+	}
 	/* 0 element -- test name. Last -- ending NULL. */
-	int argc = table_nkeys(L, -2) + 1;
+	int n_opts = table_nkeys(L, -3);
+	int argc = n_opts + n_corpus + 1;
 	char **argv = malloc((argc + 1) * sizeof(*argv));
 	if (!argv)
 		luaL_error(L, "not enough memory");
 
 	argv[0] = argv_0;
-	const char *corpus_path = NULL;
+
+	/*
+	 * Corpus directories go after the flags and in the same order as
+	 * they were passed on the command line. LibFuzzer treats the first
+	 * directory as the output one in merge mode.
+	 */
+	for (int i = 1; i <= n_corpus; i++) {
+		lua_rawgeti(L, -1, i);
+		/* The entries were checked above. */
+		argv[n_opts + i] = strdup(lua_tostring(L, -1));
+		lua_pop(L, 1);
+	}
+	lua_pop(L, 2); /* corpus dirs and test command */
 
 	/* First key to start iteration. */
 	lua_pushnil(L);
@@ -469,11 +504,6 @@ luaL_fuzz(lua_State *L)
 		if ((strcmp(key, "fork") == 0 || strcmp(key, "jobs") == 0) &&
 		    atoi(value) > 0)
 			multiprocess = true;
-		if (strcmp(key, "corpus") == 0) {
-			corpus_path = strdup(value);
-			lua_pop(L, 1);
-			continue;
-		}
 		/*
 		 * Lua debug hook is used for code instrumentation, but it
 		 * is also used by luacov. Only one hook can be enabled at
@@ -494,9 +524,6 @@ luaL_fuzz(lua_State *L)
 		lua_pop(L, 1);
 	}
 
-	if (corpus_path) {
-		argv[argc-1] = (char*)corpus_path;
-	}
 	argv[argc] = NULL;
 	lua_pop(L, 1);
 

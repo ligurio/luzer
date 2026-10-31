@@ -19,6 +19,13 @@ Function accepts following arguments:
   list with other options in the [libFuzzer documentation][libfuzzer-options-url].
   Default is an empty table.
 
+Positional command-line arguments are treated as paths to corpus directories.
+Like in libFuzzer, more than one directory can be passed, and their order is
+preserved: in merge mode (`-merge=1 NEW_CORPUS OLD_CORPUS`) the first directory
+is the output one. When at least one corpus directory is passed on the command
+line, the `corpus` field of the `args` table and the `-corpus` command-line flag
+are ignored; otherwise they are used as a fallback corpus directory.
+
 It may be desirable to reject some inputs, i.e. to not add them to the corpus.
 For example, when fuzzing an API consisting of parsing and other logic, one may
 want to allow only those inputs into the corpus that parse successfully. If the

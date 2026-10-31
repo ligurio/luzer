@@ -94,9 +94,47 @@ add_test(
           -runs=1 seed_corpus
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+# The script also sets `corpus = "undefined"` in the options table.
+# Corpus directories passed on the command line must take precedence
+# over that option, so the invalid fallback must not reach libFuzzer.
 set_tests_properties(luzer_options_corpus_path_via_option_test PROPERTIES
   ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
   PASS_REGULAR_EXPRESSION "0 files found in seed_corpus"
+  FAIL_REGULAR_EXPRESSION "undefined"
+)
+
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/merge_corpus_in)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/merge_corpus_out)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/merge_corpus_in/input "input")
+add_test(
+  NAME luzer_merge_corpus_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_2.lua
+          -merge=1 merge_corpus_out merge_corpus_in
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+# Before the fix only the last corpus directory reached libFuzzer,
+# and it printed "INFO: Merge requires two or more corpus dirs"
+# and exited successfully without merging anything.
+set_tests_properties(luzer_merge_corpus_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "MERGE-OUTER: [0-9]+ new files"
+  FAIL_REGULAR_EXPRESSION "Merge requires two or more corpus dirs"
+)
+
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/multi_corpus_a)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/multi_corpus_b)
+add_test(
+  NAME luzer_multiple_corpus_dirs_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_2.lua
+          -runs=1 multi_corpus_a multi_corpus_b
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+# A single regex is used because PASS_REGULAR_EXPRESSION treats a list
+# as alternatives. Both directories must be reported, in the given order.
+set_tests_properties(luzer_multiple_corpus_dirs_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION
+    "files found in multi_corpus_a.*files found in multi_corpus_b"
 )
 
 add_test(
@@ -106,6 +144,19 @@ add_test(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 set_tests_properties(luzer_options_seed_via_option_test PROPERTIES
+  ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
+  PASS_REGULAR_EXPRESSION "Seed: 50"
+)
+
+# Two flags and one corpus directory: the options table is longer than
+# the corpus list, so a wrong stack slot would truncate argv.
+add_test(
+  NAME luzer_options_more_flags_than_corpora_test
+  COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_options_2.lua
+          -runs=1 -seed=50 seed_corpus
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(luzer_options_more_flags_than_corpora_test PROPERTIES
   ENVIRONMENT "LUA_CPATH=${LUA_CPATH};LUA_PATH=${LUA_PATH}"
   PASS_REGULAR_EXPRESSION "Seed: 50"
 )
