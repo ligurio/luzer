@@ -67,3 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   feedback (#12).
 - Metrics printed in every child process with libFuzzer options
   `-fork`/`-jobs` (#89).
+- All but the last corpus directory passed on the command-line
+  were dropped, which broke libFuzzer merge mode
+  (`-merge=1 NEW_CORPUS OLD_CORPUS`) and, as a result, corpus
+  pruning and corpus backups in OSS-Fuzz (google/oss-fuzz#14859).

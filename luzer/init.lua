@@ -24,6 +24,7 @@ end
 
 local function build_flags(arg, func_args)
     local flags = {}
+    local corpus_dirs = {}
     for _, arg_str in ipairs(arg) do
         local name, value
         -- XXX: Ignore the symbol `--` because in the OSS Fuzz it
@@ -33,7 +34,12 @@ local function build_flags(arg, func_args)
                 name, value = parse_flag(arg_str)
             end
         else
-            name, value = "corpus", arg_str
+            -- Positional arguments are paths to corpus
+            -- directories. LibFuzzer accepts more than one
+            -- directory (for example, in merge mode:
+            -- `-merge=1 NEW_CORPUS OLD_CORPUS`), and the order of
+            -- directories is significant, so preserve it.
+            table.insert(corpus_dirs, arg_str)
         end
         if name and value then
             flags[name] = value
@@ -46,7 +52,17 @@ local function build_flags(arg, func_args)
         end
     end
 
-    return flags
+    -- Corpus directories given on the command-line take
+    -- precedence over the `corpus` option. Otherwise, the option
+    -- is used as a fallback.
+    if flags.corpus ~= nil then
+        if #corpus_dirs == 0 then
+            table.insert(corpus_dirs, flags.corpus)
+        end
+        flags.corpus = nil
+    end
+
+    return flags, corpus_dirs
 end
 
 local function progname(argv)
@@ -68,11 +84,12 @@ local function Fuzz(test_one_input, custom_mutator, func_args)
     if type(luzer_args) ~= "table" then
         error("args is not a table")
     end
-    local flags = build_flags(arg, luzer_args)
+    local flags, corpus_dirs = build_flags(arg, luzer_args)
     local test_path = arg[0]
     local lua_bin = progname(arg)
     local test_cmd = ("%s %s"):format(lua_bin, test_path)
-    luzer_impl.Fuzz(test_one_input, custom_mutator, flags, test_cmd)
+    luzer_impl.Fuzz(test_one_input, custom_mutator, flags, test_cmd,
+        corpus_dirs)
 end
 
 return {
