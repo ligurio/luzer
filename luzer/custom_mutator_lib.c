@@ -11,10 +11,7 @@
 #include "lauxlib.h"
 
 #include "luzer.h"
-
-#if LUA_VERSION_NUM == 501
-#define lua_rawlen(L, i) lua_objlen((L), (i))
-#endif
+#include "compat.h"
 
 size_t
 LLVMFuzzerCustomMutator(uint8_t* data, size_t size,
