@@ -3,11 +3,15 @@ name: Nix
 on:
   push:
   pull_request:
+  # The 32-bit (i686) build is only run on demand: i686-linux has no
+  # binary cache, so it compiles the whole i686 toolchain from source.
+  workflow_dispatch:
 
 jobs:
   nix-flake:
     if: |
       github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name != github.repository
 
@@ -18,6 +22,10 @@ jobs:
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v4
+        with:
+          # GitHub-hosted x86_64 runners can execute 32-bit binaries, so
+          # allow building the i686-linux outputs natively.
+          extra-conf: extra-platforms = i686-linux
 
       - name: Setup magic Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@v2
@@ -27,3 +35,8 @@ jobs:
 
       - name: Build default package
         run: nix build .#default
+
+      - name: Build 32-bit (i686) package
+        if: github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        run: nix build .#packages.i686-linux.default

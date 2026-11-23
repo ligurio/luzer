@@ -8,9 +8,15 @@ build the project and run the regression tests.
 On Debian: `apt install -y lua5.1 liblua5.1-0-dev llvm-17-dev
 libclang-common-17-dev libclang-rt-17-dev clang-17 cmake`.
 
-Note: with Clang >= 18 you should install a package
-`libclang-rt-XX-dev` and with Clang <= 15 you should install
-a package `libclang-common-XX-dev`, where XX is a Clang version.
+Note: the sanitizer and libFuzzer runtime libraries and their
+headers (`libclang_rt.*`, `fuzzer/`, `sanitizer/`) are shipped in
+the `libclang-rt-XX-dev` package, where XX is the Clang version.
+On Ubuntu 24.04 `libclang-common-XX-dev` only provides Clang's
+builtin headers and is not sufficient on its own (it used to
+include the runtime libraries in older releases).
+
+For 32-bit (i386) builds additionally install the multilib
+toolchain: `apt install -y gcc-multilib g++-multilib libc6-dev-i386`.
 
 On macOS: `brew install llvm cmake luajit`.
 
@@ -20,6 +26,9 @@ On Nix:
 - build `luzer` package with PUC Rio Lua 5.4: `nix build .#lua54`
 - Developer shell for building `luzer` with LuaJIT: `nix develop`
 - Developer shell for building `luzer` with PUC Rio Lua 5.4: `nix develop .#lua54`
+- 32-bit (i686) build: `nix build .#packages.i686-linux.default`
+  (requires `extra-platforms = i686-linux` in `nix.conf` on an x86_64
+  host), 32-bit developer shell: `nix develop .#devShells.i686-linux.default`
 
 ### Building
 
@@ -27,6 +36,15 @@ On Debian:
 
 ```sh
 $ cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DENABLE_TESTING=ON -S . -B build
+```
+
+A 32-bit (i386) build on a multilib toolchain (see above) uses the
+`i386` CMake preset:
+
+```sh
+$ cmake --preset i386
+$ cmake --build build-i386 --parallel
+$ ctest --preset i386
 ```
 
 On macOS:

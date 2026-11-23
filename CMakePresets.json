@@ -10,7 +10,7 @@
       "name": "default",
       "displayName": "Default Config (Unix Makefile)",
       "description": "Default build using Unix Makefile generator",
-      "binaryDir": "${sourceDir}/build",
+      "binaryDir": "${sourceDir}/build/x86_64",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_C_COMPILER": "clang",
@@ -24,12 +24,30 @@
           "value": "ON"
         }
       }
+    },
+    {
+      "name": "i386",
+      "displayName": "32-bit (i386) Config (Unix Makefile)",
+      "description": "Debug build targeting 32-bit x86 using -m32",
+      "inherits": "default",
+      "binaryDir": "${sourceDir}/build/i386",
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": "-m32",
+        "CMAKE_CXX_FLAGS": "-m32",
+        "CMAKE_EXE_LINKER_FLAGS": "-m32",
+        "CMAKE_SHARED_LINKER_FLAGS": "-m32"
+      }
     }
   ],
   "buildPresets": [
     {
       "name": "default",
       "configurePreset": "default",
+      "jobs": 10
+    },
+    {
+      "name": "i386",
+      "configurePreset": "i386",
       "jobs": 10
     }
   ],
@@ -39,6 +57,12 @@
       "configurePreset": "default",
       "output": {"outputOnFailure": true},
       "execution": {"noTestsAction": "error", "stopOnFailure": true, "timeout": 10}
+    },
+    {
+      "name": "i386",
+      "configurePreset": "i386",
+      "output": {"outputOnFailure": true},
+      "execution": {"noTestsAction": "error", "stopOnFailure": true, "timeout": 60}
     }
   ],
   "workflowPresets": [
@@ -56,6 +80,23 @@
         {
           "type": "test",
           "name": "default"
+        }
+      ]
+    },
+    {
+      "name": "i386",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "i386"
+        },
+        {
+          "type": "build",
+          "name": "i386"
+        },
+        {
+          "type": "test",
+          "name": "i386"
         }
       ]
     }
