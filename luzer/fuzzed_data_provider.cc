@@ -11,6 +11,7 @@ extern "C" {
 #include "lauxlib.h"
 #include "lualib.h"
 #include <float.h>
+#include <string.h>
 
 int table_nkeys(lua_State *L, int idx);
 
@@ -299,9 +300,18 @@ luaL_fuzzed_data_provider(lua_State *L)
 	size_t size;
 	const char *data = luaL_checklstring(L, 1, &size);
 
+	/*
+	 * The provider reads the input bytes on every consume call, but
+	 * the Lua string is anchored only while this call runs: once it
+	 * returns, a string with no other reference is collected while
+	 * the provider is still alive. Keep the bytes in the userdata,
+	 * whose lifetime is the provider's.
+	 */
 	lua_userdata_t *lfdp;
-	lfdp = (lua_userdata_t*)lua_newuserdata(L, sizeof(*lfdp));
-	FuzzedDataProvider *fdp = new FuzzedDataProvider((const unsigned char *)data, size);
+	lfdp = (lua_userdata_t*)lua_newuserdata(L, sizeof(*lfdp) + size);
+	unsigned char *bytes = (unsigned char *)(lfdp + 1);
+	memcpy(bytes, data, size);
+	FuzzedDataProvider *fdp = new FuzzedDataProvider(bytes, size);
 	lfdp->fdp = fdp;
 
 	luaL_getmetatable(L, FDP_LUA_UDATA_NAME);
