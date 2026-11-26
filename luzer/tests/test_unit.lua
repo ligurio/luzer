@@ -48,6 +48,17 @@ assert(err ~= nil)
 fdp = luzer.FuzzedDataProvider(string.rep('A', 1024))
 assert(type(fdp) == "userdata")
 
+-- The input string above is a temporary, so it is collected
+-- before the data is consumed. The provider keeps its own copy of
+-- the bytes, so the filler below cannot be read back instead of
+-- the input.
+collectgarbage("collect")
+local filler = {}
+for _ = 1, 64 do
+    filler[#filler + 1] = string.rep('B', 1024)
+end
+assert(fdp:consume_string(8) == string.rep('A', 8))
+
 -- luzer.FuzzedDataProvider.remaining_bytes()
 fdp = luzer.FuzzedDataProvider("A")
 assert(type(fdp.remaining_bytes) == "function")
